@@ -27,11 +27,15 @@
 
 using System.Globalization;
 using System.Text;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.PdfParser;
 
 public sealed class PDFDocumentParser
 {
+    private static ILogger<PDFDocumentParser> LOG => PdfBoxLogging.CreateLogger<PDFDocumentParser>();
+
     private const int DefaultTrailByteCount = 2048;
     private static readonly byte[] PdfHeaderBytes = Encoding.ASCII.GetBytes("%PDF-");
     private static readonly byte[] EofMarkerBytes = Encoding.ASCII.GetBytes("%%EOF");
@@ -69,7 +73,7 @@ public sealed class PDFDocumentParser
                 return damagedHeaderVersion;
             }
 
-            throw new IOException("Error: Header doesn't contain versioninfo");
+            throw MissingVersionInfo();
         }
 
         int cursor = start + PdfHeaderBytes.Length;
@@ -81,7 +85,7 @@ public sealed class PDFDocumentParser
 
         if (cursor == tokenStart || cursor >= data.Length || data[cursor] != '.')
         {
-            throw new IOException("Error: Header doesn't contain versioninfo");
+            throw MissingVersionInfo();
         }
 
         cursor++;
@@ -93,13 +97,13 @@ public sealed class PDFDocumentParser
 
         if (cursor == fractionStart)
         {
-            throw new IOException("Error: Header doesn't contain versioninfo");
+            throw MissingVersionInfo();
         }
 
         string versionToken = Encoding.ASCII.GetString(data, tokenStart, cursor - tokenStart);
         if (!float.TryParse(versionToken, NumberStyles.Float, CultureInfo.InvariantCulture, out float version))
         {
-            throw new IOException("Error: Header doesn't contain versioninfo");
+            throw MissingVersionInfo();
         }
 
         return version;
@@ -159,6 +163,10 @@ public sealed class PDFDocumentParser
         int trailingStart = data.Length - trailingByteCount;
 
         int eofInTrailing = LastIndexOf(data, EofMarkerBytes, trailingStart, data.Length);
+        if (eofInTrailing < 0)
+        {
+            LOG.LogDebug("Missing end of file marker '{EndOfFileMarker}'", Encoding.ASCII.GetString(EofMarkerBytes));
+        }
         int searchEndExclusive = eofInTrailing >= 0 ? eofInTrailing : data.Length;
 
         int startXrefIndex = LastIndexOf(data, StartXrefBytes, trailingStart, searchEndExclusive);
@@ -191,6 +199,12 @@ public sealed class PDFDocumentParser
         }
 
         return (startXrefOffset, startXrefIndex);
+    }
+
+    private static IOException MissingVersionInfo()
+    {
+        LOG.LogWarning("Error: Header doesn't contain versioninfo");
+        return new IOException("Error: Header doesn't contain versioninfo");
     }
 
     private static int IndexOf(byte[] source, byte[] pattern, int start, int endExclusive)

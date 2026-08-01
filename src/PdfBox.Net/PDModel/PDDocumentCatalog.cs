@@ -48,6 +48,8 @@ namespace PdfBox.Net.PDModel;
 /// </remarks>
 public sealed partial class PDDocumentCatalog : COSObjectable
 {
+    private static ILogger<PDDocumentCatalog> LOG => PdfBoxLogging.CreateLogger<PDDocumentCatalog>();
+
     private readonly COSDictionary _root;
     private readonly PDDocument _document;
     private PDDocumentFixup? _acroFormFixupApplied;
@@ -152,8 +154,10 @@ public sealed partial class PDDocumentCatalog : COSObjectable
         {
             return PageLayoutExtensions.FromString(value);
         }
-        catch (ArgumentException)
+        catch (ArgumentException ex)
         {
+            LOG.LogWarning(ex,
+                "Invalid PageLayout used '{PageLayout}' - returning PageLayout.SinglePage", value);
             return PageLayout.SinglePage;
         }
     }
@@ -183,8 +187,10 @@ public sealed partial class PDDocumentCatalog : COSObjectable
         {
             return PageModeExtensions.FromString(value);
         }
-        catch (ArgumentException)
+        catch (ArgumentException ex)
         {
+            LOG.LogDebug(ex,
+                "Invalid PageMode used '{PageMode}' - setting to PageMode.UseNone", value);
             return PageMode.UseNone;
         }
     }
@@ -431,6 +437,11 @@ public sealed partial class PDDocumentCatalog : COSObjectable
             acroFormFixup.Apply();
             _cachedAcroForm = null;
             _acroFormFixupApplied = acroFormFixup;
+        }
+        else if (_acroFormFixupApplied != null)
+        {
+            LOG.LogDebug("AcroForm content has already been retrieved with fixes applied - " +
+                "original content changed because of that");
         }
 
         if (_cachedAcroForm == null)

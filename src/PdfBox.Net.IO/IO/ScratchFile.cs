@@ -29,6 +29,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.IO;
 
 /// <summary>
@@ -51,6 +54,8 @@ namespace PdfBox.Net.IO;
 /// </summary>
 public class ScratchFile : RandomAccessStreamCache
 {
+    private static ILogger<ScratchFile> LOG => PdfBoxLogging.CreateLogger<ScratchFile>();
+
     /// <summary>Number of pages by which the scratch file is enlarged to reduce I/O operations.</summary>
     private const int EnlargePageCount = 16;
 
@@ -149,7 +154,18 @@ public class ScratchFile : RandomAccessStreamCache
     /// </summary>
     public static ScratchFile GetMainMemoryOnlyInstance()
     {
-        return new ScratchFile(MemoryUsageSetting.SetupMainMemoryOnly());
+        try
+        {
+            return new ScratchFile(MemoryUsageSetting.SetupMainMemoryOnly());
+        }
+        catch (IOException exception)
+        {
+            // cannot happen for main memory setup
+            LOG.LogError(exception,
+                "Unexpected exception occurred creating main memory scratch file instance: {Message}",
+                exception.Message);
+            return null!;
+        }
     }
 
     /// <summary>
@@ -160,7 +176,18 @@ public class ScratchFile : RandomAccessStreamCache
     /// </param>
     public static ScratchFile GetMainMemoryOnlyInstance(long maxMainMemoryBytes)
     {
-        return new ScratchFile(MemoryUsageSetting.SetupMainMemoryOnly(maxMainMemoryBytes));
+        try
+        {
+            return new ScratchFile(MemoryUsageSetting.SetupMainMemoryOnly(maxMainMemoryBytes));
+        }
+        catch (IOException exception)
+        {
+            // cannot happen for main memory setup
+            LOG.LogError(exception,
+                "Unexpected exception occurred creating main memory scratch file instance: {Message}",
+                exception.Message);
+            return null!;
+        }
     }
 
     private void InitPages()
@@ -310,8 +337,24 @@ public class ScratchFile : RandomAccessStreamCache
                     }
 
                     _scratchFileInfo = new FileInfo(tempPath);
-                    _raf = new FileStream(tempPath, FileMode.Create, FileAccess.ReadWrite,
-                        FileShare.None, 4096, FileOptions.RandomAccess);
+                    try
+                    {
+                        _raf = new FileStream(tempPath, FileMode.Create, FileAccess.ReadWrite,
+                            FileShare.None, 4096, FileOptions.RandomAccess);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        try
+                        {
+                            File.Delete(tempPath);
+                        }
+                        catch (Exception)
+                        {
+                            LOG.LogWarning("Error deleting scratch file: {ScratchFile}", tempPath);
+                        }
+
+                        throw;
+                    }
                 }
 
                 long fileLen = _raf.Length;

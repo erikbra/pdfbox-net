@@ -29,13 +29,26 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Font;
 
-public static class PDFontFactory
+public sealed class PDFontFactory
 {
+    private static ILogger<PDFontFactory> LOG => PdfBoxLogging.CreateLogger<PDFontFactory>();
+
+    private PDFontFactory()
+    {
+    }
+
     private static readonly COSName SubtypeKey = COSName.GetPDFName("Subtype");
 
     public static PDFont CreateFont(COSDictionary dictionary)
     {
         ArgumentNullException.ThrowIfNull(dictionary);
+
+        COSName fontType = COSName.GetPDFName("Font");
+        COSName? type = dictionary.GetCOSName(COSName.TYPE) ?? fontType;
+        if (!fontType.Equals(type))
+        {
+            LOG.LogError("Expected 'Font' dictionary but found '{Type}'", type.GetName());
+        }
 
         string? subtype = dictionary.GetNameAsString(SubtypeKey);
         return subtype switch
@@ -47,8 +60,14 @@ public static class PDFontFactory
             "TrueType" => PDTrueTypeFont.Load(dictionary) ?? (PDFont)PDDictionaryFont.Create(dictionary),
             "CIDFontType0" => new PDCIDFontType0(dictionary),
             "CIDFontType2" => PDCIDFontType2.Load(dictionary),
-            _ => PDDictionaryFont.Create(dictionary),
+            _ => CreateFallbackFont(dictionary, subtype),
         };
+    }
+
+    private static PDFont CreateFallbackFont(COSDictionary dictionary, string? subtype)
+    {
+        LOG.LogWarning("Invalid font subtype '{Subtype}'", subtype);
+        return PDDictionaryFont.Create(dictionary);
     }
 
     internal static PDCIDFont CreateDescendantFont(COSDictionary dictionary)

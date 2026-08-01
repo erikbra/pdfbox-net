@@ -37,6 +37,8 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// </summary>
 public partial class PDObjectReference : COSObjectable
 {
+    private static ILogger<PDObjectReference> LOG => PdfBoxLogging.CreateLogger<PDObjectReference>();
+
     public const string TYPE = "OBJR";
 
     private static readonly COSName ObjName = COSName.GetPDFName("OBJ");
@@ -97,8 +99,9 @@ public partial class PDObjectReference : COSObjectable
                 return annotation;
             }
         }
-        catch (IOException)
+        catch (IOException ex)
         {
+            LOG.LogDebug(ex, "Couldn't get the referenced object - returning null instead");
             // Keep compatibility with upstream behavior: unresolved target returns null.
         }
 

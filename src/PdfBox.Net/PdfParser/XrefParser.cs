@@ -24,10 +24,15 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.PdfParser;
 
 public sealed class XrefParser
 {
+    private static ILogger<XrefParser> LOG => PdfBoxLogging.CreateLogger<XrefParser>();
+
     private readonly PDFParser _parser;
 
     public XrefParser(Stream input)

@@ -27,12 +27,16 @@
 
 using PdfBox.Net.IO;
 using PdfBox.Net.Filter;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using FilterBase = PdfBox.Net.Filter.Filter;
 
 namespace PdfBox.Net.COS;
 
 public class COSStream : COSDictionary, IDisposable
 {
+    private static ILogger<COSStream> LOG => PdfBoxLogging.CreateLogger<COSStream>();
+
     private IO.RandomAccess? _randomAccess;
     private RandomAccessStreamCache? _streamCache;
     private bool _closeStreamCache;
@@ -233,8 +237,10 @@ public class COSStream : COSDictionary, IDisposable
 
             return new COSString(output.ToArray()).GetString();
         }
-        catch (IOException)
+        catch (IOException exception)
         {
+            LOG.LogDebug(exception,
+                "An exception occurred trying to get the content - returning empty string instead");
             return string.Empty;
         }
     }

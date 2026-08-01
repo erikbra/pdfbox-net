@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class Type1ShadingContext : ShadingContext
 {
+    private static ILogger<Type1ShadingContext> LOG => PdfBoxLogging.CreateLogger<Type1ShadingContext>();
+
     public Type1ShadingContext(PDShadingType1 shading, Matrix matrix)
         : base(shading, matrix)
     {

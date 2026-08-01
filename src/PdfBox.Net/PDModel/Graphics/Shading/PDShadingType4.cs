@@ -40,6 +40,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// </summary>
 public partial class PDShadingType4 : PDTriangleBasedShadingType
 {
+    private static ILogger<PDShadingType4> LOG => PdfBoxLogging.CreateLogger<PDShadingType4>();
+
     /// <summary>Constructor using the given shading dictionary.</summary>
     /// <param name="shadingDictionary">the dictionary for this shading</param>
     public PDShadingType4(COSDictionary shadingDictionary)

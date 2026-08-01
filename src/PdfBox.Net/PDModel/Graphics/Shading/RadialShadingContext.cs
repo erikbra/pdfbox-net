@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class RadialShadingContext : ShadingContext
 {
+    private static ILogger<RadialShadingContext> LOG => PdfBoxLogging.CreateLogger<RadialShadingContext>();
+
     public RadialShadingContext(PDShadingType3 shading, Matrix matrix)
         : base(shading, matrix)
     {

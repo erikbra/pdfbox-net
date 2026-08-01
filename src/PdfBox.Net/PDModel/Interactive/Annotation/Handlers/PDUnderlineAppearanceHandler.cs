@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDUnderlineAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDUnderlineAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDUnderlineAppearanceHandler>();
+
     public PDUnderlineAppearanceHandler(PDAnnotationUnderline annotation)
         : this(annotation, null)
     {
@@ -24,7 +26,15 @@ public sealed class PDUnderlineAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        GenerateTextMarkup((PDAnnotationUnderline)Annotation, 0.1f);
+        try
+        {
+            GenerateTextMarkup((PDAnnotationUnderline)Annotation, 0.1f);
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     private void GenerateTextMarkup(PDAnnotationTextMarkup annotation, float relativeY)

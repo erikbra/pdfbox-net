@@ -25,10 +25,15 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 public class KerningTable() : TTFTable(TAG)
 {
+    private static ILogger<KerningTable> LOG => PdfBoxLogging.CreateLogger<KerningTable>();
+
     public const string TAG = "kern";
 
     private KerningSubtable[]? subtables;
@@ -47,6 +52,12 @@ public class KerningTable() : TTFTable(TAG)
             1 => (int)data.ReadUnsignedInt(),
             _ => 0
         };
+
+        if (version is not 0 and not 1)
+        {
+            LOG.LogDebug("Skipped kerning table due to an unsupported kerning table version: {Version}",
+                version);
+        }
 
         if (numSubtables > 0)
         {

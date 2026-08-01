@@ -30,6 +30,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.Util.Autodetect;
 
 /// <summary>
@@ -37,6 +40,8 @@ namespace PdfBox.Net.FontBox.Util.Autodetect;
 /// </summary>
 public class WindowsFontDirFinder : FontDirFinder
 {
+    private static ILogger<WindowsFontDirFinder> LOG => PdfBoxLogging.CreateLogger<WindowsFontDirFinder>();
+
     /// <summary>
     /// Finds a list of detected font files.
     /// </summary>
@@ -49,8 +54,9 @@ public class WindowsFontDirFinder : FontDirFinder
         {
             windir = GetWindowsDirectory();
         }
-        catch (SecurityException)
+        catch (SecurityException exception)
         {
+            LOG.LogDebug(exception, "Couldn't get Windows font directories - ignoring");
         }
 
         if (!string.IsNullOrEmpty(windir) && windir.Length > 2)
@@ -89,8 +95,9 @@ public class WindowsFontDirFinder : FontDirFinder
                 TryAddReadableDirectory(fontDirList, Path.Combine(localAppData, "Microsoft", "Windows", "Fonts"));
             }
         }
-        catch (SecurityException)
+        catch (SecurityException exception)
         {
+            LOG.LogDebug(exception, "Couldn't get LOCALAPPDATA directory - ignoring");
         }
 
         return fontDirList;
@@ -144,8 +151,9 @@ public class WindowsFontDirFinder : FontDirFinder
         catch (IOException)
         {
         }
-        catch (SecurityException)
+        catch (SecurityException exception)
         {
+            LOG.LogDebug(exception, "Couldn't get Windows font directories - ignoring");
         }
         catch (UnauthorizedAccessException)
         {

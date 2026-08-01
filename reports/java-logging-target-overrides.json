@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "description": "Additional adapted C# landing files for Java logging regions that are split beyond the primary provenance and conversion-record targets.",
+  "mappings": [
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/PDFParser.cs",
+        "src/PdfBox.Net/PdfParser/PDFDocumentParser.cs"
+      ],
+      "reason": "The .NET architecture retains low-level token parsing in COSParser, lands full-document copies of seven diagnostic regions in PDFParser, and lands EOF-marker validation in PDFDocumentParser."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/PDFParser.cs"
+      ],
+      "reason": "The current XrefParser type is a compatibility stub; reachable xref traversal, validation, repair, and stream diagnostics land in the adapted PDFParser implementation."
+    }
+  ],
+  "consolidated_rows": [
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardSecurityHandler.java",
+      "source_line": 198,
+      "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs",
+      "target_fragment": "Using {ActualLength} bytes key length instead of {ExpectedLength}",
+      "reason": "One parameterized C# encryption-method branch represents the separate Java AESV2 and AESV3 warnings."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
+      "source_line": 101,
+      "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
+      "target_fragment": "Error parsing ID entry for attribute '{AttributeName}'",
+      "reason": "One C# attribute-name helper represents the separate Java original-ID and modified-ID catches."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
+      "source_line": 211,
+      "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
+      "target_fragment": "Loaded {PostScriptName} from {FontFile}",
+      "reason": "The shared C# AddFont helper represents this Java format-specific loaded-font diagnostic."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
+      "source_line": 288,
+      "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
+      "target_fragment": "Loaded {PostScriptName} from {FontFile}",
+      "reason": "The shared C# AddFont helper represents this Java format-specific loaded-font diagnostic."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
+      "source_line": 120,
+      "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs",
+      "target_fragment": "premature EOF, image will be incomplete",
+      "reason": "One generalized C# sample-reading EOF site represents both Java decode paths."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
+      "source_line": 508,
+      "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/SampledImageReader.cs",
+      "target_fragment": "Tried reading {ExpectedBytes} bytes but only {ActualBytes} bytes read",
+      "reason": "One generalized C# short-read diagnostic represents both Java sampling paths."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDSoftMask.java",
+      "source_line": 72,
+      "target_path": "src/PdfBox.Net/PDModel/Graphics/State/PDSoftMask.cs",
+      "target_fragment": "Invalid SMask {SoftMask}",
+      "reason": "One generalized C# soft-mask validation branch represents both identical Java warnings."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDLineAppearanceHandler.java",
+      "source_line": 326,
+      "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/Handlers/PDLineAppearanceHandler.cs",
+      "target_fragment": "{ErrorMessage}",
+      "reason": "The adapted C# handler has one final appearance-generation catch for the reachable Java outer failure path."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
+      "source_line": 222,
+      "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/PDAcroForm.cs",
+      "target_fragment": "Flatten for a dynamix XFA form is not supported",
+      "reason": "The C# no-argument flatten implementation owns the dynamic-XFA diagnostic; the separate Java overload is absent."
+    }
+  ]
+}

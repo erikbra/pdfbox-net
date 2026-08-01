@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Graphics.State;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.ContentStream.Operator.State;
 
@@ -39,6 +41,9 @@ namespace PdfBox.Net.ContentStream.Operator.State;
 /// </summary>
 public sealed class SetGraphicsStateParameters : OperatorProcessor
 {
+    private static ILogger<SetGraphicsStateParameters> LOG =>
+        PdfBoxLogging.CreateLogger<SetGraphicsStateParameters>();
+
     public SetGraphicsStateParameters(PDFStreamEngine context)
         : base(OperatorName.SET_GRAPHICS_STATE_PARAMS, context)
     {
@@ -57,6 +62,12 @@ public sealed class SetGraphicsStateParameters : OperatorProcessor
         }
 
         PDExtendedGraphicsState? gs = Context.GetResources()?.GetExtGState(graphicsName);
-        gs?.CopyIntoGraphicsState(Context.GetGraphicsState());
+        if (gs is null)
+        {
+            LOG.LogError("name for 'gs' operator not found in resources: /{GraphicsName}",
+                graphicsName.GetName());
+            return;
+        }
+        gs.CopyIntoGraphicsState(Context.GetGraphicsState());
     }
 }

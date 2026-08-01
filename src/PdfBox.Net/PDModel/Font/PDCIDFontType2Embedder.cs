@@ -36,6 +36,8 @@ namespace PdfBox.Net.PDModel.Font;
 /// <remarks>Authors: Keiji Suzuki, John Hewson.</remarks>
 internal sealed class PDCIDFontType2Embedder : TrueTypeEmbedder
 {
+    private static ILogger<PDCIDFontType2Embedder> LOG => PdfBoxLogging.CreateLogger<PDCIDFontType2Embedder>();
+
     private byte[]? _subsetBytes;
     private string? _subsetTag;
     private Dictionary<int, int>? _gidToCid;

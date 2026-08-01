@@ -30,13 +30,22 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.IO;
 
 /// <summary>
 /// This class contains various I/O-related methods.
 /// </summary>
-public static class IOUtils
+public sealed class IOUtils
 {
+    private static ILogger<IOUtils> LOG => PdfBoxLogging.CreateLogger<IOUtils>();
+
+    private IOUtils()
+    {
+    }
+
     private static readonly RandomAccessStreamCache.StreamCacheCreateFunction StreamCache = () => new RandomAccessStreamCacheImpl();
 
     private static readonly ConcurrentBag<string> TempDirsToDelete = [];
@@ -74,14 +83,15 @@ public static class IOUtils
         {
             closeable?.Dispose();
         }
-        catch
+        catch (Exception exception)
         {
+            LOG.LogDebug(exception, "An exception occurred while trying to close - ignoring");
             // ignore
         }
     }
 
-    public static IOException? CloseAndLogException(IDisposable closeable, Action<string, Exception>? logger,
-        string resourceName, IOException? initialException)
+    public static IOException? CloseAndLogException(IDisposable closeable,
+        Action<string, Exception>? logger, string resourceName, IOException? initialException)
     {
         try
         {
@@ -90,6 +100,32 @@ public static class IOUtils
         catch (IOException exception)
         {
             logger?.Invoke($"Error closing {resourceName}", exception);
+            if (initialException == null)
+            {
+                return exception;
+            }
+        }
+
+        return initialException;
+    }
+
+    public static IOException? CloseAndLogException<TLogger>(IDisposable closeable, TLogger logger,
+        string resourceName, IOException? initialException)
+        where TLogger : ILogger
+    {
+        return CloseAndLogExceptionCore(closeable, logger, resourceName, initialException);
+    }
+
+    private static IOException? CloseAndLogExceptionCore(IDisposable closeable, ILogger? logger,
+        string resourceName, IOException? initialException)
+    {
+        try
+        {
+            closeable.Dispose();
+        }
+        catch (IOException exception)
+        {
+            logger?.LogWarning(exception, "Error closing {ResourceName}", resourceName);
             if (initialException == null)
             {
                 return exception;
@@ -203,6 +239,9 @@ public static class IOUtils
         }
         catch (PlatformNotSupportedException)
         {
+            LOG.LogWarning(
+                "Unable to set owner-only permissions on: {Path}. Please ensure that the file or directory is protected against unauthorized access.",
+                path);
         }
     }
 }

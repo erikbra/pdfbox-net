@@ -28,6 +28,9 @@
 using System;
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.IO;
 
 /// <summary>
@@ -36,6 +39,8 @@ namespace PdfBox.Net.IO;
 /// </summary>
 public class NonSeekableRandomAccessReadInputStream : RandomAccessRead
 {
+    private static ILogger<NonSeekableRandomAccessReadInputStream> LOG => PdfBoxLogging.CreateLogger<NonSeekableRandomAccessReadInputStream>();
+
     // current position within the stream
     protected long Position = 0;
     // current pointer for the current chunk
@@ -221,8 +226,9 @@ public class NonSeekableRandomAccessReadInputStream : RandomAccessRead
 
             Size += _bufferBytes[Current];
         }
-        catch
+        catch (Exception exception)
         {
+            LOG.LogWarning(exception, "Premature end of stream, some data could be read");
             _isEOF = true;
             throw;
         }

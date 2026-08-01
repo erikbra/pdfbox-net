@@ -35,6 +35,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public sealed class PDType3CharProc
 {
+    private static ILogger<PDType3CharProc> LOG => PdfBoxLogging.CreateLogger<PDType3CharProc>();
+
     private readonly PDType3Font _font;
     private readonly COSStream _charStream;
 
@@ -52,9 +54,14 @@ public sealed class PDType3CharProc
 
     public PDResources? GetResources()
     {
-        return _charStream.GetCOSDictionary(COSName.RESOURCES) is COSDictionary resourcesDictionary
-            ? new PDResources(resourcesDictionary)
-            : _font.GetResources();
+        if (_charStream.GetCOSDictionary(COSName.RESOURCES) is COSDictionary resourcesDictionary)
+        {
+            LOG.LogWarning("Using resources dictionary found in charproc entry");
+            LOG.LogWarning("This should have been in the font or in the page dictionary");
+            return new PDResources(resourcesDictionary);
+        }
+
+        return _font.GetResources();
     }
 
     public PDRectangle? GetGlyphBBox()

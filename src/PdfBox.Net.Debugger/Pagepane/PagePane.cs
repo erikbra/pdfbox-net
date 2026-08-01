@@ -25,10 +25,15 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.Debugger.Pagepane;
 
 public sealed class PagePane
 {
+    private static ILogger<PagePane> LOG => PdfBoxLogging.CreateLogger<PagePane>();
+
     public PdfBox.Net.PDModel.PDPage? Page { get; private set; }
 
     public void SetPage(PdfBox.Net.PDModel.PDPage page) => Page = page;

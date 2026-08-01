@@ -27,7 +27,9 @@
 
 using System.Globalization;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Encryption;
 
@@ -35,6 +37,8 @@ namespace PdfBox.Net.PdfParser;
 
 public sealed class PDFParser
 {
+    private static ILogger<PDFParser> LOG => PdfBoxLogging.CreateLogger<PDFParser>();
+
     private static readonly byte[] EndStreamBytes = Encoding.ASCII.GetBytes("endstream");
     private static readonly byte[] XrefBytes = Encoding.ASCII.GetBytes("xref");
 
@@ -251,7 +255,12 @@ public sealed class PDFParser
 
     private void ParseXrefSection(long offset, XrefTrailerResolver resolver, HashSet<long> visited)
     {
-        if (offset < 0 || offset >= _data.Length || !visited.Add(offset))
+        if (offset < 0 || offset >= _data.Length)
+        {
+            LOG.LogError("Invalid object offset {ObjectOffset} when searching for a xref table/stream", offset);
+            return;
+        }
+        if (!visited.Add(offset))
         {
             return;
         }
@@ -268,14 +277,26 @@ public sealed class PDFParser
 
         if (TryFindNearbyXrefTableOffset(offset, out long correctedOffset))
         {
+            LOG.LogDebug("Fixed reference for xref table/stream {ObjectOffset} -> {NewOffset}",
+                offset, correctedOffset);
             ParseXrefSection(correctedOffset, resolver, visited);
             return;
         }
 
         resolver.NextXrefObj(offset, XrefTrailerResolver.XRefType.STREAM);
-        ParsedIndirectObject xrefStreamObject = ParseIndirectObjectAt(offset);
+        ParsedIndirectObject xrefStreamObject;
+        try
+        {
+            xrefStreamObject = ParseIndirectObjectAt(offset);
+        }
+        catch (IOException exception)
+        {
+            LOG.LogDebug(exception, "No Xref stream at given location {StartXRefOffset}", offset);
+            throw;
+        }
         if (xrefStreamObject.Value is not COSStream stream)
         {
+            LOG.LogError("Can't find the object xref table/stream at offset {ObjectOffset}", offset);
             throw new IOException("Expected cross-reference stream object.");
         }
 
@@ -292,6 +313,7 @@ public sealed class PDFParser
 
     private void ParseXrefTable(SyntaxReader reader, XrefTrailerResolver resolver, HashSet<long> visited)
     {
+        bool hasXrefEntries = false;
         while (true)
         {
             reader.SkipSpacesAndComments();
@@ -304,17 +326,23 @@ public sealed class PDFParser
 
             if (token.Equals("trailer", StringComparison.Ordinal))
             {
+                if (!hasXrefEntries)
+                {
+                    LOG.LogWarning("skipping empty xref table");
+                }
                 break;
             }
 
             if (!long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out long firstObject) || firstObject < 0)
             {
+                LOG.LogWarning("XRefTable: invalid ID for the first object: {CurrentLine}", token);
                 throw new IOException("Malformed xref table subsection header.");
             }
 
             string countToken = reader.ReadToken();
             if (!int.TryParse(countToken, NumberStyles.Integer, CultureInfo.InvariantCulture, out int count) || count < 0)
             {
+                LOG.LogWarning("XRefTable: invalid number of objects: {CurrentLine}", countToken);
                 throw new IOException("Malformed xref table subsection length.");
             }
 
@@ -327,6 +355,8 @@ public sealed class PDFParser
                 if (!long.TryParse(offsetToken, NumberStyles.Integer, CultureInfo.InvariantCulture, out long entryOffset) ||
                     !int.TryParse(generationToken, NumberStyles.Integer, CultureInfo.InvariantCulture, out int generation))
                 {
+                    LOG.LogWarning("invalid xref line: {CurrentLine}",
+                        string.Join(' ', offsetToken, generationToken, inUseToken));
                     throw new IOException("Malformed xref entry.");
                 }
 
@@ -342,8 +372,12 @@ public sealed class PDFParser
                 }
                 else if (!inUseToken.Equals("f", StringComparison.Ordinal))
                 {
+                    LOG.LogWarning("Unexpected XRefTable Entry: {CurrentLine}",
+                        string.Join(' ', offsetToken, generationToken, inUseToken));
                     throw new IOException("Malformed xref entry state.");
                 }
+
+                hasXrefEntries = true;
             }
 
             if (checkpoint == reader.Position)
@@ -369,7 +403,21 @@ public sealed class PDFParser
         long xrefStreamOffset = trailer.GetLong(COSName.GetPDFName("XRefStm"), -1);
         if (xrefStreamOffset >= 0)
         {
-            ParseXrefSection(xrefStreamOffset, resolver, visited);
+            if (xrefStreamOffset >= _data.Length)
+            {
+                LOG.LogError("Skipped XRef stream due to a corrupt offset: {StreamOffset}", xrefStreamOffset);
+            }
+            else
+            {
+                try
+                {
+                    ParseXrefSection(xrefStreamOffset, resolver, visited);
+                }
+                catch (IOException exception)
+                {
+                    LOG.LogError(exception, "Failed to parse /XRefStm at offset {StreamOffset}", xrefStreamOffset);
+                }
+            }
         }
     }
 
@@ -465,16 +513,29 @@ public sealed class PDFParser
             }
 
             long effectiveOffset = offset;
-            if (!TryParseIndirectObjectAt(offset, out ParsedIndirectObject? parsed) || parsed is null || !parsed.Key.Equals(key))
+            if (!TryParseIndirectObjectAt(offset, out ParsedIndirectObject? parsed,
+                    out IOException? parseException)
+                || parsed is null || !parsed.Key.Equals(key))
             {
+                if (parsed is not null && !parsed.Key.Equals(key))
+                {
+                    LOG.LogDebug("Found the object {FoundObjectKey} instead of {ExpectedObjectKey} at offset {Offset} - ignoring",
+                        parsed.Key, key, offset);
+                }
+
+                IOException? recoveryException = null;
                 if (!TryFindIndirectObjectOffset(key, out long recoveredOffset)
-                    || !TryParseIndirectObjectAt(recoveredOffset, out parsed)
+                    || !TryParseIndirectObjectAt(recoveredOffset, out parsed, out recoveryException)
                     || parsed is null
                     || !parsed.Key.Equals(key))
                 {
+                    IOException? exception = parseException ?? recoveryException;
+                    LOG.LogDebug(exception,
+                        "No valid object at given location {Offset} - ignoring", offset);
                     continue;
                 }
 
+                LOG.LogDebug("Set missing offset {Offset} for object {ObjectKey}", recoveredOffset, key);
                 effectiveOffset = recoveredOffset;
             }
 
@@ -522,16 +583,25 @@ public sealed class PDFParser
             }
 
             PDFObjectStreamParser parser = new(objectStream, _objectPool);
-            foreach ((COSObjectKey key, COSBase value) in parser.Parse())
+            try
             {
-                if (!referencedKeys.Contains(key))
+                foreach ((COSObjectKey key, COSBase value) in parser.Parse())
                 {
-                    continue;
-                }
+                    if (!referencedKeys.Contains(key))
+                    {
+                        continue;
+                    }
 
-                COSObject shell = GetOrCreateIndirectObject(key);
-                SetObjectKeyIfStable(value, key);
-                shell.SetObject(value);
+                    COSObject shell = GetOrCreateIndirectObject(key);
+                    SetObjectKeyIfStable(value, key);
+                    shell.SetObject(value);
+                }
+            }
+            catch (IOException exception)
+            {
+                LOG.LogError(exception,
+                    "object stream {ObjectStreamObjectNumber} could not be parsed due to an exception",
+                    objectStreamObjectNumber);
             }
         }
     }
@@ -612,6 +682,7 @@ public sealed class PDFParser
                 COSBase? kidBaseObject = kidObject.GetObject();
                 if (kidBaseObject is null or COSNull)
                 {
+                    LOG.LogWarning("Removed null object {Object} from pages dictionary", kid);
                     kidsArray.Remove(i);
                     continue;
                 }
@@ -674,20 +745,29 @@ public sealed class PDFParser
             parsedValue = ReadStreamObject(reader, dictionary);
         }
 
-        reader.TryReadKeyword("endobj");
+        if (!reader.TryReadKeyword("endobj"))
+        {
+            string endObjectKey = reader.ReadToken();
+            LOG.LogWarning(
+                "Object ({ObjectNumber}:{Generation}) at offset {ObjectOffset} does not end with 'endobj' but with '{EndObjectKey}'",
+                objectNumber, generation, offset, endObjectKey);
+        }
         return new ParsedIndirectObject(key, parsedValue);
     }
 
-    private bool TryParseIndirectObjectAt(long offset, out ParsedIndirectObject? parsed)
+    private bool TryParseIndirectObjectAt(long offset, out ParsedIndirectObject? parsed,
+        out IOException? exception)
     {
         try
         {
             parsed = ParseIndirectObjectAt(offset);
+            exception = null;
             return true;
         }
-        catch (IOException)
+        catch (IOException ex)
         {
             parsed = null;
+            exception = ex;
             return false;
         }
     }
@@ -798,11 +878,19 @@ public sealed class PDFParser
 
         if (declaredLength >= 0 && streamStart + declaredLength <= _data.Length)
         {
+            if (declaredLength == 0)
+            {
+                LOG.LogDebug("Suspicious stream length 0, start position: {OriginOffset}", streamStart);
+            }
+
             streamBytes = _data.AsSpan(streamStart, checked((int)declaredLength)).ToArray();
             reader.Position = checked(streamStart + (int)declaredLength);
 
             if (!reader.TryReadKeyword("endstream"))
             {
+                LOG.LogWarning(
+                    "The end of the stream doesn't point to the correct offset, using workaround to read the stream, stream start position: {OriginOffset}, length: {StreamLength}, expected end position: {ExpectedEndPosition}",
+                    streamStart, declaredLength, streamStart + declaredLength);
                 int markerPosition = IndexOf(_data, EndStreamBytes, streamStart);
                 if (markerPosition < 0)
                 {
@@ -817,6 +905,25 @@ public sealed class PDFParser
         }
         else
         {
+            COSBase? lengthBase = dictionary.GetItem(COSName.LENGTH);
+            if (lengthBase is COSNumber && declaredLength < 0)
+            {
+                LOG.LogWarning("Invalid stream length: {StreamLength}, start position: {OriginOffset}",
+                    declaredLength, streamStart);
+            }
+            else if (lengthBase is COSNumber)
+            {
+                LOG.LogWarning(
+                    "The end of the stream is out of range, using workaround to read the stream, stream start position: {OriginOffset}, length: {StreamLength}, expected end position: {ExpectedEndPosition}",
+                    streamStart, declaredLength, streamStart + declaredLength);
+            }
+            else
+            {
+                LOG.LogWarning(
+                    "The stream doesn't provide any stream length, using fallback readUntilEnd, at offset {Offset}",
+                    streamStart);
+            }
+
             int markerPosition = IndexOf(_data, EndStreamBytes, streamStart);
             if (markerPosition < 0)
             {
@@ -863,6 +970,11 @@ public sealed class PDFParser
             {
                 return resolvedNumber.LongValue();
             }
+            if (resolved is COSNull)
+            {
+                LOG.LogWarning("Length object ({ObjectKey}) not found", reference.GetKey());
+                return -1;
+            }
         }
 
         return -1;
@@ -908,10 +1020,16 @@ public sealed class PDFParser
         {
             reader.SkipSpacesAndComments();
             int b = reader.ReadByte();
+            if (b == -1)
+            {
+                LogInvalidDictionaryEnd(reader.Position);
+                throw new EndOfStreamException("Unexpected EOF inside dictionary.");
+            }
             if (b == '>')
             {
                 if (reader.ReadByte() != '>')
                 {
+                    LogInvalidDictionaryEnd(reader.Position);
                     throw new IOException("Malformed dictionary close marker.");
                 }
 
@@ -922,19 +1040,37 @@ public sealed class PDFParser
             COSBase keyObject = ParseObject(reader);
             if (keyObject is not COSName key)
             {
+                LOG.LogWarning(
+                    "Invalid dictionary, found: '{Token}' but expected: '/' at offset {Offset}",
+                    keyObject, reader.Position);
                 throw new IOException("Dictionary key must be a COS name.");
             }
 
-            COSBase valueObject = ParseObject(reader);
+            COSBase valueObject;
+            try
+            {
+                valueObject = ParseObject(reader);
+            }
+            catch (IOException)
+            {
+                LOG.LogWarning("Bad dictionary declaration at offset {Offset}", reader.Position);
+                throw;
+            }
             dictionary.SetItem(key, valueObject);
         }
 
         return dictionary;
     }
 
+    private static void LogInvalidDictionaryEnd(int offset)
+    {
+        LOG.LogWarning("Invalid dictionary, can't find end of dictionary at offset {Offset}", offset);
+    }
+
     private COSBase ParseArray(SyntaxReader reader)
     {
         COSArray array = new();
+        int startPosition = reader.Position;
         while (true)
         {
             reader.SkipSpacesAndComments();
@@ -950,7 +1086,16 @@ public sealed class PDFParser
             }
 
             reader.UnreadByte(b);
-            array.Add(ParseObject(reader));
+            try
+            {
+                array.Add(ParseObject(reader));
+            }
+            catch (IOException)
+            {
+                LOG.LogWarning("Corrupt array element at offset {Offset}, start offset: {StartOffset}",
+                    reader.Position, startPosition);
+                throw;
+            }
         }
 
         return array;
@@ -974,6 +1119,7 @@ public sealed class PDFParser
                 int low = reader.ReadByte();
                 if (high == -1 || low == -1)
                 {
+                    LOG.LogError("Premature EOF in BaseParser#parseCOSName");
                     throw new EndOfStreamException("Unexpected EOF in name escape.");
                 }
 
@@ -990,6 +1136,10 @@ public sealed class PDFParser
             builder.Append((char)b);
         }
 
+        if (builder.Length == 0)
+        {
+            LOG.LogWarning("Empty COSName at offset {Offset}", reader.Position);
+        }
         return COSName.GetPDFName(builder.ToString());
     }
 
@@ -1120,26 +1270,43 @@ public sealed class PDFParser
 
     private COSBase ParseNumberOrReference(SyntaxReader reader, string numberToken)
     {
-        if (!long.TryParse(numberToken, NumberStyles.Integer, CultureInfo.InvariantCulture, out long objectNumber) || objectNumber < 0)
+        if (!long.TryParse(numberToken, NumberStyles.Integer, CultureInfo.InvariantCulture, out long objectNumber))
         {
-            return COSNumber.Get(numberToken);
+            return ParseNumberWithLogging(numberToken, reader.Position);
         }
 
         int rollbackPosition = reader.Position;
         reader.SkipSpacesAndComments();
 
-        if (reader.TryReadIntegerToken(out int generation) && generation >= 0)
+        if (reader.TryReadIntegerToken(out int generation))
         {
             reader.SkipSpacesAndComments();
             if (reader.TryReadKeyword("R"))
             {
-                COSObjectKey key = new(objectNumber, generation);
-                return GetOrCreateIndirectObject(key);
+                if (objectNumber >= 0 && generation >= 0)
+                {
+                    COSObjectKey key = new(objectNumber, generation);
+                    return GetOrCreateIndirectObject(key);
+                }
+
+                LOG.LogWarning("Invalid value(s) for an object key {ObjectNumber} {Generation}",
+                    objectNumber, generation);
+                return COSNull.NULL;
             }
         }
 
         reader.Position = rollbackPosition;
-        return COSNumber.Get(numberToken);
+        return ParseNumberWithLogging(numberToken, reader.Position);
+    }
+
+    private static COSNumber ParseNumberWithLogging(string token, int offset)
+    {
+        COSNumber number = COSNumber.Get(token);
+        if (number is COSInteger integer && !integer.IsValid())
+        {
+            LOG.LogWarning("Skipped out of range number value at offset {Offset}", offset);
+        }
+        return number;
     }
 
     private COSObject GetOrCreateIndirectObject(COSObjectKey key)

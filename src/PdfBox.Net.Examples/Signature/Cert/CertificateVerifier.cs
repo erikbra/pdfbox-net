@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Security.Cryptography.X509Certificates;
 
 namespace PdfBox.Net.Examples.Signature.Cert;
@@ -42,6 +44,8 @@ namespace PdfBox.Net.Examples.Signature.Cert;
 /// </remarks>
 public sealed class CertificateVerifier
 {
+    private static ILogger<CertificateVerifier> LOG => PdfBoxLogging.CreateLogger<CertificateVerifier>();
+
     private CertificateVerifier()
     {
     }
@@ -97,6 +101,9 @@ public sealed class CertificateVerifier
                         $"Certificate chain validation failed for {cert.Subject}: {summary}"));
             }
 
+            X509Certificate2 root = chain.ChainElements[^1].Certificate;
+            LOG.LogInformation("Certification chain verified successfully up to this root: {RootCertificate}",
+                root.Subject);
             return new CertificateVerificationResult(chain);
         }
         catch (Exception ex)

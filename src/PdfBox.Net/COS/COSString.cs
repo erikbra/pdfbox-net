@@ -26,11 +26,19 @@
  */
 
 using System.Text;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.COS;
 
 public sealed class COSString : COSBase
 {
+    private static ILogger<COSString> LOG => PdfBoxLogging.CreateLogger<COSString>();
+
+    public static readonly bool FORCE_PARSING =
+        bool.TryParse(Environment.GetEnvironmentVariable("org.apache.pdfbox.forceParsing"),
+            out bool forceParsing) && forceParsing;
+
     private byte[] _bytes;
     private readonly bool _forceHexForm;
 
@@ -102,27 +110,42 @@ public sealed class COSString : COSBase
 
         for (int i = 0; i < length; i += 2)
         {
-            data.Add(ParseHexByte(hex[start + i], hex[start + i + 1], hex));
+            int high = ParseHexNybble(hex[start + i]);
+            int low = ParseHexNybble(hex[start + i + 1]);
+            if (high >= 0 && low >= 0)
+            {
+                data.Add((byte)((high << 4) + low));
+            }
+            else if (FORCE_PARSING)
+            {
+                LOG.LogWarning("Encountered a malformed hex string");
+                data.Add((byte)'?');
+            }
+            else
+            {
+                throw new IOException($"Invalid hex string: {hex}");
+            }
         }
 
         if (isLengthUneven)
         {
-            data.Add(ParseHexByte(hex[start + length], '0', hex));
+            int high = ParseHexNybble(hex[start + length]);
+            if (high >= 0)
+            {
+                data.Add((byte)(high << 4));
+            }
+            else if (FORCE_PARSING)
+            {
+                LOG.LogWarning("Encountered a malformed hex string");
+                data.Add((byte)'?');
+            }
+            else
+            {
+                throw new IOException($"Invalid hex string: {hex}");
+            }
         }
 
         return new COSString(data.ToArray());
-    }
-
-    private static byte ParseHexByte(char high, char low, string original)
-    {
-        int hi = ParseHexNybble(high);
-        int lo = ParseHexNybble(low);
-        if (hi < 0 || lo < 0)
-        {
-            throw new IOException($"Invalid hex string: {original}");
-        }
-
-        return (byte)((hi << 4) + lo);
     }
 
     private static int ParseHexNybble(char c)

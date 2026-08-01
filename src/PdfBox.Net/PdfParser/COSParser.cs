@@ -33,12 +33,16 @@
  */
 
 using System.Text;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.PdfParser;
 
 public sealed class COSParser
 {
+    private static ILogger<COSParser> LOG => PdfBoxLogging.CreateLogger<COSParser>();
+
     private const int NoLookAhead = -2;
 
     // ASCII character constants (from BaseParser.java)
@@ -125,10 +129,16 @@ public sealed class COSParser
         {
             SkipSpacesAndComments();
             int b = ReadByte();
+            if (b == -1)
+            {
+                LogInvalidDictionaryEnd();
+                throw new EndOfStreamException("Unexpected EOF inside dictionary.");
+            }
             if (b == '>')
             {
                 if (ReadByte() != '>')
                 {
+                    LogInvalidDictionaryEnd();
                     throw new IOException("Malformed dictionary close marker.");
                 }
 
@@ -139,11 +149,24 @@ public sealed class COSParser
             COSBase keyToken = ReadObject();
             if (keyToken is not COSName key)
             {
+                LOG.LogWarning(
+                    "Invalid dictionary, found: '{Token}' but expected: '/' at offset {Offset}",
+                    keyToken, GetCurrentPositionForLogging());
                 throw new IOException("Dictionary key must be a name.");
             }
 
             SkipSpacesAndComments();
-            COSBase value = ReadObject();
+            COSBase value;
+            try
+            {
+                value = ReadObject();
+            }
+            catch (IOException)
+            {
+                LOG.LogWarning("Bad dictionary declaration at offset {Offset}",
+                    GetCurrentPositionForLogging());
+                throw;
+            }
             dict.SetItem(key, value);
         }
 
@@ -153,6 +176,7 @@ public sealed class COSParser
     private COSBase ReadArray()
     {
         COSArray array = new();
+        object startPosition = GetCurrentPositionForLogging();
         while (true)
         {
             SkipSpacesAndComments();
@@ -168,7 +192,16 @@ public sealed class COSParser
             }
 
             UnreadByte(b);
-            array.Add(ReadObject());
+            try
+            {
+                array.Add(ReadObject());
+            }
+            catch (IOException)
+            {
+                LOG.LogWarning("Corrupt array element at offset {Offset}, start offset: {StartOffset}",
+                    GetCurrentPositionForLogging(), startPosition);
+                throw;
+            }
         }
 
         return array;
@@ -192,6 +225,7 @@ public sealed class COSParser
                 int low = ReadByte();
                 if (high == -1 || low == -1)
                 {
+                    LOG.LogError("Premature EOF in BaseParser#parseCOSName");
                     throw new EndOfStreamException("Unexpected EOF in name escape.");
                 }
 
@@ -208,6 +242,10 @@ public sealed class COSParser
             name.Append((char)b);
         }
 
+        if (name.Length == 0)
+        {
+            LOG.LogWarning("Empty COSName at offset {Offset}", GetCurrentPositionForLogging());
+        }
         return COSName.GetPDFName(name.ToString());
     }
 
@@ -337,13 +375,19 @@ public sealed class COSParser
             throw new IOException("Unexpected empty token.");
         }
 
-        return token switch
+        COSBase result = token switch
         {
             "true" => COSBoolean.TRUE,
             "false" => COSBoolean.FALSE,
             "null" => COSNull.NULL,
             _ => COSNumber.Get(token)
         };
+        if (result is COSInteger integer && !integer.IsValid())
+        {
+            LOG.LogWarning("Skipped out of range number value at offset {Offset}",
+                GetCurrentPositionForLogging());
+        }
+        return result;
     }
 
     private string ReadToken()
@@ -433,6 +477,17 @@ public sealed class COSParser
         }
 
         _lookAhead = value;
+    }
+
+    private void LogInvalidDictionaryEnd()
+    {
+        LOG.LogWarning("Invalid dictionary, can't find end of dictionary at offset {Offset}",
+            GetCurrentPositionForLogging());
+    }
+
+    private object GetCurrentPositionForLogging()
+    {
+        return _input.CanSeek ? _input.Position : "unknown";
     }
 
     private static bool IsWhiteSpace(int value)

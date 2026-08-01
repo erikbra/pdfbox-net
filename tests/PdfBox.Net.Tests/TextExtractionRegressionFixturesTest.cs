@@ -84,6 +84,16 @@ public class TextExtractionRegressionFixturesTest
     }
 
     [Fact]
+    public void PDFTextStripper_GetText_EmptyToUnicodeIdentityCMap_MatchesJava()
+    {
+        using PDDocument document = Loader.LoadPDF(
+            ReadIssue412FixturePath("PDFBOX-4322-Empty-ToUnicode-reduced.pdf"));
+        string extracted = new PDFTextStripper().GetText(document);
+
+        Assert.Equal("Justin\n", NormalizeLineEndings(extracted));
+    }
+
+    [Fact]
     public void Chunk4ParityMatrix_ListsSelectedFeatureSupportAndKnownGap()
     {
         string matrix = ReadFixtureText("parity-matrix.md");

@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 public partial class PDNonTerminalField : PDField
 {
+    private static ILogger<PDNonTerminalField> LOG => PdfBoxLogging.CreateLogger<PDNonTerminalField>();
+
     public PDNonTerminalField(PDAcroForm acroForm)
         : base(acroForm)
     {
@@ -74,6 +76,11 @@ public partial class PDNonTerminalField : PDField
         {
             foreach (PDField child in children)
             {
+                if (ReferenceEquals(child.GetCOSObject(), GetCOSObject()))
+                {
+                    LOG.LogWarning("Child field is same object as parent");
+                    continue;
+                }
                 COSDictionary childDictionary = (COSDictionary)child.GetCOSObject();
                 childDictionary.SetItem(COSName.PARENT, GetCOSObject());
                 kids.Add(childDictionary);

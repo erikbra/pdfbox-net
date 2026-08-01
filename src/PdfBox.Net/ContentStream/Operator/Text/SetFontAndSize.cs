@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Font;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.ContentStream.Operator.Text;
 
@@ -38,6 +40,8 @@ namespace PdfBox.Net.ContentStream.Operator.Text;
 /// </summary>
 public sealed class SetFontAndSize : OperatorProcessor
 {
+    private static ILogger<SetFontAndSize> LOG => PdfBoxLogging.CreateLogger<SetFontAndSize>();
+
     public SetFontAndSize(PDFStreamEngine context)
         : base(OperatorName.SET_FONT_AND_SIZE, context)
     {
@@ -62,6 +66,10 @@ public sealed class SetFontAndSize : OperatorProcessor
         if (operands[0] is COSName fontName)
         {
             font = Context.GetResources()?.GetFont(fontName);
+            if (font is null)
+            {
+                LOG.LogWarning("font '{FontName}' not found in resources", fontName.GetName());
+            }
         }
 
         // Always write back (even null) so callers see a consistent state.

@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.Util;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.ContentStream.Operator.Text;
 
@@ -37,6 +39,8 @@ namespace PdfBox.Net.ContentStream.Operator.Text;
 /// </summary>
 public sealed class MoveText : OperatorProcessor
 {
+    private static ILogger<MoveText> LOG => PdfBoxLogging.CreateLogger<MoveText>();
+
     public MoveText(PDFStreamEngine context)
         : base(OperatorName.MOVE_TEXT, context)
     {
@@ -50,10 +54,17 @@ public sealed class MoveText : OperatorProcessor
     public override void Process(Operator op, IList<COSBase> operands)
     {
         if (operands.Count < 2) return;
+        Matrix? textLineMatrix = Context.GetTextLineMatrix();
+        if (textLineMatrix is null)
+        {
+            LOG.LogWarning("TextLineMatrix is null, {OperatorName} operator will be ignored",
+                GetName());
+            return;
+        }
         float tx = ((COSNumber)operands[0]).FloatValue();
         float ty = ((COSNumber)operands[1]).FloatValue();
         Matrix tlm = Matrix.GetTranslateInstance(tx, ty);
-        Matrix newLineMatrix = tlm.Multiply(Context.GetTextLineMatrix());
+        Matrix newLineMatrix = tlm.Multiply(textLineMatrix);
         Context.SetTextLineMatrix(newLineMatrix);
         Context.SetTextMatrix(newLineMatrix);
     }

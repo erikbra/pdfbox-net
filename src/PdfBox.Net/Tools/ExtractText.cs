@@ -25,14 +25,22 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.Text;
 using System.Text;
 
 namespace PdfBox.Net.Tools;
 
-public static class ExtractText
+public sealed class ExtractText
 {
+    private static ILogger<ExtractText> LOG => PdfBoxLogging.CreateLogger<ExtractText>();
+
+    private ExtractText()
+    {
+    }
+
     public static string GetText(string inputPath, string? password = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(inputPath);

@@ -37,6 +37,8 @@ namespace PdfBox.Net.PDModel;
 /// </remarks>
 public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
 {
+    private static ILogger<PDPageTree> LOG => PdfBoxLogging.CreateLogger<PDPageTree>();
+
     private readonly COSDictionary _root;
     private readonly PDDocument? _document;
 
@@ -313,10 +315,15 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
             }
             else if (item is null)
             {
+                LOG.LogWarning("replaced null entry with an empty page");
                 COSDictionary emptyPage = new();
                 emptyPage.SetItem(COSName.TYPE, COSName.PAGE);
                 kids.Set(i, emptyPage);
                 yield return emptyPage;
+            }
+            else
+            {
+                LOG.LogWarning("COSDictionary expected, but got {Type}", item.GetType().Name);
             }
         }
     }
@@ -327,6 +334,7 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         {
             if (!visitedPageTreeNodes.Add(node))
             {
+                LOG.LogError("This page tree node has already been visited");
                 yield break;
             }
 
@@ -344,6 +352,11 @@ public sealed class PDPageTree : COSObjectable, IEnumerable<PDPage>
         if (COSName.PAGE.Equals(node.GetCOSName(COSName.TYPE)) || node.GetCOSName(COSName.TYPE) is null)
         {
             yield return node;
+        }
+        else
+        {
+            LOG.LogError("Page skipped due to an invalid or missing type {Type}",
+                node.GetCOSName(COSName.TYPE));
         }
     }
 

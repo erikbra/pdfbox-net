@@ -27,10 +27,15 @@
 
 using PdfBox.Net.Util.Geometry;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 internal class GlyphRenderer(GlyphDescription glyphDescription)
 {
+    private static ILogger<GlyphRenderer> LOG => PdfBoxLogging.CreateLogger<GlyphRenderer>();
+
     public GeneralPath GetPath()
     {
         Point[] points = Describe(glyphDescription);
@@ -124,16 +129,29 @@ internal class GlyphRenderer(GlyphDescription glyphDescription)
     private static void MoveTo(GeneralPath path, Point point)
     {
         path.MoveTo(point.X, point.Y);
+        if (LOG.IsEnabled(LogLevel.Trace))
+        {
+            LOG.LogTrace("moveTo: {X},{Y}", point.X, point.Y);
+        }
     }
 
     private static void LineTo(GeneralPath path, Point point)
     {
         path.LineTo(point.X, point.Y);
+        if (LOG.IsEnabled(LogLevel.Trace))
+        {
+            LOG.LogTrace("lineTo: {X},{Y}", point.X, point.Y);
+        }
     }
 
     private static void QuadTo(GeneralPath path, Point ctrlPoint, Point point)
     {
         path.QuadTo(ctrlPoint.X, ctrlPoint.Y, point.X, point.Y);
+        if (LOG.IsEnabled(LogLevel.Trace))
+        {
+            LOG.LogTrace("quadTo: {ControlX},{ControlY} {X},{Y}", ctrlPoint.X, ctrlPoint.Y,
+                point.X, point.Y);
+        }
     }
 
     private static int MidValue(int a, int b)

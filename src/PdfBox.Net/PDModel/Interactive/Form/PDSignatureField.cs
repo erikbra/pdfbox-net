@@ -17,6 +17,8 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 public partial class PDSignatureField : PDTerminalField
 {
+    private static ILogger<PDSignatureField> LOG => PdfBoxLogging.CreateLogger<PDSignatureField>();
+
     public PDSignatureField(PDAcroForm acroForm)
         : base(acroForm)
     {
@@ -116,5 +118,7 @@ public partial class PDSignatureField : PDTerminalField
         }
 
         // Signature appearance generation is intentionally not performed here.
+        LOG.LogWarning("Appearance generation for signature fields not implemented here. " +
+            "You need to generate/update that manually, see the CreateVisibleSignature*.java files in the examples project");
     }
 }

@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDHighlightAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDHighlightAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDHighlightAppearanceHandler>();
+
     public PDHighlightAppearanceHandler(PDAnnotationHighlight annotation)
         : this(annotation, null)
     {
@@ -24,26 +26,34 @@ public sealed class PDHighlightAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        PDAnnotationHighlight annotation = (PDAnnotationHighlight)Annotation;
-        float[]? quadPoints = annotation.GetQuadPoints();
-        if (quadPoints == null || quadPoints.Length < 8 || Color == null || Color.GetComponents().Length == 0)
+        try
         {
-            WriteDefaultNormalAppearance("PDHighlightAppearance");
-            return;
+            PDAnnotationHighlight annotation = (PDAnnotationHighlight)Annotation;
+            float[]? quadPoints = annotation.GetQuadPoints();
+            if (quadPoints == null || quadPoints.Length < 8 || Color == null || Color.GetComponents().Length == 0)
+            {
+                WriteDefaultNormalAppearance("PDHighlightAppearance");
+                return;
+            }
+
+            using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
+            contents.SetNonStrokingColor(Color!);
+            SetOpacity(contents, annotation.GetConstantOpacity());
+
+            for (int i = 0; i + 7 < quadPoints.Length; i += 8)
+            {
+                contents.MoveTo(quadPoints[i + 4], quadPoints[i + 5]);
+                contents.LineTo(quadPoints[i + 0], quadPoints[i + 1]);
+                contents.LineTo(quadPoints[i + 2], quadPoints[i + 3]);
+                contents.LineTo(quadPoints[i + 6], quadPoints[i + 7]);
+                contents.ClosePath();
+                contents.Fill();
+            }
+
         }
-
-        using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
-        contents.SetNonStrokingColor(Color!);
-        SetOpacity(contents, annotation.GetConstantOpacity());
-
-        for (int i = 0; i + 7 < quadPoints.Length; i += 8)
+        catch (IOException ex)
         {
-            contents.MoveTo(quadPoints[i + 4], quadPoints[i + 5]);
-            contents.LineTo(quadPoints[i + 0], quadPoints[i + 1]);
-            contents.LineTo(quadPoints[i + 2], quadPoints[i + 3]);
-            contents.LineTo(quadPoints[i + 6], quadPoints[i + 7]);
-            contents.ClosePath();
-            contents.Fill();
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
         }
     }
 

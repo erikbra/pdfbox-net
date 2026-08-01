@@ -33,6 +33,8 @@ using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Graphics.OptionalContent;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Util;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.MultiPdf;
 
@@ -42,6 +44,8 @@ namespace PdfBox.Net.MultiPdf;
 /// </summary>
 public class LayerUtility
 {
+    private static ILogger<LayerUtility> LOG => PdfBoxLogging.CreateLogger<LayerUtility>();
+
     private readonly PDDocument _targetDocument;
     private readonly PDFCloneUtility _cloner;
 
@@ -188,6 +192,15 @@ public class LayerUtility
         ArgumentNullException.ThrowIfNull(targetPage);
         ArgumentNullException.ThrowIfNull(form);
         ArgumentNullException.ThrowIfNull(layerName);
+
+        PDRectangle cropBox = targetPage.GetCropBox();
+        if ((cropBox.GetLowerLeftX() < 0 || cropBox.GetLowerLeftY() < 0) &&
+            (transform is null || transform.IsIdentity()))
+        {
+            LOG.LogWarning(
+                "Negative cropBox {CropBox} and identity transform may make your form invisible",
+                cropBox);
+        }
 
         PDOptionalContentGroup ocg = new(layerName);
         ImportOcProperties(targetPage, ocg);

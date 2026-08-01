@@ -26,6 +26,8 @@
  */
 
 using System.IO;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.Util.Geometry;
 
@@ -36,6 +38,8 @@ namespace PdfBox.Net.Rendering;
 /// </summary>
 internal sealed class GlyphCache
 {
+    private static ILogger<GlyphCache> LOG => PdfBoxLogging.CreateLogger<GlyphCache>();
+
     private readonly PDVectorFont _font;
     private readonly Dictionary<int, GeneralPath> _cache = [];
 
@@ -57,12 +61,15 @@ internal sealed class GlyphCache
             {
                 if (_font is PDType0Font type0Font)
                 {
-                    _ = type0Font.CodeToCID(code);
-                    // Logging removed: PDFBox warns here when a glyph is missing.
+                    int cid = type0Font.CodeToCID(code);
+                    LOG.LogWarning("No glyph for code {Code} (CID {Cid:x4}) in font {FontName}",
+                        code, cid, _font.GetName());
                 }
                 else if (_font is PDSimpleFont simpleFont)
                 {
-                    // Logging removed: PDFBox warns here when a glyph is missing.
+                    LOG.LogWarning(
+                        "No glyph for code {Code} in {FontType} {FontName} (embedded or system font used: {FontBoxFontName})",
+                        code, _font.GetType().Name, _font.GetName(), simpleFont.GetFontBoxFont()?.GetName() ?? "null");
                     if (code == 10 && simpleFont.IsStandard14())
                     {
                         path = new GeneralPath();
@@ -72,7 +79,7 @@ internal sealed class GlyphCache
                 }
                 else
                 {
-                    // Logging removed: PDFBox warns here when a glyph is missing.
+                    LOG.LogWarning("No glyph for code {Code} in font {FontName}", code, _font.GetName());
                 }
             }
 
@@ -80,9 +87,10 @@ internal sealed class GlyphCache
             _cache[code] = path;
             return path;
         }
-        catch (IOException)
+        catch (IOException exception)
         {
-            // Logging removed: PDFBox logs glyph rendering failures here.
+            LOG.LogError(exception, "Glyph rendering failed for code {Code} in font {FontName}",
+                code, _font.GetName());
             return new GeneralPath();
         }
     }

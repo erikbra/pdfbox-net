@@ -27,6 +27,9 @@
 
 using PdfBox.Net.FontBox.TTF.Model;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -34,6 +37,8 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 public class GsubWorkerForGujarati : IGsubWorker
 {
+    private static ILogger<GsubWorkerForGujarati> LOG => PdfBoxLogging.CreateLogger<GsubWorkerForGujarati>();
+
     private const string RkrfFeature = "rkrf";
     private const string VatuFeature = "vatu";
 
@@ -74,8 +79,18 @@ public class GsubWorkerForGujarati : IGsubWorker
         foreach (string feature in FeaturesInOrder)
         {
             if (!_gsubData.IsFeatureSupported(feature))
+            {
+                if (LOG.IsEnabled(LogLevel.Debug))
+                {
+                    LOG.LogDebug("The feature {Feature} was not found", feature);
+                }
                 continue;
+            }
 
+            if (LOG.IsEnabled(LogLevel.Debug))
+            {
+                LOG.LogDebug("Applying the feature {Feature}", feature);
+            }
             IScriptFeature scriptFeature = _gsubData.GetFeature(feature);
             intermediateGlyphsFromGsub = ApplyGsubFeature(scriptFeature, intermediateGlyphsFromGsub);
         }
@@ -128,7 +143,13 @@ public class GsubWorkerForGujarati : IGsubWorker
     {
         var allGlyphIdsForSubstitution = scriptFeature.GetAllGlyphIdsForSubstitution();
         if (allGlyphIdsForSubstitution.Count == 0)
+        {
+            if (LOG.IsEnabled(LogLevel.Debug))
+            {
+                LOG.LogDebug("GetAllGlyphIdsForSubstitution() for {FeatureName} is empty", scriptFeature.GetName());
+            }
             return originalGlyphs;
+        }
 
         if (!_glyphArraySplitters.TryGetValue(scriptFeature.GetName(), out var glyphArraySplitter))
         {
@@ -144,6 +165,11 @@ public class GsubWorkerForGujarati : IGsubWorker
                 gsubProcessedGlyphs.AddRange(scriptFeature.GetReplacementForGlyphs(chunk));
             else
                 gsubProcessedGlyphs.AddRange(chunk);
+        }
+        if (LOG.IsEnabled(LogLevel.Debug))
+        {
+            LOG.LogDebug("OriginalGlyphs: {OriginalGlyphs}, GsubProcessedGlyphs: {ProcessedGlyphs}",
+                originalGlyphs, gsubProcessedGlyphs);
         }
         return gsubProcessedGlyphs;
     }

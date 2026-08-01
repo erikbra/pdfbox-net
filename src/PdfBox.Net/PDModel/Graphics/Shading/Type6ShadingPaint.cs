@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class Type6ShadingPaint : ShadingPaint
 {
+    private static ILogger<Type6ShadingPaint> LOG => PdfBoxLogging.CreateLogger<Type6ShadingPaint>();
+
     private readonly PDShadingType6 _shading;
 
     public Type6ShadingPaint(PDShadingType6 shading, Matrix matrix)
@@ -42,6 +44,14 @@ public sealed class Type6ShadingPaint : ShadingPaint
 
     public override PaintContext CreateContext()
     {
-        return new Type6ShadingContext(_shading, Matrix);
+        try
+        {
+            return new Type6ShadingContext(_shading, Matrix);
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "An error occurred while painting");
+            return CreateTransparentContext();
+        }
     }
 }

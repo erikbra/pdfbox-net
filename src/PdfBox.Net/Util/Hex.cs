@@ -25,14 +25,23 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.Util;
 
 /// <summary>
 /// Utility functions for hex encoding.
 /// </summary>
 /// <remarks>Author: John Hewson</remarks>
-public static class Hex
+public sealed class Hex
 {
+    private static ILogger<Hex> LOG => PdfBoxLogging.CreateLogger<Hex>();
+
+    private Hex()
+    {
+    }
+
     /// <summary>
     /// for hex conversion.
     /// https://stackoverflow.com/questions/2817752/java-code-to-convert-byte-to-hexadecimal
@@ -213,7 +222,10 @@ public static class Hex
                 {
                     ms.WriteByte((byte)value);
                 }
-                // else: invalid hex pair — silently skip (LOG removed per Skill G §11)
+                else
+                {
+                    LOG.LogError("Can't parse {HexByte}, aborting decode", s.Substring(i, 2));
+                }
                 i += 2;
             }
         }

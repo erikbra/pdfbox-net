@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public partial class FDFAnnotationPolygon : FDFAnnotation
 {
+    private static ILogger<FDFAnnotationPolygon> LOG => PdfBoxLogging.CreateLogger<FDFAnnotationPolygon>();
+
     private static readonly COSName VerticesName = COSName.GetPDFName("Vertices");
     private static readonly COSName IcName = COSName.GetPDFName("IC");
 

@@ -38,8 +38,14 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// lossless image XObject through <see cref="LosslessFactory"/> when direct PNG embedding
 /// is not available.
 /// </remarks>
-public static class PNGConverter
+public sealed class PNGConverter
 {
+    private static ILogger<PNGConverter> LOG => PdfBoxLogging.CreateLogger<PNGConverter>();
+
+    private PNGConverter()
+    {
+    }
+
     /// <summary>
     /// Converts the given PNG stream to a PDImageXObject.
     /// Returns null if the stream cannot be directly converted (fallback to LosslessFactory).

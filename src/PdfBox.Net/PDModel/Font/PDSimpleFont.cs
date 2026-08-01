@@ -36,9 +36,12 @@ namespace PdfBox.Net.PDModel.Font;
 
 public abstract partial class PDSimpleFont : PDVectorFont
 {
+    private static ILogger<PDSimpleFont> LOG => PdfBoxLogging.CreateLogger<PDSimpleFont>();
+
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
 
     private readonly Encoding.Encoding _encoding;
+    private readonly HashSet<int> _noUnicode = [];
 
     protected Encoding.Encoding FontEncoding => _encoding;
 
@@ -50,6 +53,14 @@ public abstract partial class PDSimpleFont : PDVectorFont
     protected PDSimpleFont(COSDictionary fontDictionary, Encoding.Encoding? encoding)
         : base(fontDictionary)
     {
+        if (fontDictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is COSName encodingName &&
+            encodingName.GetName() is not ("MacRomanEncoding" or "MacOSRomanEncoding" or
+                "MacExpertEncoding" or "StandardEncoding" or "WinAnsiEncoding" or
+                "SymbolEncoding" or "ZapfDingbatsEncoding"))
+        {
+            LOG.LogWarning("Unknown encoding: {EncodingName}", encodingName.GetName());
+        }
+
         _encoding = encoding ?? DictionaryEncoding.ResolveEncoding(fontDictionary);
     }
 
@@ -166,12 +177,22 @@ public abstract partial class PDSimpleFont : PDVectorFont
     protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
     {
         string glyphName = _encoding.GetName(code);
-        if (glyphName == ".notdef")
+        string? unicode = glyphName == ".notdef" ? null : glyphList.ToUnicode(glyphName);
+        if (unicode is null && LOG.IsEnabled(LogLevel.Warning) && _noUnicode.Add(code))
         {
-            return null;
+            if (glyphName != ".notdef")
+            {
+                LOG.LogWarning("No Unicode mapping for {GlyphName} ({Code}) in font {FontName}",
+                    glyphName, code, GetName());
+            }
+            else
+            {
+                LOG.LogWarning("No Unicode mapping for character code {Code} in font {FontName}",
+                    code, GetName());
+            }
         }
 
-        return glyphList.ToUnicode(glyphName);
+        return unicode;
     }
 
     public override bool HasGlyph(int code)

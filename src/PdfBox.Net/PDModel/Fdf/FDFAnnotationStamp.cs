@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Fdf;
 
 public class FDFAnnotationStamp : FDFAnnotation
 {
+    private static ILogger<FDFAnnotationStamp> LOG => PdfBoxLogging.CreateLogger<FDFAnnotationStamp>();
+
     public const string Subtype = "Stamp";
 
     public FDFAnnotationStamp()

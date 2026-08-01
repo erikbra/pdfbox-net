@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Graphics.Color;
 
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
@@ -36,6 +38,8 @@ namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 /// </summary>
 public sealed class KToolTip : ColorToolTip
 {
+    private static ILogger<KToolTip> LOG => PdfBoxLogging.CreateLogger<KToolTip>();
+
     public KToolTip(string rowText)
     {
         float[]? values = ExtractColorValues(rowText);
@@ -46,8 +50,9 @@ public sealed class KToolTip : ColorToolTip
                 float[] rgb = PDDeviceCMYK.Instance.ToRGB(values);
                 ToolTipText = GetMarkUp(ColorHexValue(rgb[0], rgb[1], rgb[2]));
             }
-            catch
+            catch (Exception ex)
             {
+                LOG.LogError(ex, "{ErrorMessage}", ex.Message);
                 // silently ignore conversion failure
             }
         }

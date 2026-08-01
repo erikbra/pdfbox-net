@@ -31,8 +31,11 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class Type5ShadingContext : TriangleBasedShadingContext
 {
+    private static ILogger<Type5ShadingContext> LOG => PdfBoxLogging.CreateLogger<Type5ShadingContext>();
+
     public Type5ShadingContext(PDShadingType5 shading, Matrix matrix)
         : base(shading, matrix)
     {
+        LOG.LogDebug("Type5ShadingContext");
     }
 }

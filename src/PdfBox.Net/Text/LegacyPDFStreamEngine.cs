@@ -38,6 +38,8 @@ using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Font.Encoding;
 using PdfBox.Net.PDModel.Graphics.State;
 using PdfBox.Net.Util;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Reflection;
 
 namespace PdfBox.Net.Text;
@@ -47,6 +49,9 @@ namespace PdfBox.Net.Text;
 /// </summary>
 public class LegacyPDFStreamEngine : PDFStreamEngine
 {
+    private static ILogger<LegacyPDFStreamEngine> LOG =>
+        PdfBoxLogging.CreateLogger<LegacyPDFStreamEngine>();
+
     private int _pageRotation;
     private PDRectangle? _pageSize;
     private Matrix? _translateMatrix;

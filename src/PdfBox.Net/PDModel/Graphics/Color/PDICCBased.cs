@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 
 public sealed class PDICCBased : PDColorSpace
 {
+    private static ILogger<PDICCBased> LOG => PdfBoxLogging.CreateLogger<PDICCBased>();
+
     private static readonly COSName ICCBased = COSName.GetPDFName("ICCBased");
 
     private readonly PDColorSpace? _alternate;

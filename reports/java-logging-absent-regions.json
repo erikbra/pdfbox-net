@@ -1,0 +1,921 @@
+{
+  "schema": 1,
+  "upstream_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+  "description": "Reviewed Java logging regions that are absent from the release/3.0 C# port. Each disposition is scoped to exact upstream source lines.",
+  "files": [
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
+      "source_lines": [
+        868,
+        898,
+        1359,
+        1403,
+        1452
+      ],
+      "reason": "The adapted debugger port does not contain the Java signature-entry inspection and print/parse timing regions that own these diagnostics."
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/DebugTextOverlay.java",
+      "source_lines": [
+        225
+      ],
+      "reason": "The Java glyph-bounds overlay region containing this diagnostic is not present in the current debugger port."
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/PagePane.java",
+      "source_lines": [
+        142,
+        190,
+        326
+      ],
+      "reason": "The corresponding Java page-rendering UI failure regions are not present in the adapted debugger pane."
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/Stream.java",
+      "source_lines": [
+        182
+      ],
+      "reason": "The Java stream-decoding branch that owns this diagnostic is not present in the adapted debugger stream model."
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPane.java",
+      "source_lines": [
+        238,
+        336,
+        350,
+        376,
+        407,
+        445
+      ],
+      "reason": "The corresponding Java stream-pane UI action and decoding failure branches are not present in the adapted debugger pane."
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/ToolTipController.java",
+      "source_lines": [
+        145,
+        166,
+        181
+      ],
+      "reason": "The Java operator-specific tooltip construction branches that own these diagnostics are absent from the adapted controller."
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/SearchEngine.java",
+      "source_lines": [
+        80,
+        104
+      ],
+      "reason": "The corresponding Java text-search execution failure branches are not implemented in the current debugger search engine."
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/textsearcher/Searcher.java",
+      "source_lines": [
+        154,
+        208,
+        234
+      ],
+      "reason": "The corresponding Java background-search and navigation failure branches are absent from the adapted debugger searcher."
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/printing/OpaquePDFRenderer.java",
+      "source_lines": [
+        155,
+        204
+      ],
+      "absent_declarations": 2,
+      "reason": "The adapted .NET printing example delegates rendering and does not contain the two Java nested operator classes that own these logger declarations and diagnostics."
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+      "source_lines": [
+        248,
+        266,
+        418,
+        444,
+        456,
+        462
+      ],
+      "reason": "The current example port does not contain the Java extended-key-usage, missing-object, and HTTP response/redirect regions that own these diagnostics."
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/TSAClient.java",
+      "source_lines": [
+        127,
+        134
+      ],
+      "reason": "The Java nonce-validation diagnostic region is not present in the adapted timestamp client."
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CRLVerifier.java",
+      "source_lines": [
+        153,
+        157,
+        162,
+        164,
+        168,
+        224,
+        229,
+        326
+      ],
+      "reason": "The adapted CRL example does not contain the Java CRL validity, issuer comparison, revocation-result, and ASN.1 distribution-point regions that own these diagnostics."
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CertificateVerifier.java",
+      "source_lines": [
+        146,
+        244,
+        245,
+        251,
+        279,
+        310,
+        315,
+        332,
+        338,
+        342,
+        346,
+        349,
+        437,
+        469,
+        479,
+        485,
+        489,
+        505,
+        509
+      ],
+      "reason": "The adapted certificate example does not contain the Java CA-issuer download, OCSP/CRL fallback, responder-certificate, and ASN.1 verification regions that own these diagnostics."
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/OcspHelper.java",
+      "source_lines": [
+        210,
+        243,
+        272,
+        294,
+        319,
+        339,
+        382,
+        387,
+        390,
+        439,
+        489,
+        494,
+        531,
+        537,
+        541,
+        545,
+        549,
+        555,
+        646
+      ],
+      "reason": "The current OCSP example port omits the Java network redirect, nonce/freshness, response-status, revocation-result, and several ASN.1/error-handling regions that own these diagnostics."
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/PDFMergerExample.java",
+      "source_lines": [
+        115,
+        126
+      ],
+      "reason": "The Java document-information and XMP metadata setup regions containing these informational diagnostics are absent from the minimal merger example port."
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFParser.java",
+      "source_lines": [
+        1391
+      ],
+      "reason": "The Java boolean-operand helper containing this warning has no corresponding implementation in the current port."
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
+      "source_lines": [
+        97,
+        113,
+        129,
+        167,
+        317,
+        349,
+        385,
+        409,
+        433,
+        450,
+        476,
+        488,
+        498
+      ],
+      "reason": "The port does not yet contain the Java Type1CharString execution, lazy path-building, and seac-composition regions that own these diagnostics. The three synchronized(LOG) monitors are absent with those regions; no dynamic logger is used as a lock."
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForDevanagari.java",
+      "source_lines": [
+        124,
+        141,
+        247
+      ],
+      "reason": "The special RKR glyph-substitution region containing these diagnostics is not present in the current port."
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/GsubWorkerForGujarati.java",
+      "source_lines": [
+        123,
+        140,
+        246
+      ],
+      "reason": "The special RKR glyph-substitution region containing these diagnostics is not present in the current port."
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/util/autodetect/WindowsFontDirFinder.java",
+      "source_lines": [
+        52,
+        63
+      ],
+      "reason": "The port consolidates the two Java Windows-directory lookups and the repeated drive-directory checks into shared .NET helpers. One diagnostic remains at each consolidated failure site; these duplicate Java source sites have no separate target statement."
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/IOUtils.java",
+      "source_lines": [
+        244,
+        310,
+        318,
+        351
+      ],
+      "reason": "These diagnostics belong to JVM-specific ByteBuffer unmapping and reflection code. The .NET port has no corresponding JVM unmap region."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
+      "source_lines": [
+        1182
+      ],
+      "reason": "The current port does not contain the Java stream-recursion level tracking API or its negative-level diagnostic."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
+      "source_lines": [
+        75
+      ],
+      "reason": "The current port does not contain the Java stream-recursion level tracking region that owns this diagnostic."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/graphics/DrawObject.java",
+      "source_lines": [
+        87
+      ],
+      "reason": "The current port does not contain the Java stream-recursion level tracking region that owns this diagnostic."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/markedcontent/DrawObject.java",
+      "source_lines": [
+        75
+      ],
+      "reason": "The current port does not contain the Java stream-recursion level tracking region that owns this diagnostic."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/DCTFilter.java",
+      "source_lines": [
+        93,
+        105,
+        160,
+        193,
+        331
+      ],
+      "reason": "These diagnostics are inside Java ImageIO transform, raster fallback, and metadata paths. The current port uses a different decoder backend and has no corresponding regions."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/JBIG2Filter.java",
+      "source_lines": [
+        56,
+        57
+      ],
+      "reason": "These notices refer specifically to the Java Levigo ImageIO plug-in. The .NET port uses JBig2Decoder.NETStandard and has no corresponding plug-in discovery region."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
+      "source_lines": [
+        475,
+        575,
+        612,
+        669,
+        699,
+        867,
+        892,
+        1113,
+        1218,
+        1455,
+        1463
+      ],
+      "reason": "The current merger port does not contain the Java legacy-close helper flow or the advanced names, outline, labels, metadata, action, IDTree, RoleMap, and structure-tree merge regions that own these diagnostics."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+      "source_lines": [
+        335,
+        340,
+        577,
+        763,
+        768,
+        806,
+        811,
+        851,
+        868
+      ],
+      "reason": "The current splitter port does not contain the Java structure-tree, document-information, resource-import, bead, and link-destination regions that own these diagnostics."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+      "source_lines": [
+        89,
+        233,
+        238,
+        244,
+        250,
+        801,
+        956,
+        1038
+      ],
+      "reason": "The release branch retains low-level token parsing in COSParser; the adapted BaseParser compatibility surface does not contain the Java charset fallback, indirect-object header validation, UTF-8 decoder fallback, and direct-object recovery regions that own these diagnostics."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
+      "source_lines": [
+        313,
+        360,
+        437,
+        541,
+        613,
+        710
+      ],
+      "reason": "The C# class is currently a forwarding stub; the Java brute-force object-stream, trailer, EOF, dictionary, and xref-repair implementation regions that own these diagnostics are absent."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "source_lines": [
+        216,
+        378,
+        947,
+        954,
+        1241,
+        1286,
+        1356,
+        1549,
+        1660,
+        1680
+      ],
+      "reason": "The Java system-property setup, /XRefStm offset correction, token-specific stream-terminator repair, indirect-object-number recovery, trailer-line scanning, charset setup, lenient indirect-reference repair, header defaulting, and decoder fallback regions that own these diagnostics are absent from the adapted parser port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFStreamParser.java",
+      "source_lines": [
+        419
+      ],
+      "reason": "The adapted C# inline-image EI finder accepts its marker directly and has no Java binary-data rejection branch for this warning."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+      "source_lines": [
+        1295,
+        1297
+      ],
+      "reason": "The incremental-signature byte-range region containing this diagnostic is not present in the current port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+      "source_lines": [
+        215,
+        221,
+        236,
+        238
+      ],
+      "reason": "The Java font-embedding and output-stream diagnostic branches are not present in the current partial content-stream port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+      "source_lines": [
+        108,
+        114,
+        1279,
+        1285
+      ],
+      "reason": "The Java resource-warning initializer and SigningSupport/pdfSource close flows are absent; the .NET port snapshots source bytes and has no equivalent closeable members."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+      "source_lines": [
+        248,
+        267,
+        289
+      ],
+      "reason": "The Java inherited-resource traversal diagnostics are not present in the current page implementation."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureTreeRoot.java",
+      "source_lines": [
+        187
+      ],
+      "reason": "The Java parent-tree validation branch containing this diagnostic is not present in the current structure-tree port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
+      "source_lines": [
+        310
+      ],
+      "reason": "Java reflection-based standard-type enumeration is replaced by a fixed C# collection, so its reflection failure diagnostic has no target."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/SecurityHandler.java",
+      "source_lines": [
+        556,
+        561,
+        562,
+        576
+      ],
+      "reason": "The Java stream-length and crypt-filter diagnostic branches are absent from the adapted generic security handler."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/StandardSecurityHandler.java",
+      "source_lines": [
+        1272,
+        1277
+      ],
+      "reason": "These diagnostics belong to Java JCE policy and algorithm-availability handling, which has no .NET counterpart."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
+      "source_lines": [
+        235,
+        250
+      ],
+      "reason": "The corresponding Java XML color/date parsing fallback regions are not present in the current FDF annotation port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationFreeText.java",
+      "source_lines": [
+        86
+      ],
+      "reason": "The Java XML element parsing region containing this diagnostic is absent from the current FDF annotation port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationInk.java",
+      "source_lines": [
+        107
+      ],
+      "reason": "The Java XML ink-list parsing region containing this diagnostic is absent from the current FDF annotation port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationLink.java",
+      "source_lines": [
+        99
+      ],
+      "reason": "The Java XML link parsing region containing this diagnostic is absent from the current FDF annotation port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolygon.java",
+      "source_lines": [
+        103
+      ],
+      "reason": "The Java XML vertex parsing region containing this diagnostic is absent from the current FDF annotation port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationPolyline.java",
+      "source_lines": [
+        99
+      ],
+      "reason": "The Java XML vertex parsing region containing this diagnostic is absent from the current FDF annotation port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationStamp.java",
+      "source_lines": [
+        95,
+        104,
+        114,
+        119,
+        132,
+        147,
+        151,
+        158,
+        171,
+        176,
+        180,
+        189,
+        204,
+        208,
+        217,
+        222,
+        226,
+        230,
+        234,
+        238,
+        242,
+        246,
+        252,
+        269,
+        274,
+        279,
+        290,
+        316,
+        320,
+        327,
+        331,
+        335,
+        339,
+        343,
+        347,
+        351,
+        362,
+        380,
+        386,
+        388,
+        391,
+        395,
+        397,
+        401,
+        405,
+        409,
+        413,
+        416
+      ],
+      "reason": "The current stamp annotation is a model stub and does not contain the Java embedded-appearance XML/base64/resource parsing implementation that owns these diagnostics."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java",
+      "source_lines": [
+        102,
+        176,
+        187,
+        249,
+        258,
+        260,
+        264,
+        266,
+        272
+      ],
+      "reason": "The Java fallback font-mapper branch, including its debug guard, is not present in the adapted orphan-widget processor."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
+      "source_lines": [
+        217,
+        286,
+        294,
+        305,
+        313,
+        370,
+        373,
+        445,
+        446,
+        447,
+        452,
+        533,
+        552,
+        628,
+        647,
+        653,
+        660,
+        668,
+        688,
+        718,
+        736,
+        795,
+        797,
+        805,
+        811,
+        826,
+        832,
+        839,
+        841
+      ],
+      "reason": "These diagnostics belong to Java platform-specific font formats, cache, registry, filesystem, and fallback discovery regions that are absent from the smaller .NET provider."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapperImpl.java",
+      "source_lines": [
+        479,
+        481,
+        529,
+        531
+      ],
+      "reason": "The Java substitute-font scoring and fallback reporting regions are not present in the current font mapper."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
+      "source_lines": [
+        91,
+        102,
+        159,
+        187,
+        235
+      ],
+      "reason": "The current CID Type 0 font is a partial port and lacks the Java embedded-font, fallback, and encoding diagnostic regions."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
+      "source_lines": [
+        178,
+        286,
+        294
+      ],
+      "reason": "The Java fallback-font and CID-to-GID validation regions containing these diagnostics are absent from the current partial port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
+      "source_lines": [
+        376
+      ],
+      "reason": "The Java glyph-mapping method, including its debug guard, and vertical-metrics fallback are not present in the current embedder port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
+      "source_lines": [
+        195,
+        356
+      ],
+      "reason": "The Java descendant-font and default-font loading fallback branches are absent from the current factory."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
+      "source_lines": [
+        144
+      ],
+      "reason": "The Java fallback-font warning branch is not present in the current TrueType font port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+      "source_lines": [
+        604
+      ],
+      "reason": "The Java CMap repair and vertical-displacement diagnostic branches are absent from the current Type 0 font port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java",
+      "source_lines": [
+        136,
+        327,
+        379,
+        422
+      ],
+      "reason": "The Java fallback-font, encoding, and glyph-path diagnostic branches are absent from the current partial Type 1C port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
+      "source_lines": [
+        140,
+        143,
+        250,
+        311,
+        677
+      ],
+      "reason": "The current Type 1 font port omits the Java Standard-14 fallback warning and related embedded-font and encoding diagnostic branches."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColor.java",
+      "source_lines": [
+        67
+      ],
+      "reason": "This Java invalid-pattern-name diagnostic is redundant under its enclosing COSName check and has no separate reachable C# branch."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDICCBased.java",
+      "source_lines": [
+        175,
+        183,
+        236,
+        264,
+        347
+      ],
+      "reason": "The release branch ICCBased implementation delegates color conversion to its alternate/device fallback and does not contain the Java ICC profile loading, synchronization, validation, rendering-intent, and component-repair regions that own these diagnostics."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
+      "source_lines": [
+        168,
+        172,
+        213
+      ],
+      "reason": "These diagnostics are inside Java ImageIO color-model and metadata fallback paths, which have no corresponding .NET backend region."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
+      "source_lines": [
+        241,
+        308,
+        395,
+        556,
+        761,
+        788,
+        1052
+      ],
+      "reason": "The Java ImageIO provider, metadata, color-space, and suffix-detection branches containing these diagnostics are absent from the current image port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PNGConverter.java",
+      "source_lines": [
+        147,
+        152,
+        157,
+        162,
+        167,
+        179,
+        185,
+        194,
+        199,
+        203,
+        217,
+        222,
+        227,
+        241,
+        351,
+        359,
+        368,
+        383,
+        386,
+        433,
+        439,
+        600,
+        605,
+        610,
+        615,
+        620,
+        625,
+        630,
+        637,
+        644,
+        677,
+        770,
+        780,
+        792,
+        808,
+        821,
+        833,
+        851,
+        880,
+        889
+      ],
+      "reason": "The current PNG converter is a minimal stub and lacks the Java chunk parsing, CRC, color-type, palette, transparency, and predictor implementation that owns these diagnostics."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/SampledImageReader.java",
+      "source_lines": [
+        616
+      ],
+      "reason": "The Java color-key mask-size validation branch is not present in the current sampled-image reader."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/AxialShadingContext.java",
+      "source_lines": [
+        114
+      ],
+      "reason": "The Java degenerate-axis fallback diagnostic is not present in the current shading context."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDMeshBasedShadingType.java",
+      "source_lines": [
+        107,
+        143,
+        230
+      ],
+      "reason": "The Java mesh bit-depth and decode-array validation regions are absent from the current partial shading type."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShadingType4.java",
+      "source_lines": [
+        134,
+        156,
+        163,
+        177,
+        196
+      ],
+      "reason": "The Java free-form Gouraud triangle stream parser containing these diagnostics is absent from the current shading port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
+      "source_lines": [
+        92,
+        212,
+        221
+      ],
+      "reason": "The Java color-decoding loop, including its debug guard, is not present in the current triangle-shading port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java",
+      "source_lines": [
+        120
+      ],
+      "reason": "The Java degenerate-radial fallback diagnostic is not present in the current shading context."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/Type1ShadingContext.java",
+      "source_lines": [
+        79,
+        130,
+        145
+      ],
+      "reason": "The Java Type 1 shading bbox/domain and color-evaluation fallback regions are absent from the current context."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDFreeTextAppearanceHandler.java",
+      "source_lines": [
+        428,
+        490
+      ],
+      "reason": "The Java free-text callout and appearance layout branches containing these diagnostics are absent from the current handler."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/handlers/PDLineAppearanceHandler.java",
+      "source_lines": [
+        183
+      ],
+      "reason": "The Java inline-caption width calculation and its IllegalArgumentException recovery diagnostic are absent from the simplified release handler."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
+      "source_lines": [
+        208,
+        291,
+        533,
+        536,
+        538,
+        539,
+        540,
+        1025
+      ],
+      "reason": "The Java PaperMetaData, scripting, subset-font advisory, and unknown-font-class regions are absent from the current appearance helper."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/PDAcroForm.java",
+      "source_lines": [
+        261,
+        263,
+        815,
+        828
+      ],
+      "reason": "The Java refresh-appearance overload and missing-widget-page recovery regions containing these diagnostics are absent from the current AcroForm port."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPrintable.java",
+      "source_lines": [
+        224,
+        226,
+        273,
+        286,
+        288
+      ],
+      "reason": "These diagnostics are inside Java AWT print-transform and rasterization code. The current port has no corresponding AWT printing region."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
+      "source_lines": [
+        1750,
+        1997
+      ],
+      "reason": "The first diagnostic is a JDK-specific InternalError workaround; the second belongs to a Java gray/ICC ColorSpace helper. Neither region exists in the Skia rendering backend."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaint.java",
+      "source_lines": [
+        64
+      ],
+      "reason": "The Java diagnostic validates a system property; the C# backend uses a compile-time maximum-edge constant and has no equivalent property-parsing region."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaintFactory.java",
+      "source_lines": [
+        141
+      ],
+      "reason": "The C# backend uses record equality and has no equivalent to the Java custom color-to-RGB equality fallback region."
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/LegacyPDFStreamEngine.java",
+      "source_lines": [
+        258
+      ],
+      "reason": "The text-position processing body that owns this warning is not present in the current legacy-engine port."
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractText.java",
+      "source_lines": [
+        373
+      ],
+      "reason": "The Java per-page processing failure branch containing this diagnostic is not present in the current tool port."
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/imageio/ImageIOUtil.java",
+      "source_lines": [
+        239,
+        240
+      ],
+      "reason": "The Java ImageIO writer-discovery region containing these diagnostics has no corresponding implementation in the current .NET image tool."
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/imageio/MetaUtil.java",
+      "source_lines": [
+        51,
+        73,
+        77
+      ],
+      "reason": "The Java ImageIO metadata-to-XML debug rendering region, including its enabled-level guard, is not present in the current .NET image tool."
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/imageio/TIFFUtil.java",
+      "source_lines": [
+        82
+      ],
+      "reason": "The Java TIFF ImageWriter data-format discovery region containing this diagnostic has no corresponding implementation in the current .NET image tool."
+    }
+  ]
+}

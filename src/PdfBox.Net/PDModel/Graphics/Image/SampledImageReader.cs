@@ -38,8 +38,14 @@ using PdfBox.Net.PDModel.Graphics.Color;
 /// NOTE: This class is an adapted stub. Full sampled-image reading is not yet implemented
 /// for the .NET port (requires platform-specific imaging APIs).
 /// </remarks>
-internal static class SampledImageReader
+internal sealed class SampledImageReader
 {
+    private static ILogger<SampledImageReader> LOG => PdfBoxLogging.CreateLogger<SampledImageReader>();
+
+    private SampledImageReader()
+    {
+    }
+
     /// <summary>
     /// Returns a raster representation of the given image XObject.
     /// </summary>
@@ -115,7 +121,13 @@ internal static class SampledImageReader
         int expectedLength = checked(rowBytes * height);
         if (imageData.Length < expectedLength)
         {
+            LOG.LogWarning("premature EOF, image will be incomplete");
             throw new IOException($"Image stream ended before all {bitsPerComponent}-bit samples were available.");
+        }
+        if (LOG.IsEnabled(LogLevel.Debug) && imageData.Length != expectedLength)
+        {
+            LOG.LogDebug("Tried reading {ExpectedBytes} bytes but only {ActualBytes} bytes read",
+                expectedLength, imageData.Length);
         }
 
         bool isIndexed = colorSpace is PDIndexed;
@@ -173,6 +185,8 @@ internal static class SampledImageReader
             {
                 if (decodeArray.GetObject(i) is not COSNumber number)
                 {
+                    LOG.LogError("decode array {DecodeArray} not compatible with color space, using default",
+                        decodeArray);
                     return colorSpace.GetDefaultDecode(bitsPerComponent);
                 }
 
@@ -180,6 +194,12 @@ internal static class SampledImageReader
             }
 
             return decode;
+        }
+
+        if (decodeArray is not null)
+        {
+            LOG.LogError("decode array {DecodeArray} not compatible with color space, using default",
+                decodeArray);
         }
 
         return colorSpace.GetDefaultDecode(bitsPerComponent);

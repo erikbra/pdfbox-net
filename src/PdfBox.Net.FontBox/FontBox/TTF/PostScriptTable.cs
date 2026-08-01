@@ -26,11 +26,17 @@
  */
 
 using System.IO;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.FontBox.TTF;
 
 public sealed class PostScriptTable() : TTFTable(TAG)
 {
+    // Resolve through the current global factory at the point of use so a factory installed
+    // after type initialization is still observed.
+    private static ILogger<PostScriptTable> LOG => PdfBoxLogging.CreateLogger<PostScriptTable>();
+
     public const string TAG = "post";
     public float FormatType { get; set; }
     public float ItalicAngle { get; set; }
@@ -55,9 +61,12 @@ public sealed class PostScriptTable() : TTFTable(TAG)
         MinMemType1 = data.ReadUnsignedInt();
         MaxMemType1 = data.ReadUnsignedInt();
 
-        if (data.GetCurrentPosition() >= Offset + Length || data.GetCurrentPosition() == data.GetOriginalDataSize())
+        if (FormatType != 1.0f && FormatType != 3.0f &&
+            (data.GetCurrentPosition() >= Offset + Length ||
+             data.GetCurrentPosition() == data.GetOriginalDataSize()))
         {
-            Console.Error.WriteLine($"No PostScript name data is provided for the font {font.GetName()}");
+            LOG.LogWarning("No PostScript name data is provided for the font {FontName}",
+                font.GetName());
         }
         else if (FormatType == 1.0f)
         {
@@ -92,7 +101,9 @@ public sealed class PostScriptTable() : TTFTable(TAG)
                     }
                     catch (Exception ex) when (ex is EndOfStreamException or IOException)
                     {
-                        Console.Error.WriteLine($"Error reading names in PostScript table at entry {i} of {nameArray.Length}, setting remaining entries to .notdef");
+                        LOG.LogWarning(ex,
+                            "Error reading names in PostScript table at entry {Entry} of {EntryCount}, setting remaining entries to .notdef",
+                            i, nameArray.Length);
                         for (int j = i; j < nameArray.Length; ++j)
                         {
                             nameArray[j] = ".notdef";
@@ -141,13 +152,18 @@ public sealed class PostScriptTable() : TTFTable(TAG)
                         GlyphNames[i] = name;
                     }
                 }
+                else
+                {
+                    LOG.LogDebug("Incorrect glyph name index {GlyphNameIndex}, valid numbers 0..{MaximumGlyphNameIndex}",
+                        index, WGL4Names.NumberOfMacGlyphs);
+                }
             }
         }
         else if (FormatType == 3.0f)
         {
-            Console.Error.WriteLine($"No PostScript name information is provided for the font {font.GetName()}");
+            LOG.LogDebug("No PostScript name information is provided for the font {FontName}",
+                font.GetName());
         }
-
         Initialized = true;
     }
 

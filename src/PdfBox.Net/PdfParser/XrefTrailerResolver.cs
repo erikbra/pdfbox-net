@@ -25,7 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.PdfParser;
 
@@ -34,6 +36,8 @@ namespace PdfBox.Net.PdfParser;
 /// </summary>
 public partial class XrefTrailerResolver
 {
+    private static ILogger<XrefTrailerResolver> LOG => PdfBoxLogging.CreateLogger<XrefTrailerResolver>();
+
     /// <summary>
     /// The XRefType of a trailer.
     /// </summary>
@@ -142,6 +146,9 @@ public partial class XrefTrailerResolver
     {
         if (_curXrefTrailerObj is null)
         {
+            LOG.LogWarning(
+                "Cannot add XRef entry for '{ObjectNumber}' because XRef start was not signalled.",
+                objKey.GetNumber());
             return;
         }
 
@@ -159,6 +166,7 @@ public partial class XrefTrailerResolver
     {
         if (_curXrefTrailerObj is null)
         {
+            LOG.LogWarning("Cannot add trailer because XRef start was not signalled.");
             return;
         }
 
@@ -183,6 +191,7 @@ public partial class XrefTrailerResolver
     {
         if (_resolvedXrefTrailer is not null)
         {
+            LOG.LogWarning("Method must be called only ones with last startxref value.");
             return;
         }
 
@@ -196,6 +205,8 @@ public partial class XrefTrailerResolver
 
         if (curObj is null)
         {
+            LOG.LogWarning("Did not found XRef object at specified startxref position {StartXrefPosition}",
+                startxrefBytePosValue);
             xrefSeqBytePos.AddRange(_bytePosToXrefMap.Keys);
             xrefSeqBytePos.Sort();
         }
@@ -214,6 +225,8 @@ public partial class XrefTrailerResolver
                 curObj = _bytePosToXrefMap.GetValueOrDefault(prevBytePos);
                 if (curObj is null)
                 {
+                    LOG.LogWarning("Did not found XRef object pointed to by 'Prev' key at position {PrevPosition}",
+                        prevBytePos);
                     break;
                 }
 

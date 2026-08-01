@@ -23,6 +23,31 @@ Key fields: `latest_upstream_commit_seen`, `tracked_commit_updated_utc`, `last_p
 
 ---
 
+### `java-logging-audit.csv` and `java-logging-audit.summary.json`
+**Purpose:** Exhaustive, generated inventory of every logger declaration and use in the tracked
+Apache PDFBox production baseline, mapped to the corresponding C# target and classified as
+`migrated`, `absent-region`, or `unaccounted`.
+
+The CSV is the row-level audit ledger; the JSON file contains reproducibility metadata and
+aggregate counts. Generate both with `tools/parity/generate_java_logging_audit.py`. The generator
+exits non-zero while any row remains unaccounted.
+
+### `java-logging-absent-regions.json`
+**Purpose:** Reviewed, line-addressable explanations for upstream logger rows whose entire
+containing Java behavior is not present in the current .NET port. It is an input to the logging
+audit generator, not a blanket waiver for a mapped class.
+
+### `java-logging-target-overrides.json`
+**Purpose:** Additional logging-specific target mappings for adapted Java regions that land in a
+C# file beyond the primary provenance/conversion target. Each override names the extra target and
+explains the architectural split.
+
+### `java-logging-audit.md`
+**Purpose:** Human-readable methodology, baseline totals, provider-neutral mapping decisions,
+and verification notes for the Java logging migration.
+
+---
+
 ### `all-upstream-coverage.json`
 **Purpose:** Detailed aggregate coverage breakdown, split by upstream module (e.g. `pdfbox`, `fontbox`, `xmpbox`) and package family (e.g. `fontbox:ttf`, `pdfbox:pdmodel`).  Used when diagnosing *which* area of the codebase still has gaps.
 
@@ -131,6 +156,10 @@ This file is **append-only** during active work: each implementation slice adds 
 |---|---|---|
 | `upstream-port-coverage-state.json` | Gate evaluation booleans, `missing_source_paths_sha256` | `upstream-sync-state.json` (totals), `all-upstream-coverage.json` (totals) |
 | `upstream-sync-state.json` | Drift-detection fields (`latest_upstream_commit_seen`, `tracked_commit_updated_utc`) | `upstream-port-coverage-state.json` (totals) |
+| `java-logging-audit.csv` / `.summary.json` | Declaration/use-level logging migration ledger and generated totals | `java-logging-audit.md` (rendered summary) |
+| `java-logging-absent-regions.json` | Reviewed source-line dispositions for absent behavior | `java-logging-audit.csv` (`absent-region` rows) |
+| `java-logging-target-overrides.json` | Explicit extra targets for adapted split landings | Provenance and conversion-record mappings |
+| `java-logging-audit.md` | Human-readable logging audit method and verification | Generated logging audit artifacts |
 | `all-upstream-coverage.json` | Per-module / per-family breakdown | `upstream-port-coverage-state.json` (top-level totals), `pdfbox-main-gap-analysis.md` (rendered subset) |
 | `upstream-file-comparison.json` | One row per upstream Java file with mapping evidence and gap category | `all-upstream-coverage.json` (totals), `traceability-parity-report.json` (traceability-backed target paths) |
 | `pdfbox-main-gap-analysis.md` | Human-readable Markdown rendering | `all-upstream-coverage.json`, `upstream-port-coverage-state.json` |

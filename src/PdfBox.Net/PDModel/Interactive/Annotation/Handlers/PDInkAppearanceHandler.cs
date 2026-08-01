@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDInkAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDInkAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDInkAppearanceHandler>();
+
     public PDInkAppearanceHandler(PDAnnotation annotation)
         : this(annotation, null)
     {
@@ -24,7 +26,15 @@ public sealed class PDInkAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        WriteDefaultNormalAppearance("PDInkAppearance");
+        try
+        {
+            WriteDefaultNormalAppearance("PDInkAppearance");
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     public override void GenerateRolloverAppearance()
