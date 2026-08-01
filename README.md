@@ -69,6 +69,22 @@ small backend/provider contracts so the mechanical Java port stays portable.
 See [`reports/printing-backend-policy-2026-06-28.md`](reports/printing-backend-policy-2026-06-28.md)
 for the printing support matrix and platform limitations.
 
+## Logging
+
+PdfBox.Net exposes provider-neutral logging through `Microsoft.Extensions.Logging`
+and does not select a logging provider. Logging routed through this API is disabled by
+default. Applications can install their configured factory during startup:
+
+```csharp
+using PdfBox.Net.Logging;
+
+PdfBoxLogging.LoggerFactory = configuredLoggerFactory;
+```
+
+The application owns the supplied factory and remains responsible for its configuration
+and disposal. Logger categories use the fully qualified PdfBox.Net type name, so providers
+such as Serilog retain the same per-class context as the upstream Java loggers.
+
 ## Build and test
 
 ```sh
