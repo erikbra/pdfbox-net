@@ -406,7 +406,7 @@ public abstract class PDFont : PDFontLike
             if (cmap != null && !cmap.HasUnicodeMappings())
             {
                 LOG.LogWarning("Invalid ToUnicode CMap in font {FontName}", GetName());
-                if (IsIdentityCMap(cmap) ||
+                if (!IsIdentityCMap(cmap) &&
                     FontDictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is COSName encoding &&
                     IsIdentityCMapName(encoding.GetName()))
                 {
