@@ -35,6 +35,8 @@ namespace PdfBox.Net.PDModel.Fixup.Processor;
 
 public class AcroFormOrphanWidgetsProcessor : AbstractProcessor
 {
+    private static ILogger<AcroFormOrphanWidgetsProcessor> LOG => PdfBoxLogging.CreateLogger<AcroFormOrphanWidgetsProcessor>();
+
     public AcroFormOrphanWidgetsProcessor(PDDocument document)
         : base(document)
     {
@@ -52,9 +54,12 @@ public class AcroFormOrphanWidgetsProcessor : AbstractProcessor
 
     private void ResolveFieldsFromWidgets(PDAcroForm acroForm)
     {
+        LOG.LogDebug("rebuilding fields from widgets");
+
         PDResources? resources = acroForm.GetDefaultResources();
         if (resources == null)
         {
+            LOG.LogDebug("AcroForm default resources is null");
             return;
         }
 
@@ -123,16 +128,29 @@ public class AcroFormOrphanWidgetsProcessor : AbstractProcessor
         {
             if (fontName.GetName().StartsWith("+", StringComparison.Ordinal))
             {
+                LOG.LogDebug("font resource for widget was a subsetted font - ignored: {FontName}",
+                    fontName.GetName());
                 continue;
             }
 
-            if (acroFormResources.GetFont(fontName) == null)
+            try
             {
-                PDFont? widgetFont = widgetResources.GetFont(fontName);
-                if (widgetFont != null)
+                if (acroFormResources.GetFont(fontName) == null)
                 {
-                    acroFormResources.Put(fontName, widgetFont);
+                    PDFont? widgetFont = widgetResources.GetFont(fontName);
+                    if (widgetFont != null)
+                    {
+                        acroFormResources.Put(fontName, widgetFont);
+                        LOG.LogDebug(
+                            "added font resource to AcroForm from widget for font name {FontName}",
+                            fontName.GetName());
+                    }
                 }
+            }
+            catch (IOException)
+            {
+                LOG.LogDebug("unable to add font to AcroForm for font name {FontName}",
+                    fontName.GetName());
             }
         }
     }
@@ -146,6 +164,7 @@ public class AcroFormOrphanWidgetsProcessor : AbstractProcessor
         {
             if (!visited.Add(rootParent))
             {
+                LOG.LogWarning("Field ignored: {Field}", rootParent);
                 return null;
             }
 
@@ -189,6 +208,8 @@ public class AcroFormOrphanWidgetsProcessor : AbstractProcessor
         }
 
         PDFont? widgetFont = TryGetWidgetFontResource(field, fontName);
+        LOG.LogDebug("trying to add missing font resource for field {FieldName}",
+            field.GetFullyQualifiedName());
         if (widgetFont != null)
         {
             defaultResources.Put(fontName, widgetFont);

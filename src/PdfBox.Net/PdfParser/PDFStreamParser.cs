@@ -26,8 +26,10 @@
  */
 
 using System.Text;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.PdfParser;
 
@@ -36,6 +38,8 @@ namespace PdfBox.Net.PdfParser;
 /// </summary>
 public sealed class PDFStreamParser
 {
+    private static ILogger<PDFStreamParser> LOG => PdfBoxLogging.CreateLogger<PDFStreamParser>();
+
     private const int NoLookAhead = -2;
     private readonly Stream _input;
     private int _lookAhead = NoLookAhead;
@@ -122,6 +126,8 @@ public sealed class PDFStreamParser
         }
         catch (IOException)
         {
+            LOG.LogWarning("Stop reading invalid array from content stream at offset {Offset}",
+                GetCurrentPositionForLogging());
             return null;
         }
     }
@@ -138,6 +144,8 @@ public sealed class PDFStreamParser
             }
             catch (IOException)
             {
+                LOG.LogWarning("Stop reading invalid dictionary from content stream at offset {Offset}",
+                    GetCurrentPositionForLogging());
                 return null;
             }
         }
@@ -175,6 +183,12 @@ public sealed class PDFStreamParser
             return Operator.GetOperator(token);
         }
 
+        if (token.Equals("+", StringComparison.Ordinal))
+        {
+            LOG.LogWarning("isolated '+' is ignored");
+            return Operator.GetOperator(token);
+        }
+
         try
         {
             return COSNumber.Get(token);
@@ -193,12 +207,14 @@ public sealed class PDFStreamParser
             SkipSpacesAndComments();
             if (PeekByte() == -1)
             {
+                LogUnexpectedInlineImageDataMarker(null);
                 throw new IOException("Unexpected EOF while parsing inline image dictionary.");
             }
 
             object? keyOrDataMarker = ReadTokenObject();
             if (keyOrDataMarker is null)
             {
+                LogUnexpectedInlineImageDataMarker(null);
                 throw new IOException("Unexpected EOF while parsing inline image dictionary.");
             }
 
@@ -210,20 +226,43 @@ public sealed class PDFStreamParser
 
             if (keyOrDataMarker is not COSName key)
             {
+                LogUnexpectedInlineImageDataMarker(keyOrDataMarker);
                 throw new IOException($"Invalid inline image key token '{keyOrDataMarker}'.");
             }
 
             SkipSpacesAndComments();
-            parameters.SetItem(key, ReadTokenObject() as COSBase ?? throw new IOException("Inline image dictionary value must be COSBase."));
+            object? value = ReadTokenObject();
+            if (value is not COSBase cosValue)
+            {
+                LOG.LogWarning("Unexpected token in inline image dictionary at offset {Offset}",
+                    GetCurrentPositionForLogging());
+                throw new IOException("Inline image dictionary value must be COSBase.");
+            }
+            parameters.SetItem(key, cosValue);
         }
 
         ConsumeInlineImageDataSeparator();
         byte[] imageData = ReadInlineImageData();
+        if (imageData.Length == 0)
+        {
+            LOG.LogWarning("empty inline image at stream offset {Offset}", GetCurrentPositionForLogging());
+        }
 
         Operator op = Operator.GetOperator(OperatorName.BEGIN_INLINE_IMAGE);
         op.SetImageParameters(parameters);
         op.SetImageData(imageData);
         return op;
+    }
+
+    private void LogUnexpectedInlineImageDataMarker(object? nextToken)
+    {
+        LOG.LogWarning("nextToken {NextToken} at position {Position}, expected {ExpectedOperator}?!",
+            nextToken, GetCurrentPositionForLogging(), OperatorName.BEGIN_INLINE_IMAGE_DATA);
+    }
+
+    private object GetCurrentPositionForLogging()
+    {
+        return _input.CanSeek ? _input.Position : "unknown";
     }
 
     private void ConsumeInlineImageDataSeparator()
@@ -287,6 +326,34 @@ public sealed class PDFStreamParser
                          (bytes[i + 3] is (byte)'\n' or (byte)'\r' or (byte)' ');
             if (isEnd)
             {
+                int followingStart = i + 3;
+                int followingCount = Math.Min(10, bytes.Length - followingStart);
+                if (LOG.IsEnabled(LogLevel.Debug))
+                {
+                    LOG.LogDebug("String after EI: '{StringAfterEi}'",
+                        Encoding.ASCII.GetString(bytes, followingStart, followingCount));
+                }
+
+                if (followingCount == 10)
+                {
+                    int startOpIdx = followingStart;
+                    while (startOpIdx < bytes.Length && IsWhiteSpace(bytes[startOpIdx]))
+                    {
+                        startOpIdx++;
+                    }
+                    int endOpIdx = startOpIdx;
+                    while (endOpIdx < bytes.Length && !IsWhiteSpace(bytes[endOpIdx]))
+                    {
+                        endOpIdx++;
+                    }
+                    if (LOG.IsEnabled(LogLevel.Debug))
+                    {
+                        string candidate = Encoding.ASCII.GetString(bytes, startOpIdx, endOpIdx - startOpIdx);
+                        LOG.LogDebug("startOpIdx: {StartOperatorIndex} endOpIdx: {EndOperatorIndex} s = '{Candidate}'",
+                            startOpIdx - followingStart, endOpIdx - followingStart, candidate);
+                    }
+                }
+
                 dataLength = i;
                 consumedLength = 4;
                 return true;

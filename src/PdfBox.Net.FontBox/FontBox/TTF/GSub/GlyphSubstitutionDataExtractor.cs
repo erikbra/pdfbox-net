@@ -29,6 +29,9 @@ using PdfBox.Net.FontBox.TTF.Model;
 using PdfBox.Net.FontBox.TTF.Table.Common;
 using PdfBox.Net.FontBox.TTF.Table.GSub;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -38,6 +41,8 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 public class GlyphSubstitutionDataExtractor
 {
+    private static ILogger<GlyphSubstitutionDataExtractor> LOG => PdfBoxLogging.CreateLogger<GlyphSubstitutionDataExtractor>();
+
     public IGsubData GetGsubData(Dictionary<string, ScriptTable> scriptList,
         FeatureListTable featureListTable, LookupListTable lookupListTable)
     {
@@ -92,6 +97,7 @@ public class GlyphSubstitutionDataExtractor
             {
                 if (scriptList.TryGetValue(scriptName, out var value))
                 {
+                    LOG.LogDebug("Language decided: {Language} {ScriptName}", lang, scriptName);
                     return new ScriptTableDetails(lang, scriptName, value);
                 }
             }
@@ -125,6 +131,10 @@ public class GlyphSubstitutionDataExtractor
                 ExtractData(glyphSubstitutionMap, lookups[lookupIndex]);
             }
         }
+
+        LOG.LogDebug(
+            "*********** extracting GSUB data for the feature: {FeatureTag}, glyphSubstitutionMap: {GlyphSubstitutionMap}",
+            featureRecord.GetFeatureTag(), glyphSubstitutionMap);
         gsubData[featureRecord.GetFeatureTag()] = glyphSubstitutionMap;
     }
 
@@ -153,6 +163,12 @@ public class GlyphSubstitutionDataExtractor
             {
                 ExtractDataFromMultipleSubstitutionFormat1Table(glyphSubstitutionMap, multSub);
             }
+            else
+            {
+                // usually null, due to being skipped in GlyphSubstitutionTable.ReadLookupTable()
+                LOG.LogDebug("The type {LookupSubTable} is not yet supported, will be ignored",
+                    lookupSubTable);
+            }
         }
     }
 
@@ -179,6 +195,9 @@ public class GlyphSubstitutionDataExtractor
 
         if (coverageTable.GetSize() != singleSubstTableFormat2.GetSubstituteGlyphIDs().Length)
         {
+            LOG.LogWarning(
+                "The coverage table size ({CoverageTableSize}) should be the same as the count of the substituteGlyphIDs tables ({SubstituteGlyphIdCount})",
+                coverageTable.GetSize(), singleSubstTableFormat2.GetSubstituteGlyphIDs().Length);
             return;
         }
 
@@ -200,6 +219,9 @@ public class GlyphSubstitutionDataExtractor
 
         if (coverageTable.GetSize() != multipleSubstFormat1Subtable.GetSequenceTables().Length)
         {
+            LOG.LogWarning(
+                "The coverage table size ({CoverageTableSize}) should be the same as the count of the sequence tables ({SequenceTableCount})",
+                coverageTable.GetSize(), multipleSubstFormat1Subtable.GetSequenceTables().Length);
             return;
         }
 
@@ -240,6 +262,9 @@ public class GlyphSubstitutionDataExtractor
 
         if (coverageTable.GetSize() != alternateSubstitutionFormat1.GetAlternateSetTables().Length)
         {
+            LOG.LogWarning(
+                "The coverage table size ({CoverageTableSize}) should be the same as the count of the alternate set tables ({AlternateSetTableCount})",
+                coverageTable.GetSize(), alternateSubstitutionFormat1.GetAlternateSetTables().Length);
             return;
         }
 
@@ -268,6 +293,8 @@ public class GlyphSubstitutionDataExtractor
         int[] componentGlyphIDs = ligatureTable.GetComponentGlyphIDs();
         var glyphsToBeSubstituted = new List<int>(componentGlyphIDs);
 
+        LOG.LogDebug("glyphsToBeSubstituted: {GlyphsToBeSubstituted}", glyphsToBeSubstituted);
+
         PutNewSubstitutionEntry(glyphSubstitutionMap,
             new List<int> { ligatureTable.GetLigatureGlyph() },
             glyphsToBeSubstituted);
@@ -277,7 +304,15 @@ public class GlyphSubstitutionDataExtractor
         Dictionary<IList<int>, IList<int>> glyphSubstitutionMap,
         IList<int> newGlyphList, IList<int> glyphsToBeSubstituted)
     {
+        glyphSubstitutionMap.TryGetValue(glyphsToBeSubstituted, out IList<int>? oldValues);
         glyphSubstitutionMap[glyphsToBeSubstituted] = newGlyphList;
+
+        if (oldValues != null)
+        {
+            LOG.LogDebug(
+                "For the newGlyph: {NewGlyphList}, newValue: {GlyphsToBeSubstituted} is trying to override the oldValue {OldValues}",
+                newGlyphList, glyphsToBeSubstituted, oldValues);
+        }
     }
 
     private sealed class ScriptTableDetails

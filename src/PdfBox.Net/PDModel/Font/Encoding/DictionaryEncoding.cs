@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Font.Encoding;
 
 public sealed class DictionaryEncoding : Encoding
 {
+    private static ILogger<DictionaryEncoding> LOG => PdfBoxLogging.CreateLogger<DictionaryEncoding>();
+
     private static readonly COSName BaseEncodingKey = COSName.GetPDFName("BaseEncoding");
     private static readonly COSName DifferencesKey = COSName.GetPDFName("Differences");
     private static readonly COSName EncodingKey = COSName.GetPDFName("Encoding");
@@ -46,6 +48,12 @@ public sealed class DictionaryEncoding : Encoding
         _readOnlyDifferences = _differences;
 
         _encoding = fontDictionary.GetDictionaryObject(EncodingKey);
+        if (fontDictionary.GetNameAsString(COSName.SUBTYPE) == "Type3" &&
+            _encoding is COSDictionary type3Encoding &&
+            type3Encoding.ContainsKey(BaseEncodingKey))
+        {
+            LOG.LogWarning("/BaseEncoding in type 3 font");
+        }
         Encoding baseEncoding = ResolveBaseEncoding(_encoding);
         _baseEncoding = baseEncoding;
         foreach (KeyValuePair<int, string> kv in baseEncoding.GetCodeToNameMap())

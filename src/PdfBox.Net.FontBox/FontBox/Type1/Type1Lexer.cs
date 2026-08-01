@@ -29,10 +29,15 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.Type1;
 
 public sealed class Type1Lexer
 {
+    private static ILogger<Type1Lexer> LOG => PdfBoxLogging.CreateLogger<Type1Lexer>();
+
     private static readonly Regex IntegerPattern = new(@"^[+-]?\d+$", RegexOptions.Compiled);
     private static readonly Regex RadixPattern = new(@"^([+-]?)(\d+)#([0-9A-Za-z]+)$", RegexOptions.Compiled);
     private static readonly Regex RealPattern = new(@"^[+-]?(?:\d+\.\d*|\d*\.\d+|\d+[eE][+-]?\d+|\d+\.\d*[eE][+-]?\d+|\d*\.\d+[eE][+-]?\d+|\d+e[+-]?\d+|\d+E[+-]?\d+)$", RegexOptions.Compiled);
@@ -85,7 +90,9 @@ public sealed class Type1Lexer
                 case '\n':
                 case '\r':
                 case '\f':
+                    continue;
                 case '\0':
+                    LOG.LogWarning("NULL byte in font, skipped");
                     continue;
                 case '%':
                     ReadComment();

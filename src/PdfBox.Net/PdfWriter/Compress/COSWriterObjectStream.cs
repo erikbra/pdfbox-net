@@ -25,11 +25,16 @@
  */
 
 using PdfBox.Net.COS;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.PdfWriter.Compress;
 
 public sealed class COSWriterObjectStream
 {
+    private static ILogger<COSWriterObjectStream> LOG =>
+        PdfBoxLogging.CreateLogger<COSWriterObjectStream>();
+
     private readonly COSWriterCompressionPool _compressionPool;
     private readonly List<COSObjectKey> _preparedKeys = [];
     private readonly List<COSBase> _preparedObjects = [];
@@ -46,8 +51,28 @@ public sealed class COSWriterObjectStream
             return;
         }
 
+        COSBase preparedObject = obj;
+        if (obj is COSObject indirect)
+        {
+            COSBase? inner = indirect.GetObject();
+            if (inner is null)
+            {
+                LOG.LogDebug("Can't dereference indirect object, writing COSNull instead {Object}",
+                    obj);
+                preparedObject = COSNull.NULL;
+            }
+            else
+            {
+                if (inner is COSObject)
+                {
+                    LOG.LogError("COSObject {Object} references another COSObject?!", obj);
+                }
+                preparedObject = inner;
+            }
+        }
+
         _preparedKeys.Add(key);
-        _preparedObjects.Add(obj is COSObject indirect && indirect.GetObject() is COSBase inner ? inner : obj);
+        _preparedObjects.Add(preparedObject);
     }
 
     public IReadOnlyList<COSObjectKey> GetPreparedKeys() => _preparedKeys;

@@ -9,11 +9,16 @@
  */
 
 using PdfBox.Net.COS;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.ContentStream.Operator.Graphics;
 
 public sealed class CurveToReplicateInitialPoint : OperatorProcessor
 {
+    private static ILogger<CurveToReplicateInitialPoint> LOG =>
+        PdfBoxLogging.CreateLogger<CurveToReplicateInitialPoint>();
+
     public CurveToReplicateInitialPoint(PDFStreamEngine context) : base(OperatorName.CURVE_TO_REPLICATE_INITIAL_POINT, context) { }
 
     public override string GetName()
@@ -28,7 +33,12 @@ public sealed class CurveToReplicateInitialPoint : OperatorProcessor
             operands[2] is not COSNumber x3 || operands[3] is not COSNumber y3) return;
 
         var currentPoint = Context.GetCurrentPoint();
-        if (currentPoint is null) return;
+        if (currentPoint is null)
+        {
+            LOG.LogWarning("curveTo ({X},{Y}) without initial MoveTo", x3.FloatValue(),
+                y3.FloatValue());
+            return;
+        }
 
         Context.CurveTo(
             (float)currentPoint.X, (float)currentPoint.Y,

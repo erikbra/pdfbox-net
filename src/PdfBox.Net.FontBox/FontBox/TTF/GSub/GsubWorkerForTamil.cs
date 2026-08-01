@@ -27,6 +27,9 @@
 
 using PdfBox.Net.FontBox.TTF.Model;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF.GSub;
 
 /// <summary>
@@ -34,6 +37,8 @@ namespace PdfBox.Net.FontBox.TTF.GSub;
 /// </summary>
 public class GsubWorkerForTamil : IGsubWorker
 {
+    private static ILogger<GsubWorkerForTamil> LOG => PdfBoxLogging.CreateLogger<GsubWorkerForTamil>();
+
     private static readonly IList<string> FeaturesInOrder = new List<string>
     {
         "locl", "nukt", "akhn", "rphf", "pref", "half", "pres", "abvs", "blws",
@@ -71,8 +76,12 @@ public class GsubWorkerForTamil : IGsubWorker
         foreach (string feature in FeaturesInOrder)
         {
             if (!_gsubData.IsFeatureSupported(feature))
+            {
+                LOG.LogDebug("The feature {Feature} was not found", feature);
                 continue;
+            }
 
+            LOG.LogDebug("Applying the feature {Feature}", feature);
             IScriptFeature scriptFeature = _gsubData.GetFeature(feature);
             intermediateGlyphsFromGsub = ApplyGsubFeature(scriptFeature, intermediateGlyphsFromGsub);
         }
@@ -142,7 +151,10 @@ public class GsubWorkerForTamil : IGsubWorker
     {
         var allGlyphIdsForSubstitution = scriptFeature.GetAllGlyphIdsForSubstitution();
         if (allGlyphIdsForSubstitution.Count == 0)
+        {
+            LOG.LogDebug("GetAllGlyphIdsForSubstitution() for {FeatureName} is empty", scriptFeature.GetName());
             return originalGlyphs;
+        }
 
         if (!_glyphArraySplitters.TryGetValue(scriptFeature.GetName(), out var glyphArraySplitter))
         {
@@ -159,6 +171,8 @@ public class GsubWorkerForTamil : IGsubWorker
             else
                 gsubProcessedGlyphs.AddRange(chunk);
         }
+        LOG.LogDebug("OriginalGlyphs: {OriginalGlyphs}, GsubProcessedGlyphs: {ProcessedGlyphs}",
+            originalGlyphs, gsubProcessedGlyphs);
         return gsubProcessedGlyphs;
     }
 

@@ -51,6 +51,8 @@ namespace PdfBox.Net.PDModel;
 /// </summary>
 public sealed partial class PDDocument : IDisposable
 {
+    private static ILogger<PDDocument> LOG => PdfBoxLogging.CreateLogger<PDDocument>();
+
     private const string DefaultVersion = "1.4";
 
     private readonly COSDocument _document;
@@ -380,6 +382,8 @@ public sealed partial class PDDocument : IDisposable
 
         if (_allSecurityToBeRemoved)
         {
+            LOG.LogWarning(
+                "do not call setAllSecurityToBeRemoved(true) before calling protect(), as protect() implies setAllSecurityToBeRemoved(false)");
             _allSecurityToBeRemoved = false;
         }
 
@@ -852,6 +856,13 @@ public sealed partial class PDDocument : IDisposable
     {
         ArgumentNullException.ThrowIfNull(filePath);
         EnsureNotDisposed();
+        FileInfo file = new(filePath);
+        if (file.Exists && file.Length > 0)
+        {
+            LOG.LogWarning(
+                "You are overwriting the existing file {FileName}, this will produce a corrupted file if you're also reading from it",
+                file.Name);
+        }
         using FileStream output = File.Create(filePath);
         Save(output);
     }
@@ -1559,13 +1570,18 @@ public sealed partial class PDDocument : IDisposable
         }
 
         _disposed = true;
+        IOException? firstException = null;
         foreach (TrueTypeFont font in _fontsToClose)
         {
-            font.Dispose();
+            firstException = IOUtils.CloseAndLogException(font, LOG, "TrueTypeFont", firstException);
         }
 
         _fontsToClose.Clear();
-        _document.Dispose();
+        firstException = IOUtils.CloseAndLogException(_document, LOG, "COSDocument", firstException);
+        if (firstException is not null)
+        {
+            throw firstException;
+        }
     }
 
     /// <summary>
@@ -1640,6 +1656,13 @@ public sealed partial class PDDocument : IDisposable
         importedPage.SetCropBox(new PDRectangle(page.GetCropBox().GetCOSArray()));
         importedPage.SetMediaBox(new PDRectangle(page.GetMediaBox().GetCOSArray()));
         importedPage.SetRotation(page.GetRotation());
+        if (page.GetResources() != null &&
+            page.GetCOSObject() is COSDictionary sourcePageDictionary &&
+            !sourcePageDictionary.ContainsKey(COSName.RESOURCES))
+        {
+            LOG.LogWarning("inherited resources of source document are not imported to destination page");
+            LOG.LogWarning("call importedPage.setResources(page.getResources()) to do this");
+        }
         return importedPage;
     }
 
@@ -1666,7 +1689,20 @@ public sealed partial class PDDocument : IDisposable
             return headerVersion;
         }
 
-        float catalogVersion = ParseVersion(GetDocumentCatalog().GetVersion(), -1f);
+        float catalogVersion = -1f;
+        string? catalogVersionValue = GetDocumentCatalog().GetVersion();
+        if (catalogVersionValue != null)
+        {
+            try
+            {
+                catalogVersion = float.Parse(catalogVersionValue,
+                    NumberStyles.Float, CultureInfo.InvariantCulture);
+            }
+            catch (FormatException ex)
+            {
+                LOG.LogError(ex, "Can't extract the version number of the document catalog.");
+            }
+        }
         return Math.Max(headerVersion, catalogVersion);
     }
 
@@ -1685,6 +1721,7 @@ public sealed partial class PDDocument : IDisposable
 
         if (version < currentVersion)
         {
+            LOG.LogError("It's not allowed to downgrade the version of a pdf.");
             return;
         }
 

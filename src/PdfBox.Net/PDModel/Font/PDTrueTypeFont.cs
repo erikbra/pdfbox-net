@@ -37,6 +37,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public partial class PDTrueTypeFont : PDSimpleFont
 {
+    private static ILogger<PDTrueTypeFont> LOG => PdfBoxLogging.CreateLogger<PDTrueTypeFont>();
+
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
     private static readonly COSName FontFile2Key = COSName.GetPDFName("FontFile2");
     private static readonly COSName FontFile3Key = COSName.GetPDFName("FontFile3");
@@ -68,8 +70,10 @@ public partial class PDTrueTypeFont : PDSimpleFont
                 return new PDTrueTypeFont(dictionary, ttf);
             }
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogWarning(ex, "Could not read embedded TTF for font {FontName}",
+                dictionary.GetNameAsString(COSName.GetPDFName("BaseFont")));
             // Keep non-throwing font factory behavior.
         }
 

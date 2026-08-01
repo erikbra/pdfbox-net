@@ -40,6 +40,8 @@
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.Rendering;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Printing;
 
@@ -55,6 +57,8 @@ namespace PdfBox.Net.Printing;
 /// <remarks>Author: John Hewson</remarks>
 public sealed partial class PDFPrintable
 {
+    private static ILogger<PDFPrintable> LOG => PdfBoxLogging.CreateLogger<PDFPrintable>();
+
     /// <summary>DPI value indicating rasterization is disabled.</summary>
     public const float RasterizeOff = 0f;
     /// <summary>DPI value indicating the printer's native DPI should be used.</summary>

@@ -27,12 +27,14 @@
 
 using System.Globalization;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Resources;
 using PdfBox.Net.Util;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.MultiPdf;
 
@@ -42,6 +44,8 @@ namespace PdfBox.Net.MultiPdf;
 /// </summary>
 public class Overlay : IDisposable
 {
+    private static ILogger<Overlay> LOG => PdfBoxLogging.CreateLogger<Overlay>();
+
     /// <summary>Possible placement of overlaid pages: foreground or background.</summary>
     public enum Position
     {
@@ -704,6 +708,7 @@ public class Overlay : IDisposable
         PDRectangle pageMediaBox = page.GetMediaBox();
         float hShift = pageMediaBox.GetLowerLeftX() + (pageMediaBox.GetWidth() - overlayMediaBox.GetWidth()) / 2.0f;
         float vShift = pageMediaBox.GetLowerLeftY() + (pageMediaBox.GetHeight() - overlayMediaBox.GetHeight()) / 2.0f;
+        LOG.LogDebug("Overlay position: ({HorizontalShift},{VerticalShift})", hShift, vShift);
 
         AffineTransform at = new();
         at.Translate(hShift, vShift);

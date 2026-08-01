@@ -9,47 +9,49 @@
  */
 
 using PdfBox.Net.COS;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Filter;
 
 public sealed class ASCIIHexFilter : Filter
 {
+    private static ILogger<ASCIIHexFilter> LOG => PdfBoxLogging.CreateLogger<ASCIIHexFilter>();
+
     public override DecodeResult Decode(Stream input, Stream output, COSDictionary parameters, int index, DecodeOptions options)
     {
-        int firstNibble = -1;
-        int b;
-        while ((b = input.ReadByte()) != -1)
+        int firstByte;
+        while ((firstByte = input.ReadByte()) != -1)
         {
-            if (IsWhitespace(b))
+            while (IsWhitespace(firstByte))
             {
-                continue;
+                firstByte = input.ReadByte();
             }
-
-            if (b == '>')
+            if (firstByte == -1 || firstByte == '>')
             {
                 break;
             }
-
-            int nibble = FromHex(b);
-            if (nibble < 0)
+            int firstNibble = FromHex(firstByte);
+            if (firstNibble == -1)
             {
-                continue;
+                LOG.LogError("Invalid hex, int: {ByteValue} char: {Character} (1st byte)",
+                    firstByte, (char)firstByte);
             }
-
-            if (firstNibble < 0)
+            int value = firstNibble * 16;
+            int secondByte = input.ReadByte();
+            if (secondByte == -1 || secondByte == '>')
             {
-                firstNibble = nibble;
+                output.WriteByte(unchecked((byte)value));
+                break;
             }
-            else
+            int secondNibble = FromHex(secondByte);
+            if (secondNibble == -1)
             {
-                output.WriteByte((byte)((firstNibble << 4) | nibble));
-                firstNibble = -1;
+                LOG.LogError("Invalid hex, int: {ByteValue} char: {Character} (2nd byte)",
+                    secondByte, (char)secondByte);
             }
-        }
-
-        if (firstNibble >= 0)
-        {
-            output.WriteByte((byte)(firstNibble << 4));
+            value += secondNibble;
+            output.WriteByte(unchecked((byte)value));
         }
 
         output.Flush();

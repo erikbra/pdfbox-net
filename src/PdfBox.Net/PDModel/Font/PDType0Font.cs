@@ -38,6 +38,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public partial class PDType0Font : PDVectorFont
 {
+    private static ILogger<PDType0Font> LOG => PdfBoxLogging.CreateLogger<PDType0Font>();
+
     private static readonly COSName EncodingKey = COSName.GetPDFName("Encoding");
     private static readonly COSName CidSystemInfoKey = COSName.GetPDFName("CIDSystemInfo");
     private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
@@ -51,6 +53,7 @@ public partial class PDType0Font : PDVectorFont
     private readonly CMap? _cMapUcs2;
     private readonly bool _isCMapPredefined;
     private readonly bool _isDescendantCjk;
+    private readonly HashSet<int> _noUnicode = [];
 
     public PDType0Font(COSDictionary dictionary, PDCIDFont? descendantFont)
         : base(dictionary)
@@ -285,7 +288,14 @@ public partial class PDType0Font : PDVectorFont
             }
         }
 
-        return _descendantFont?.ToUnicode(CodeToCID(code), glyphList);
+        string? descendantUnicode = _descendantFont?.ToUnicode(CodeToCID(code), glyphList);
+        if (descendantUnicode is null && LOG.IsEnabled(LogLevel.Warning) && _noUnicode.Add(code))
+        {
+            LOG.LogWarning("No Unicode mapping for {CID} ({Code}) in font {FontName}",
+                $"CID+{CodeToCID(code)}", code, GetName());
+        }
+
+        return descendantUnicode;
     }
 
     public override string? ToUnicode(int code) => ToUnicode(code, GlyphList.GetAdobeGlyphList());
@@ -356,12 +366,24 @@ public partial class PDType0Font : PDVectorFont
                 predefined = CreateIdentityCMap(encodingName.GetName());
             }
 
+            if (predefined is null)
+            {
+                LOG.LogWarning("Invalid Encoding CMap in font {FontName}",
+                    dictionary.GetNameAsString(BaseFontKey));
+            }
+
             return (predefined, predefined != null);
         }
 
         if (encoding is not null)
         {
-            return (ReadCMap(encoding), false);
+            CMap? embedded = ReadCMap(encoding);
+            if (embedded is null)
+            {
+                LOG.LogWarning("Invalid Encoding CMap in font {FontName}",
+                    dictionary.GetNameAsString(BaseFontKey));
+            }
+            return (embedded, false);
         }
 
         return (null, false);

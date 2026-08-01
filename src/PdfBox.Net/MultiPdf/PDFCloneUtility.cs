@@ -27,6 +27,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.MultiPdf;
 
@@ -35,6 +37,8 @@ namespace PdfBox.Net.MultiPdf;
 /// </summary>
 public class PDFCloneUtility
 {
+    private static ILogger<PDFCloneUtility> LOG => PdfBoxLogging.CreateLogger<PDFCloneUtility>();
+
     private readonly PDDocument _destination;
     private readonly Dictionary<COSBase, COSBase> _clonedVersion = new(ReferenceEqualityComparer.Instance);
     private readonly HashSet<COSBase> _clonedValues = new(ReferenceEqualityComparer.Instance);
@@ -247,6 +251,12 @@ public class PDFCloneUtility
 
     private static bool HasSelfReference(COSBase parent, COSBase? value)
     {
-        return value is COSObject objectValue && ReferenceEquals(objectValue.GetObject(), parent);
+        if (value is COSObject objectValue && ReferenceEquals(objectValue.GetObject(), parent))
+        {
+            LOG.LogWarning("{ParentType} object has a reference to itself: {ObjectKey}",
+                parent.GetType().Name, objectValue.GetKey());
+            return true;
+        }
+        return false;
     }
 }

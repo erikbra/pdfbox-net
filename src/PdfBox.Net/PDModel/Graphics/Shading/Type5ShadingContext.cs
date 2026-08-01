@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class Type5ShadingContext : TriangleBasedShadingContext
 {
+    private static ILogger<Type5ShadingContext> LOG => PdfBoxLogging.CreateLogger<Type5ShadingContext>();
+
     /// <summary>
     /// Creates a context used for lattice-form Gouraud-shaded triangle meshes.
     /// </summary>
@@ -39,5 +41,6 @@ public sealed class Type5ShadingContext : TriangleBasedShadingContext
     public Type5ShadingContext(PDShadingType5 shading, Matrix matrix)
         : base(shading)
     {
+        LOG.LogDebug("Type5ShadingContext");
     }
 }

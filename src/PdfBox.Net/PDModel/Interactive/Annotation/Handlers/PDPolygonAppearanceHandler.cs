@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDPolygonAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDPolygonAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDPolygonAppearanceHandler>();
+
     public PDPolygonAppearanceHandler(PDAnnotation annotation)
         : this(annotation, null)
     {
@@ -24,7 +26,15 @@ public sealed class PDPolygonAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        WriteDefaultNormalAppearance("PDPolygonAppearance");
+        try
+        {
+            WriteDefaultNormalAppearance("PDPolygonAppearance");
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     public override void GenerateRolloverAppearance()

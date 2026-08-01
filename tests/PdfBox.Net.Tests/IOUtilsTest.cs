@@ -26,7 +26,9 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.IO;
 using Xunit;
 
@@ -94,6 +96,24 @@ public class IOUtilsTest
     }
 
     [Fact]
+    public void TestCloseAndLogExceptionUsesStructuredWarningAndException()
+    {
+        IOException closeException = new("Close error");
+        var failingCloseable = new ThrowingIoDisposable(closeException);
+        var logger = new RecordingLogger();
+
+        IOException? result = IOUtils.CloseAndLogException(
+            failingCloseable, logger, "testResource", null);
+
+        Assert.Same(closeException, result);
+        LogRecord record = Assert.Single(logger.Records);
+        Assert.Equal(LogLevel.Warning, record.Level);
+        Assert.Same(closeException, record.Exception);
+        Assert.Contains(record.State,
+            property => property.Key == "ResourceName" && Equals(property.Value, "testResource"));
+    }
+
+    [Fact]
     public void TestCreateMemoryOnlyStreamCache()
     {
         RandomAccessStreamCache.StreamCacheCreateFunction function = IOUtils.CreateMemoryOnlyStreamCache();
@@ -154,4 +174,24 @@ public class IOUtilsTest
     {
         public void Dispose() => throw exception;
     }
+
+    private sealed class RecordingLogger : ILogger
+    {
+        public List<LogRecord> Records { get; } = [];
+
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+
+        public bool IsEnabled(LogLevel logLevel) => true;
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state,
+            Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            IReadOnlyList<KeyValuePair<string, object?>> properties =
+                Assert.IsAssignableFrom<IReadOnlyList<KeyValuePair<string, object?>>>(state);
+            Records.Add(new LogRecord(logLevel, exception, properties));
+        }
+    }
+
+    private sealed record LogRecord(LogLevel Level, Exception? Exception,
+        IReadOnlyList<KeyValuePair<string, object?>> State);
 }

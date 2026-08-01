@@ -33,6 +33,9 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 
 public sealed class PDICCBased : PDColorSpace
 {
+    private static ILogger<PDICCBased> LOG => PdfBoxLogging.CreateLogger<PDICCBased>();
+    private static readonly object IccProfileLock = new();
+
     private static readonly COSName ICCBased = COSName.GetPDFName("ICCBased");
 
     private readonly PDColorSpace? _alternate;
@@ -52,32 +55,55 @@ public sealed class PDICCBased : PDColorSpace
         COSStream? profile = array.Size() > 1 ? array.GetObject(1) as COSStream : null;
         _profileData = ReadProfile(profile);
         int declaredComponents = profile?.GetInt(COSName.GetPDFName("N"), 0) ?? 0;
-        _numberOfComponents = declaredComponents > 0
-            ? declaredComponents
-            : IccProfileInspector.TryGetProfileComponents(_profileData, out int profileComponents)
-                ? profileComponents
-                : 3;
+        int profileComponents;
+        lock (IccProfileLock)
+        {
+            profileComponents = IccProfileInspector.TryGetProfileComponents(_profileData, out int components)
+                ? components
+                : 0;
+        }
+        if (profileComponents > 0 && declaredComponents > 0 && profileComponents != declaredComponents)
+        {
+            LOG.LogWarning(
+                "Using {ProfileComponents} components from ICC profile info instead of {DeclaredComponents} components from /N entry",
+                profileComponents, declaredComponents);
+        }
+        _numberOfComponents = profileComponents > 0 ? profileComponents : declaredComponents > 0 ? declaredComponents : 3;
         COSBase? alternateBase = profile?.GetDictionaryObject(COSName.GetPDFName("Alternate"));
-        _alternate = alternateBase is not null ? Create(alternateBase, resources) : GetDeviceFallback(_numberOfComponents);
+        try
+        {
+            _alternate = alternateBase is not null ? Create(alternateBase, resources) : GetDeviceFallback(_numberOfComponents);
+        }
+        catch (IOException ex)
+        {
+            LOG.LogWarning("Error initializing alternate color space: {ErrorMessage}", ex.Message);
+            _alternate = GetDeviceFallback(_numberOfComponents);
+        }
         _initialColor = new PDColor(new float[_numberOfComponents], this);
         _isSrgb = IccProfileInspector.IsSrgb(_profileData);
         if (outputProfileData is null)
         {
-            PdfBoxNetImageServices.IccColorTransformFactory.TryCreate(
-                _profileData,
-                _numberOfComponents,
-                renderingIntent,
-                out _colorTransform);
+            lock (IccProfileLock)
+            {
+                PdfBoxNetImageServices.IccColorTransformFactory.TryCreate(
+                    _profileData,
+                    _numberOfComponents,
+                    renderingIntent,
+                    out _colorTransform);
+            }
         }
         else
         {
-            PdfBoxNetImageServices.IccColorTransformFactory.TryCreateProofing(
-                _profileData,
-                _numberOfComponents,
-                outputProfileData,
-                outputComponents,
-                renderingIntent,
-                out _colorTransform);
+            lock (IccProfileLock)
+            {
+                PdfBoxNetImageServices.IccColorTransformFactory.TryCreateProofing(
+                    _profileData,
+                    _numberOfComponents,
+                    outputProfileData,
+                    outputComponents,
+                    renderingIntent,
+                    out _colorTransform);
+            }
         }
     }
 
@@ -187,6 +213,9 @@ public sealed class PDICCBased : PDColorSpace
         }
         catch (Exception ex) when (ex is IOException or ArgumentException or NotSupportedException)
         {
+            LOG.LogWarning(ex,
+                "Can't read embedded ICC profile ({ErrorMessage}), using alternate color space",
+                ex.Message);
             return [];
         }
     }

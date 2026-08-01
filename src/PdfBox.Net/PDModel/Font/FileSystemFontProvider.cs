@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Font;
 
 public sealed class FileSystemFontProvider
 {
+    private static ILogger<FileSystemFontProvider> LOG => PdfBoxLogging.CreateLogger<FileSystemFontProvider>();
+
     private readonly Dictionary<string, string> _fontsByPostScriptName = new(StringComparer.OrdinalIgnoreCase);
 
     public FileSystemFontProvider()
@@ -40,6 +42,8 @@ public sealed class FileSystemFontProvider
 
     public FileSystemFontProvider(IEnumerable<string> searchDirectories)
     {
+        LOG.LogTrace("Will search the local system for fonts");
+        int fontFileCount = 0;
         foreach (string directory in NormalizeSearchDirectories(searchDirectories))
         {
             if (!Directory.Exists(directory))
@@ -49,10 +53,13 @@ public sealed class FileSystemFontProvider
 
             foreach (string file in EnumerateFontFiles(directory))
             {
+                fontFileCount++;
                 AddFont(file, Path.GetFileNameWithoutExtension(file));
                 AddTrueTypeCollectionFonts(file);
             }
         }
+
+        LOG.LogTrace("Found {FontCount} fonts on the local system", fontFileCount);
     }
 
     public string? FindFontFile(string postScriptName)
@@ -111,12 +118,14 @@ public sealed class FileSystemFontProvider
                 .OrderBy(path => path, StringComparer.OrdinalIgnoreCase)
                 .ToArray();
         }
-        catch (IOException)
+        catch (IOException ex)
         {
+            LOG.LogError(ex, "Error accessing the file system");
             return [];
         }
-        catch (UnauthorizedAccessException)
+        catch (UnauthorizedAccessException ex)
         {
+            LOG.LogError(ex, "Error accessing the file system");
             return [];
         }
     }
@@ -140,8 +149,9 @@ public sealed class FileSystemFontProvider
         {
             TrueTypeCollection.ProcessAllFontHeaders(file, headers => AddFont(file, headers.GetName()));
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogWarning(ex, "Could not load font file: {FontFile}", file);
             // Keep filesystem discovery best-effort, matching the existing non-throwing provider behavior.
         }
     }
@@ -156,6 +166,7 @@ public sealed class FileSystemFontProvider
         if (!_fontsByPostScriptName.ContainsKey(postScriptName))
         {
             _fontsByPostScriptName[postScriptName] = file;
+            LOG.LogDebug("Loaded {PostScriptName} from {FontFile}", postScriptName, file);
         }
     }
 

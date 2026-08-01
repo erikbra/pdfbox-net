@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
@@ -52,6 +54,8 @@ namespace PdfBox.Net.Examples.Signature.Validation;
 /// </remarks>
 public class CertInformationCollector
 {
+    private static ILogger<CertInformationCollector> LOG => PdfBoxLogging.CreateLogger<CertInformationCollector>();
+
     private static readonly HttpClient _http = new(new HttpClientHandler { AllowAutoRedirect = true });
 
     private const int MaxCertificateChainDepth = 5;
@@ -96,8 +100,7 @@ public class CertInformationCollector
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(
-                    "[CertInformationCollector] Failed to parse certificate: " + ex.Message);
+                LOG.LogError(ex, "Certificate Exception getting Certificate from certHolder.");
             }
         }
     }
@@ -144,8 +147,7 @@ public class CertInformationCollector
         }
         catch (CryptographicException ex)
         {
-            Console.Error.WriteLine(
-                "[CertInformationCollector] Error getting certificate info from signature: " + ex.Message);
+            LOG.LogError(ex, "Error occurred getting Certificate Information from Signature");
             throw new CertificateProccessingException(
                 "Error occurred getting Certificate Information from Signature", ex);
         }
@@ -181,8 +183,7 @@ public class CertInformationCollector
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(
-                    "[CertInformationCollector] Error parsing timestamp token: " + ex.Message);
+                LOG.LogWarning(ex, "Certificate Exception getting Certificate from certHolder.");
             }
         }
     }
@@ -306,7 +307,8 @@ public class CertInformationCollector
         {
             if (!IsIssuerOf(certificate, issuer)) continue;
 
-            Console.WriteLine($"[CertInformationCollector] Found issuer for {certificate.Subject}: {issuer.Subject}");
+            LOG.LogInformation("Found issuer for Cert: {CertificateSubject}\n{IssuerSubject}",
+                certificate.Subject, issuer.Subject);
             certInfo.IssuerCertificates.Add(issuer);
             certInfo.CertChain = new CertSignatureInformation();
             TraverseChain(issuer, certInfo.CertChain, maxDepth - 1);
@@ -322,7 +324,7 @@ public class CertInformationCollector
 
         if (found > 1)
         {
-            Console.WriteLine($"[CertInformationCollector] Several issuers for Cert: '{certificate.Subject}'");
+            LOG.LogInformation("Several issuers for Cert: '{CertificateSubject}", certificate.Subject);
         }
     }
 
@@ -333,7 +335,7 @@ public class CertInformationCollector
         if (certInfo.IssuerUrl == null || _urlSet.Contains(certInfo.IssuerUrl)) return;
         _urlSet.Add(certInfo.IssuerUrl);
 
-        Console.WriteLine($"[CertInformationCollector] Fetching alternative issuer cert from: {certInfo.IssuerUrl}");
+        LOG.LogInformation("Get alternative issuer certificate from: {IssuerUrl}", certInfo.IssuerUrl);
         try
         {
             byte[] certBytes = _http.GetByteArrayAsync(certInfo.IssuerUrl).GetAwaiter().GetResult();
@@ -345,9 +347,8 @@ public class CertInformationCollector
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine(
-                $"[CertInformationCollector] Error getting alternative issuer cert from " +
-                $"{certInfo.IssuerUrl}: {ex.Message}");
+            LOG.LogError(ex, "Error getting alternative issuer certificate from {IssuerUrl}",
+                certInfo.IssuerUrl);
         }
     }
 

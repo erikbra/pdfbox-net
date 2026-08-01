@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
@@ -48,6 +50,8 @@ namespace PdfBox.Net.Examples.Signature.Validation;
 /// </remarks>
 public class AddValidationInformation
 {
+    private static ILogger<AddValidationInformation> LOG => PdfBoxLogging.CreateLogger<AddValidationInformation>();
+
     private CertInformationCollector? _certInformationCollector;
 
     // DSS arrays / dicts
@@ -214,8 +218,8 @@ public class AddValidationInformation
 
             if (certInfo.OcspUrl == null && certInfo.CrlUrl == null)
             {
-                Console.WriteLine(
-                    $"[AddValidationInformation] No revocation information for cert {certInfo.Certificate?.Subject}");
+                LOG.LogInformation("No revocation information for cert {CertificateSubject}",
+                    certInfo.Certificate?.Subject);
             }
             else if (!revocationFound)
             {
@@ -262,8 +266,8 @@ public class AddValidationInformation
         }
         catch (CertificateVerificationException ex)
         {
-            Console.Error.WriteLine(
-                $"[AddValidationInformation] OCSP check failed for {certInfo.Certificate?.Subject}: {ex.Message}");
+            LOG.LogError(ex, "Failed fetching OCSP at '{OcspUrl}' for '{Certificate}'",
+                certInfo.OcspUrl, certInfo.Certificate);
         }
         return false;
     }
@@ -316,8 +320,7 @@ public class AddValidationInformation
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine(
-                $"[AddValidationInformation] Failed fetching CRL: {ex.Message}");
+            LOG.LogWarning(ex, "Failed fetching CRL");
             throw new IOException("Failed fetching CRL", ex);
         }
     }
@@ -403,8 +406,7 @@ public class AddValidationInformation
             }
             catch (Exception ex)
             {
-                Console.Error.WriteLine(
-                    $"[AddValidationInformation] Failed encoding cert: {ex.Message}");
+                LOG.LogError(ex, "{Error}", ex);
             }
 
             if (cert.Extensions[ocspNoCheckOid] != null) break;

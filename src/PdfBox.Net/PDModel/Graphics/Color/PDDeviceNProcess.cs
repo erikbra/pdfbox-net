@@ -35,6 +35,8 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 /// <remarks>Author: John Hewson</remarks>
 public class PDDeviceNProcess
 {
+    private static ILogger<PDDeviceNProcess> LOG => PdfBoxLogging.CreateLogger<PDDeviceNProcess>();
+
     private static readonly COSName ColorSpaceKey = COSName.COLORSPACE;
     private static readonly COSName ComponentsKey = COSName.GetPDFName("Components");
 
@@ -107,8 +109,9 @@ public class PDDeviceNProcess
                 sb.Append('"');
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            LOG.LogDebug(ex, "Couldn't get the colorants information - returning 'ERROR' instead'");
             sb.Append("ERROR");
         }
         sb.Append('}');

@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDPolylineAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDPolylineAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDPolylineAppearanceHandler>();
+
     public PDPolylineAppearanceHandler(PDAnnotation annotation)
         : this(annotation, null)
     {
@@ -24,7 +26,15 @@ public sealed class PDPolylineAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        WriteDefaultNormalAppearance("PDPolylineAppearance");
+        try
+        {
+            WriteDefaultNormalAppearance("PDPolylineAppearance");
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     public override void GenerateRolloverAppearance()

@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Graphics.Color;
 
 public sealed class PDColor
 {
+    private static ILogger<PDColor> LOG => PdfBoxLogging.CreateLogger<PDColor>();
+
     private readonly float[] _components;
     private readonly COSName? _patternName;
     private readonly PDColorSpace? _colorSpace;
@@ -59,6 +61,11 @@ public sealed class PDColor
             {
                 _components[i] = number.FloatValue();
             }
+            else
+            {
+                LOG.LogWarning("color component {ComponentIndex} in {ColorArray} isn't a number, ignored",
+                    i, array);
+            }
         }
 
         _colorSpace = colorSpace;
@@ -69,6 +76,11 @@ public sealed class PDColor
         _components = (float[])(components ?? Array.Empty<float>()).Clone();
         _patternName = null;
         _colorSpace = colorSpace;
+        if (colorSpace != null && colorSpace.GetNumberOfComponents() != _components.Length)
+        {
+            LOG.LogWarning("Colorspace component count {ComponentCount} doesn't match components length {Length}",
+                colorSpace.GetNumberOfComponents(), _components.Length);
+        }
     }
 
     public PDColor(COSName patternName, PDColorSpace? colorSpace)
@@ -83,6 +95,14 @@ public sealed class PDColor
         _components = (float[])(components ?? Array.Empty<float>()).Clone();
         _patternName = patternName;
         _colorSpace = colorSpace;
+        if (colorSpace is PDPattern pattern &&
+            pattern.GetUnderlyingColorSpace() is PDColorSpace underlyingColorSpace &&
+            underlyingColorSpace.GetNumberOfComponents() != _components.Length)
+        {
+            LOG.LogWarning(
+                "Pattern colorspace component count {ComponentCount} doesn't match components length {Length}",
+                underlyingColorSpace.GetNumberOfComponents(), _components.Length);
+        }
     }
 
     public float[] GetComponents()

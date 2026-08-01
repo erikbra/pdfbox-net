@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Common;
 
 public partial class PDNumberTreeNode : COSObjectable
 {
+    private static ILogger<PDNumberTreeNode> LOG => PdfBoxLogging.CreateLogger<PDNumberTreeNode>();
+
     private readonly COSDictionary _node;
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     private readonly Type _valueType;
@@ -66,6 +68,10 @@ public partial class PDNumberTreeNode : COSObjectable
         for (int i = 0; i < kids.Size(); i++)
         {
             COSBase? childBase = kids.GetObject(i);
+            if (childBase is not COSDictionary)
+            {
+                LOG.LogWarning("Bad child node at position {Position}", i);
+            }
             PDNumberTreeNode childNode = childBase is COSDictionary dictionary
                 ? CreateChildNode(dictionary)
                 : new PDNumberTreeNode(_valueType);
@@ -115,6 +121,10 @@ public partial class PDNumberTreeNode : COSObjectable
                 }
             }
         }
+        else
+        {
+            LOG.LogWarning("NumberTreeNode does not have \"nums\" nor \"kids\" objects.");
+        }
 
         return null;
     }
@@ -129,11 +139,17 @@ public partial class PDNumberTreeNode : COSObjectable
 
         Dictionary<int, COSObjectable?> indices = new();
         int size = numbersArray.Size();
+        if (size % 2 != 0)
+        {
+            LOG.LogWarning("Numbers array has odd size: {Size}", size);
+        }
         for (int i = 0; i + 1 < size; i += 2)
         {
             COSBase? keyBase = numbersArray.GetObject(i);
             if (keyBase is not COSInteger key)
             {
+                LOG.LogError("page labels ignored, index {Index} should be a number, but is {Value}",
+                    i, keyBase);
                 return null;
             }
 

@@ -36,11 +36,14 @@ namespace PdfBox.Net.PDModel.Font;
 
 public abstract partial class PDSimpleFont : PDVectorFont
 {
+    private static ILogger<PDSimpleFont> LOG => PdfBoxLogging.CreateLogger<PDSimpleFont>();
+
     private static readonly COSName BaseFontKey = COSName.GetPDFName("BaseFont");
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
 
     private readonly Encoding.Encoding _encoding;
     private readonly GlyphList _glyphList;
+    private readonly HashSet<int> _noUnicode = [];
 
     protected Encoding.Encoding FontEncoding => _encoding;
 
@@ -52,6 +55,14 @@ public abstract partial class PDSimpleFont : PDVectorFont
     protected PDSimpleFont(COSDictionary fontDictionary, Encoding.Encoding? encoding)
         : base(fontDictionary)
     {
+        if (fontDictionary.GetDictionaryObject(COSName.GetPDFName("Encoding")) is COSName encodingName &&
+            encodingName.GetName() is not ("MacRomanEncoding" or "MacOSRomanEncoding" or
+                "MacExpertEncoding" or "StandardEncoding" or "WinAnsiEncoding" or
+                "SymbolEncoding" or "ZapfDingbatsEncoding"))
+        {
+            LOG.LogWarning("Unknown encoding: {EncodingName}", encodingName.GetName());
+        }
+
         _encoding = encoding ?? DictionaryEncoding.ResolveEncoding(fontDictionary);
         _glyphList = Standard14Fonts.GetMappedFontName(fontDictionary.GetNameAsString(BaseFontKey)) == "ZapfDingbats"
             ? GlyphList.GetZapfDingbats()
@@ -185,15 +196,30 @@ public abstract partial class PDSimpleFont : PDVectorFont
     protected override string? ToUnicodeFallback(int code, GlyphList glyphList)
     {
         string glyphName = _encoding.GetName(code);
-        if (glyphName == ".notdef")
+        string? unicode = null;
+        if (glyphName != ".notdef")
         {
-            return null;
+            GlyphList unicodeGlyphList = ReferenceEquals(_glyphList, GlyphList.GetAdobeGlyphList())
+                ? glyphList
+                : _glyphList;
+            unicode = unicodeGlyphList.ToUnicode(glyphName);
         }
 
-        GlyphList unicodeGlyphList = ReferenceEquals(_glyphList, GlyphList.GetAdobeGlyphList())
-            ? glyphList
-            : _glyphList;
-        return unicodeGlyphList.ToUnicode(glyphName);
+        if (unicode is null && LOG.IsEnabled(LogLevel.Warning) && _noUnicode.Add(code))
+        {
+            if (glyphName != ".notdef")
+            {
+                LOG.LogWarning("No Unicode mapping for {GlyphName} ({Code}) in font {FontName}",
+                    glyphName, code, GetName());
+            }
+            else
+            {
+                LOG.LogWarning("No Unicode mapping for character code {Code} in font {FontName}",
+                    code, GetName());
+            }
+        }
+
+        return unicode;
     }
 
     public override bool HasGlyph(int code)

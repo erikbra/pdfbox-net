@@ -25,7 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Resources;
 
@@ -37,6 +39,8 @@ namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 /// </summary>
 public sealed class SCNToolTip : ColorToolTip
 {
+    private static ILogger<SCNToolTip> LOG => PdfBoxLogging.CreateLogger<SCNToolTip>();
+
     /// <param name="resources">Page/form resource dictionary.</param>
     /// <param name="colorSpaceName">
     ///   The color-space name token from the most-recent CS/cs operator (may start with '/').</param>
@@ -49,8 +53,9 @@ public sealed class SCNToolTip : ColorToolTip
         {
             colorSpace = resources.GetColorSpace(COSName.GetPDFName(csName));
         }
-        catch
+        catch (Exception ex)
         {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
             // colorSpace stays null
         }
 
@@ -70,8 +75,9 @@ public sealed class SCNToolTip : ColorToolTip
                     float[] rgb = colorSpace.ToRGB(values);
                     ToolTipText = GetMarkUp(ColorHexValue(rgb[0], rgb[1], rgb[2]));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LOG.LogError(ex, "{ErrorMessage}", ex.Message);
                     // silently ignore
                 }
             }

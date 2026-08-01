@@ -12,6 +12,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation.Handlers;
 
 public sealed class PDLineAppearanceHandler : PDAbstractAppearanceHandler
 {
+    private static ILogger<PDLineAppearanceHandler> LOG => PdfBoxLogging.CreateLogger<PDLineAppearanceHandler>();
+
     public PDLineAppearanceHandler(PDAnnotationLine annotation)
         : this(annotation, null)
     {
@@ -24,22 +26,30 @@ public sealed class PDLineAppearanceHandler : PDAbstractAppearanceHandler
 
     public override void GenerateNormalAppearance()
     {
-        PDAnnotationLine annotation = (PDAnnotationLine)Annotation;
-        float[]? line = annotation.GetLine();
-        if (line == null || line.Length < 4 || Color == null)
+        try
         {
-            WriteDefaultNormalAppearance("PDLineAppearance");
-            return;
-        }
+            PDAnnotationLine annotation = (PDAnnotationLine)Annotation;
+            float[]? line = annotation.GetLine();
+            if (line == null || line.Length < 4 || Color == null)
+            {
+                WriteDefaultNormalAppearance("PDLineAppearance");
+                return;
+            }
 
-        float lineWidth = ResolveLineWidth(annotation);
-        using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
-        contents.SetStrokingColor(Color);
-        contents.SetBorderLine(lineWidth, annotation.GetBorderStyle(), annotation.GetBorder());
-        SetOpacity(contents, annotation.GetConstantOpacity());
-        contents.MoveTo(line[0], line[1]);
-        contents.LineTo(line[2], line[3]);
-        contents.Stroke();
+            float lineWidth = ResolveLineWidth(annotation);
+            using PDAppearanceContentStream contents = OpenNormalAppearanceContentStream();
+            contents.SetStrokingColor(Color);
+            contents.SetBorderLine(lineWidth, annotation.GetBorderStyle(), annotation.GetBorder());
+            SetOpacity(contents, annotation.GetConstantOpacity());
+            contents.MoveTo(line[0], line[1]);
+            contents.LineTo(line[2], line[3]);
+            contents.Stroke();
+
+        }
+        catch (IOException ex)
+        {
+            LOG.LogError(ex, "{ErrorMessage}", ex.Message);
+        }
     }
 
     public override void GenerateRolloverAppearance()

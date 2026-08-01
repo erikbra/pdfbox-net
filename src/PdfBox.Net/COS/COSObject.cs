@@ -25,7 +25,8 @@
  * limitations under the License.
  */
 
-using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.COS;
 
@@ -35,6 +36,8 @@ namespace PdfBox.Net.COS;
 /// <remarks>Author: Ben Litchfield</remarks>
 public partial class COSObject : COSBase, COSUpdateInfo
 {
+    private static ILogger<COSObject> LOG => PdfBoxLogging.CreateLogger<COSObject>();
+
     private COSBase? _baseObject;
     private ICOSParser? _parser;
     private bool _isDereferenced;
@@ -123,7 +126,7 @@ public partial class COSObject : COSBase, COSUpdateInfo
             }
             catch (IOException e)
             {
-                Debug.WriteLine($"[ERROR] Can't dereference {this}: {e.Message}");
+                LOG.LogError(e, "Can't dereference {Object}", this);
             }
             finally
             {

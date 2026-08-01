@@ -31,6 +31,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class Type1ShadingContext : ShadingContext
 {
+    private static ILogger<Type1ShadingContext> LOG => PdfBoxLogging.CreateLogger<Type1ShadingContext>();
+
     /// <summary>
     /// Creates a context used for function-based shading fill operations.
     /// </summary>

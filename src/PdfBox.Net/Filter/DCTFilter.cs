@@ -10,6 +10,8 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.Rendering;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Filter;
 
@@ -19,6 +21,8 @@ namespace PdfBox.Net.Filter;
 /// </summary>
 public sealed class DCTFilter : Filter
 {
+    private static ILogger<DCTFilter> LOG => PdfBoxLogging.CreateLogger<DCTFilter>();
+
     private readonly IJpegRasterDecoder? _jpegRasterDecoder;
 
     public DCTFilter()

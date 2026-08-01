@@ -25,7 +25,9 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Resources;
 
 namespace PdfBox.Net.Debugger.Streampane.Tooltip;
@@ -36,6 +38,8 @@ namespace PdfBox.Net.Debugger.Streampane.Tooltip;
 /// </summary>
 public sealed class FontToolTip : IToolTip
 {
+    private static ILogger<FontToolTip> LOG => PdfBoxLogging.CreateLogger<FontToolTip>();
+
     public string? ToolTipText { get; }
 
     /// <param name="resources">Page/form resource dictionary.</param>
@@ -58,8 +62,9 @@ public sealed class FontToolTip : IToolTip
                     ToolTipText = $"<html>{font.GetName()}</html>";
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                LOG.LogError(ex, "{ErrorMessage}", ex.Message);
                 // skip on error
             }
 

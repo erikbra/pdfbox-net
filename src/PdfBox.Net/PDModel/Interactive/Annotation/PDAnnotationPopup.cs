@@ -14,6 +14,8 @@ namespace PdfBox.Net.PDModel.Interactive.Annotation;
 
 public sealed partial class PDAnnotationPopup : PDAnnotation
 {
+    private static ILogger<PDAnnotationPopup> LOG => PdfBoxLogging.CreateLogger<PDAnnotationPopup>();
+
     public const string SUB_TYPE = "Popup";
 
     public PDAnnotationPopup()
@@ -29,7 +31,28 @@ public sealed partial class PDAnnotationPopup : PDAnnotation
     public PDAnnotationMarkup? GetParent()
     {
         COSDictionary? dictionary = GetCOSDictionary().GetCOSDictionary(COSName.PARENT);
-        return dictionary != null ? new PDAnnotationMarkupImpl(dictionary) : null;
+        if (dictionary is null)
+        {
+            return null;
+        }
+
+        try
+        {
+            PDAnnotation annotation = CreateAnnotation(dictionary);
+            if (annotation is PDAnnotationMarkup markup)
+            {
+                return markup;
+            }
+
+            LOG.LogError("parent annotation is of type {AnnotationType} but should be of type PDAnnotationMarkup",
+                annotation.GetType().Name);
+        }
+        catch (IOException ex)
+        {
+            LOG.LogDebug(ex, "An exception while trying to get the parent markup - ignoring");
+        }
+
+        return null;
     }
 
     public void SetParent(PDAnnotationMarkup? annotation)
@@ -47,11 +70,4 @@ public sealed partial class PDAnnotationPopup : PDAnnotation
         GetCOSDictionary().SetBoolean(COSName.GetPDFName("Open"), open);
     }
 
-    private sealed class PDAnnotationMarkupImpl : PDAnnotationMarkup
-    {
-        public PDAnnotationMarkupImpl(COSDictionary dictionary)
-            : base(dictionary)
-        {
-        }
-    }
 }

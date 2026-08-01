@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.IO;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.COS;
 
@@ -36,6 +38,8 @@ namespace PdfBox.Net.COS;
 /// <remarks>Author: Ben Litchfield</remarks>
 public partial class COSDocument : COSBase, IDisposable
 {
+    private static ILogger<COSDocument> LOG => PdfBoxLogging.CreateLogger<COSDocument>();
+
     private float _version = 1.4f;
 
     /// <summary>
@@ -130,17 +134,18 @@ public partial class COSDocument : COSBase, IDisposable
         {
             return streamCacheCreateFunction();
         }
-        catch (IOException)
+        catch (IOException exception1)
         {
-            // LOG.warn: An error occurred when creating stream cache. Using memory only cache as fallback.
+            LOG.LogWarning(exception1,
+                "An error occurred when creating stream cache. Using memory only cache as fallback.");
         }
         try
         {
             return IOUtils.CreateMemoryOnlyStreamCache()();
         }
-        catch (IOException)
+        catch (IOException exception2)
         {
-            // LOG.warn: An error occurred when creating stream cache for fallback.
+            LOG.LogWarning(exception2, "An error occurred when creating stream cache for fallback.");
         }
         return null;
     }
@@ -425,19 +430,19 @@ public partial class COSDocument : COSBase, IDisposable
                 COSBase? cosObject = obj.GetObject();
                 if (cosObject is COSStream cosStream)
                 {
-                    firstException = IOUtils.CloseAndLogException(cosStream, null, "COSStream", firstException);
+                    firstException = IOUtils.CloseAndLogException(cosStream, LOG, "COSStream", firstException);
                 }
             }
         }
 
         foreach (COSStream stream in _streams)
         {
-            firstException = IOUtils.CloseAndLogException(stream, null, "COSStream", firstException);
+            firstException = IOUtils.CloseAndLogException(stream, LOG, "COSStream", firstException);
         }
 
         if (_streamCache != null)
         {
-            firstException = IOUtils.CloseAndLogException(_streamCache, null, "Stream Cache", firstException);
+            firstException = IOUtils.CloseAndLogException(_streamCache, LOG, "Stream Cache", firstException);
         }
         _closed = true;
 

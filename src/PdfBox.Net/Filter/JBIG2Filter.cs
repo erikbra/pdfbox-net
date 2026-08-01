@@ -25,8 +25,10 @@
  */
 
 using JBig2Decoder.NETStandard;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
 using PdfBox.Net.IO;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Filter;
 
@@ -35,6 +37,8 @@ namespace PdfBox.Net.Filter;
 /// </summary>
 public sealed class JBIG2Filter : Filter
 {
+    private static ILogger<JBIG2Filter> LOG => PdfBoxLogging.CreateLogger<JBIG2Filter>();
+
     private readonly IJbig2RasterDecoder _decoder;
 
     public JBIG2Filter()
@@ -53,6 +57,10 @@ public sealed class JBIG2Filter : Filter
         byte[] encoded = IOUtils.ToByteArray(input);
         byte[]? globals = ReadGlobals(decodeParameters);
         int bitsPerComponent = parameters.GetInt(COSName.BITS_PER_COMPONENT, 1);
+        if (bitsPerComponent != 1)
+        {
+            LOG.LogWarning("Attempting to handle a JBIG2 with more than 1-bit depth");
+        }
         Jbig2DecodeOptions decoderOptions = new(
             options.GetSourceRegion(),
             Math.Max(1, options.GetSubsamplingX()),

@@ -28,9 +28,11 @@
 
 using System.Diagnostics;
 using System.Globalization;
+using Microsoft.Extensions.Logging;
 using PdfBox.Net.ContentStream;
 using PdfBox.Net.COS;
 using PdfBox.Net.FontBox.TTF;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.Function;
@@ -59,6 +61,8 @@ namespace PdfBox.Net.Rendering;
 /// </summary>
 internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 {
+    private static ILogger<SkiaPageDrawerPeer> LOG => PdfBoxLogging.CreateLogger<SkiaPageDrawerPeer>();
+
     private readonly PageDrawer _owner;
     private readonly PageDrawerParameters _parameters;
     private readonly Dictionary<PDVectorFont, GlyphCache> _glyphCaches = new();
@@ -717,6 +721,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         PDShading? shading = GetResources()?.GetShading(shadingName);
         if (shading is null)
         {
+            LOG.LogError("shading {ShadingName} does not exist in resources dictionary", shadingName);
             return;
         }
 
@@ -2173,7 +2178,13 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 2 => SKStrokeJoin.Bevel,
                 _ => SKStrokeJoin.Miter,
             };
-            paint.StrokeMiter = graphicsState.GetMiterLimit();
+            float miterLimit = graphicsState.GetMiterLimit();
+            if (miterLimit < 1)
+            {
+                LOG.LogWarning("Miter limit must be >= 1, value {MiterLimit} is ignored", miterLimit);
+                miterLimit = 10;
+            }
+            paint.StrokeMiter = miterLimit;
             ApplyLineDashPattern(paint, graphicsState);
         }
 
@@ -2290,6 +2301,11 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     private int ResolvePaintColor(PDColor color, bool stroke)
     {
         PDColorSpace? colorSpace = color.GetColorSpace();
+        if (colorSpace is null)
+        {
+            LOG.LogError("colorSpace is null, will be rendered as transparency");
+            return 0;
+        }
         if (colorSpace is not PDPattern patternColorSpace)
         {
             return SafeToRgb(color, 0);
@@ -2297,6 +2313,12 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
         COSName? patternName = color.GetPatternName();
         PDAbstractPattern? pattern = patternName is null ? null : patternColorSpace.GetResources()?.GetPattern(patternName);
+        if (pattern is PDShadingPattern shadingPatternWithNoShading &&
+            shadingPatternWithNoShading.GetShading() is null)
+        {
+            LOG.LogError("shadingPattern is null, will be filled with transparency");
+            return 0;
+        }
         return pattern switch
         {
             PDShadingPattern shadingPattern when shadingPattern.GetShading() is PDShading shading
@@ -3705,9 +3727,15 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             Matrix ctm,
             PDColor? backdropColor)
         {
+            PDRectangle? formBBox = form.GetBBox();
+            if (formBBox is null)
+            {
+                LOG.LogWarning("transparency group ignored because BBox is null");
+                return;
+            }
+
             if (drawer._graphics?.GetSkiaCanvas() is not SKCanvas parentCanvas ||
                 drawer._graphics.GetSkiaBitmapSize() is not { } targetSize ||
-                form.GetBBox() is not PDRectangle formBBox ||
                 formBBox.GetWidth() <= 0 || formBBox.GetHeight() <= 0)
             {
                 return;

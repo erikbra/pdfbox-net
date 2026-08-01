@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Formats.Asn1;
 using System.Security.Cryptography;
 
@@ -39,6 +41,8 @@ namespace PdfBox.Net.Examples.Signature.Validation;
 /// </remarks>
 public class CertInformationHelper
 {
+    private static ILogger<CertInformationHelper> LOG => PdfBoxLogging.CreateLogger<CertInformationHelper>();
+
     private CertInformationHelper()
     {
     }
@@ -56,7 +60,7 @@ public class CertInformationHelper
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine("[CertInformationHelper] No SHA-1 Algorithm found: " + ex.Message);
+            LOG.LogError(ex, "No SHA-1 Algorithm found");
             return null;
         }
     }

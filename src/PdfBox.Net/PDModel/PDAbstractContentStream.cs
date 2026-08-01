@@ -40,10 +40,13 @@ namespace PdfBox.Net.PDModel;
 /// </summary>
 public abstract class PDAbstractContentStream : ContentStreamForGlyphLayoutInterface, IDisposable
 {
+    private static ILogger<PDAbstractContentStream> LOG => PdfBoxLogging.CreateLogger<PDAbstractContentStream>();
+
     private readonly Stream _output;
     private readonly bool _ownsStream;
     private readonly ContentStreamWriter _writer;
     private bool _disposed;
+    private bool _inTextMode;
     private GlyphLayoutProcessorInterface? _glyphLayoutProcessor;
 
     protected PDResources? Resources { get; }
@@ -64,6 +67,10 @@ public abstract class PDAbstractContentStream : ContentStreamForGlyphLayoutInter
         }
 
         _disposed = true;
+        if (_inTextMode)
+        {
+            LOG.LogWarning("You did not call endText(), some viewers won't display your text");
+        }
         _output.Flush();
         if (_ownsStream)
         {
@@ -71,8 +78,17 @@ public abstract class PDAbstractContentStream : ContentStreamForGlyphLayoutInter
         }
     }
 
-    public void BeginText() => WriteOperator("BT");
-    public void EndText() => WriteOperator("ET");
+    public void BeginText()
+    {
+        WriteOperator("BT");
+        _inTextMode = true;
+    }
+
+    public void EndText()
+    {
+        WriteOperator("ET");
+        _inTextMode = false;
+    }
     public void ShowText(string text) => WriteOperator("Tj", new COSString(text ?? string.Empty));
     public void NewLineAtOffset(float tx, float ty) => WriteOperator("Td", tx, ty);
     public void SetFont(COSName fontName, float fontSize) => WriteOperator("Tf", fontName, fontSize);

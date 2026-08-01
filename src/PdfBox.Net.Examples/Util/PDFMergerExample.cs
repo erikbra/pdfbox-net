@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.MultiPdf;
 
 namespace PdfBox.Net.Examples.Util;
@@ -34,6 +36,8 @@ namespace PdfBox.Net.Examples.Util;
 /// </summary>
 public class PDFMergerExample
 {
+    private static ILogger<PDFMergerExample> LOG => PdfBoxLogging.CreateLogger<PDFMergerExample>();
+
     private PDFMergerExample()
     {
     }
@@ -45,6 +49,9 @@ public class PDFMergerExample
     /// <param name="destinationFileName">The path to the destination PDF.</param>
     public static void Merge(string[] inputFiles, string destinationFileName)
     {
+        LOG.LogInformation("Merging {SourceDocumentCount} source documents into one PDF",
+            inputFiles.Length);
+        LOG.LogInformation("Initialising PDF merge utility");
         PDFMergerUtility merger = new PDFMergerUtility();
         merger.DestinationFileName = destinationFileName;
         foreach (string inputFile in inputFiles)
@@ -52,6 +59,8 @@ public class PDFMergerExample
             merger.AddSource(inputFile);
         }
         merger.MergeDocuments();
+        LOG.LogInformation("PDF merge successful, size = {MergedFileSize} bytes",
+            new FileInfo(destinationFileName).Length);
     }
 
     public static void Main(string[] args)

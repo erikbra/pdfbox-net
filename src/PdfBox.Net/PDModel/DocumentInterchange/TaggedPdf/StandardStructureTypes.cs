@@ -30,8 +30,14 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf;
 /// <summary>
 /// Standard tagged-PDF structure type names.
 /// </summary>
-public static class StandardStructureTypes
+public sealed class StandardStructureTypes
 {
+    private static ILogger<StandardStructureTypes> LOG => PdfBoxLogging.CreateLogger<StandardStructureTypes>();
+
+    private StandardStructureTypes()
+    {
+    }
+
     public const string Document = "Document";
     public const string Part = "Part";
     public const string Art = "Art";

@@ -29,10 +29,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.TTF;
 
 public class CmapSubtable : CmapLookup
 {
+    private static ILogger<CmapSubtable> LOG => PdfBoxLogging.CreateLogger<CmapSubtable>();
+
     private const long LeadOffset = 0xD800L - (0x10000 >> 10);
     private const long SurrogateOffset = 0x10000L - (0xD800 << 10) - 0xDC00;
 
@@ -125,7 +130,7 @@ public class CmapSubtable : CmapLookup
         _characterCodeToGlyphId = new Dictionary<int, int>(numGlyphs);
         if (numGlyphs == 0)
         {
-            Console.Error.WriteLine("subtable has no glyphs");
+            LOG.LogWarning("Subtable has no glyphs");
             return;
         }
 
@@ -200,7 +205,7 @@ public class CmapSubtable : CmapLookup
         _characterCodeToGlyphId = new Dictionary<int, int>(numGlyphs);
         if (numGlyphs == 0)
         {
-            Console.Error.WriteLine("subtable has no glyphs");
+            LOG.LogWarning("Subtable has no glyphs");
             return;
         }
 
@@ -226,13 +231,13 @@ public class CmapSubtable : CmapLookup
                 long glyphIndex = startGlyph + j;
                 if (glyphIndex >= numGlyphs)
                 {
-                    Console.Error.WriteLine("Format 12 cmap contains an invalid glyph index");
+                    LOG.LogWarning("Format 12 cmap contains an invalid glyph index");
                     break;
                 }
 
                 if (firstCode + j > 0x10FFFF)
                 {
-                    Console.Error.WriteLine("Format 12 cmap contains character beyond UCS-4");
+                    LOG.LogWarning("Format 12 cmap contains character beyond UCS-4");
                 }
 
                 maxGlyphId = Math.Max(maxGlyphId, (int)glyphIndex);
@@ -250,7 +255,7 @@ public class CmapSubtable : CmapLookup
         _characterCodeToGlyphId = new Dictionary<int, int>(numGlyphs);
         if (numGlyphs == 0)
         {
-            Console.Error.WriteLine("subtable has no glyphs");
+            LOG.LogWarning("Subtable has no glyphs");
             return;
         }
 
@@ -262,7 +267,7 @@ public class CmapSubtable : CmapLookup
 
             if (glyphId > numGlyphs)
             {
-                Console.Error.WriteLine("Format 13 cmap contains an invalid glyph index");
+                LOG.LogWarning("Format 13 cmap contains an invalid glyph index");
                 break;
             }
 
@@ -286,7 +291,7 @@ public class CmapSubtable : CmapLookup
 
                 if (firstCode + j > 0x10FFFF)
                 {
-                    Console.Error.WriteLine("Format 13 cmap contains character beyond UCS-4");
+                    LOG.LogWarning("Format 13 cmap contains character beyond UCS-4");
                 }
 
                 _glyphIdToCharacterCode[(int)glyphId] = (int)(firstCode + j);
@@ -297,7 +302,7 @@ public class CmapSubtable : CmapLookup
 
     internal void ProcessSubtype14(TTFDataStream data, int numGlyphs)
     {
-        Console.Error.WriteLine("Format 14 cmap table is not supported and will be ignored");
+        LOG.LogWarning("Format 14 cmap table is not supported and will be ignored");
     }
 
     internal void ProcessSubtype6(TTFDataStream data, int numGlyphs)
@@ -372,7 +377,7 @@ public class CmapSubtable : CmapLookup
 
         if (_characterCodeToGlyphId.Count == 0)
         {
-            Console.Error.WriteLine("cmap format 4 subtable is empty");
+            LOG.LogWarning("Cmap format 4 subtable is empty");
             return;
         }
 
@@ -430,7 +435,7 @@ public class CmapSubtable : CmapLookup
         _characterCodeToGlyphId = new Dictionary<int, int>(numGlyphs);
         if (numGlyphs == 0)
         {
-            Console.Error.WriteLine("subtable has no glyphs");
+            LOG.LogWarning("Subtable has no glyphs");
             return;
         }
 
@@ -461,11 +466,12 @@ public class CmapSubtable : CmapLookup
                 {
                     if (!maxLoggingReached && !logged.Contains(p))
                     {
-                        Console.Error.WriteLine($"glyphId {p} for charcode {charCode} ignored, numGlyphs is {numGlyphs}");
+                        LOG.LogWarning("GlyphId {GlyphId} for charcode {CharacterCode} ignored, numGlyphs is {GlyphCount}",
+                            p, charCode, numGlyphs);
                         logged.Add(p);
                         if (logged.Count > 10)
                         {
-                            Console.Error.WriteLine("too many bad glyphIds, more won't be reported for this table");
+                            LOG.LogWarning("Too many bad glyphIds, more won't be reported for this table");
                             maxLoggingReached = true;
                         }
                     }

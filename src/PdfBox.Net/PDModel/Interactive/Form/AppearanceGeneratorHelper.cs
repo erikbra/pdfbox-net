@@ -23,6 +23,8 @@ namespace PdfBox.Net.PDModel.Interactive.Form;
 
 internal sealed class AppearanceGeneratorHelper
 {
+    private static ILogger<AppearanceGeneratorHelper> LOG => PdfBoxLogging.CreateLogger<AppearanceGeneratorHelper>();
+
     private const int FontScale = 1000;
     private const float DefaultFontSize = 12f;
     private const float MinimumFontSize = 4f;
@@ -75,10 +77,12 @@ internal sealed class AppearanceGeneratorHelper
                     if (acroFormResources.GetFont(fontName) == null && widgetResources.GetFont(fontName) is { } font)
                     {
                         acroFormResources.Put(fontName, font);
+                        LOG.LogDebug("Adding font resource {FontName} from widget to AcroForm", fontName);
                     }
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
+                    LOG.LogWarning(ex, "Unable to match field level font with AcroForm font");
                     // Match PDFBox's best-effort resource repair for malformed widget resources.
                 }
             }
@@ -93,6 +97,8 @@ internal sealed class AppearanceGeneratorHelper
             PDRectangle? rect = widget.GetRectangle();
             if (rect == null || rect.GetWidth() <= 0 || rect.GetHeight() <= 0)
             {
+                LOG.LogWarning("widget of field {FieldName} has no rectangle, no appearance stream created",
+                    _field.GetFullyQualifiedName());
                 continue;
             }
 
@@ -293,6 +299,11 @@ internal sealed class AppearanceGeneratorHelper
             PDFontDescriptor? descriptor = font.GetFontDescriptor();
             float fontCapAtSize = (descriptor != null ? descriptor.GetCapHeight() : ResolveCapHeight(font)) * fontScaleY;
             float fontDescentAtSize = (descriptor != null ? descriptor.GetDescent() : ResolveDescent(font)) * fontScaleY;
+            if (descriptor is null)
+            {
+                LOG.LogDebug("missing font descriptor - resolved Cap/Descent to {CapHeight}/{Descent}",
+                    fontCapAtSize / fontScaleY, fontDescentAtSize / fontScaleY);
+            }
 
             contents.SaveGraphicsState();
             contents.AddRect(clipRect.GetLowerLeftX(), clipRect.GetLowerLeftY(), clipRect.GetWidth(), clipRect.GetHeight());

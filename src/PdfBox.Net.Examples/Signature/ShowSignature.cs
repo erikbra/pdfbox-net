@@ -26,6 +26,8 @@
  */
 
 using System.Security.Cryptography;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using PdfBox.Net.PDModel;
@@ -40,6 +42,8 @@ namespace PdfBox.Net.Examples.Signature;
 /// </summary>
 public class ShowSignature
 {
+    private static ILogger<ShowSignature> LOG => PdfBoxLogging.CreateLogger<ShowSignature>();
+
     /// <summary>
     /// Displays information about all signatures in the PDF at <paramref name="pdfPath"/>.
     /// </summary>

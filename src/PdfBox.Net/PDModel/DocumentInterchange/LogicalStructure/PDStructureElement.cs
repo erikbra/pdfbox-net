@@ -36,6 +36,8 @@ namespace PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
 /// </summary>
 public partial class PDStructureElement : PDStructureNode
 {
+    private static ILogger<PDStructureElement> LOG => PdfBoxLogging.CreateLogger<PDStructureElement>();
+
     /// <summary>Structure element type value.</summary>
     public const string TYPE = "StructElem";
 
@@ -597,6 +599,7 @@ public partial class PDStructureElement : PDStructureNode
             COSDictionary dictionary = parentElement.GetCOSObject();
             if (!visited.Add(dictionary))
             {
+                LOG.LogWarning("Element ignored: {Element}", dictionary);
                 return null;
             }
 

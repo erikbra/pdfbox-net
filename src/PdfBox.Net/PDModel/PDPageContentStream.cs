@@ -48,6 +48,8 @@ namespace PdfBox.Net.PDModel;
 /// </summary>
 public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, IDisposable
 {
+    private static ILogger<PDPageContentStream> LOG => PdfBoxLogging.CreateLogger<PDPageContentStream>();
+
     /// <summary>
     /// Specifies how the new content stream is placed relative to any existing content.
     /// </summary>
@@ -71,6 +73,7 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
     private readonly AppendMode _appendMode;
     private readonly bool _compress;
     private bool _disposed;
+    private bool _inTextMode;
     private int _graphicsStateCounter;
     private readonly Stack<PDColorSpace?> _strokingColorSpaceStack = new();
     private readonly Stack<PDColorSpace?> _nonStrokingColorSpaceStack = new();
@@ -84,6 +87,10 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
     public PDPageContentStream(PDDocument document, PDPage page)
         : this(document, page, AppendMode.OVERWRITE, true)
     {
+        if (page.HasContents())
+        {
+            LOG.LogWarning("You are overwriting an existing content, you should use the append mode");
+        }
     }
 
     /// <summary>
@@ -115,9 +122,17 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
         _writer = new ContentStreamWriter(_buffer);
     }
 
-    public void BeginText() => WriteOperator("BT");
+    public void BeginText()
+    {
+        WriteOperator("BT");
+        _inTextMode = true;
+    }
 
-    public void EndText() => WriteOperator("ET");
+    public void EndText()
+    {
+        WriteOperator("ET");
+        _inTextMode = false;
+    }
 
     public void ShowText(string text)
     {
@@ -618,6 +633,11 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
         }
 
         _disposed = true;
+
+        if (_inTextMode)
+        {
+            LOG.LogWarning("You did not call endText(), some viewers won't display your text");
+        }
 
         _buffer.Flush();
         byte[] newBytes = _buffer.ToArray();

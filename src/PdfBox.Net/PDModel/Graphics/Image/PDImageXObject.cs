@@ -37,6 +37,8 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 
 public sealed partial class PDImageXObject : PDXObject
 {
+    private static ILogger<PDImageXObject> LOG => PdfBoxLogging.CreateLogger<PDImageXObject>();
+
     private readonly PDResources? _resources;
 
     public PDImageXObject(PDStream stream, PDResources? resources)

@@ -38,6 +38,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 /// </summary>
 public abstract class PDMeshBasedShadingType : PDShadingType4
 {
+    private static ILogger<PDMeshBasedShadingType> LOG => PdfBoxLogging.CreateLogger<PDMeshBasedShadingType>();
+
     /// <summary>Initializes a new instance using the given shading dictionary.</summary>
     protected PDMeshBasedShadingType(COSDictionary shadingDictionary)
         : base(shadingDictionary)

@@ -9,11 +9,15 @@
  */
 
 using PdfBox.Net.COS;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.Filter;
 
 public sealed class LZWFilter : Filter
 {
+    private static ILogger<LZWFilter> LOG => PdfBoxLogging.CreateLogger<LZWFilter>();
+
     public const int ClearTable = 256;
     public const long CLEAR_TABLE = ClearTable;
     public const int Eod = 257;
@@ -104,56 +108,63 @@ public sealed class LZWFilter : Filter
         byte[]? previous = null;
         using BitReader reader = new(encoded);
 
-        while (true)
+        try
         {
-            int? command = reader.ReadBits(chunk);
-            if (!command.HasValue)
+            while (true)
             {
-                break;
-            }
-
-            if (command.Value == Eod)
-            {
-                break;
-            }
-
-            if (command.Value == ClearTable)
-            {
-                chunk = 9;
-                codeTable = CreateCodeTable();
-                previous = null;
-                continue;
-            }
-
-            byte[] current;
-            if (command.Value < codeTable.Count)
-            {
-                current = codeTable[command.Value];
-                decoded.Write(current, 0, current.Length);
-
-                if (previous is not null)
+                int? command = reader.ReadBits(chunk);
+                if (!command.HasValue)
                 {
-                    byte[] entry = new byte[previous.Length + 1];
-                    Buffer.BlockCopy(previous, 0, entry, 0, previous.Length);
-                    entry[^1] = current[0];
-                    codeTable.Add(entry);
+                    throw new EndOfStreamException("EOD code missing");
                 }
-            }
-            else if (command.Value == codeTable.Count && previous is not null)
-            {
-                current = new byte[previous.Length + 1];
-                Buffer.BlockCopy(previous, 0, current, 0, previous.Length);
-                current[^1] = previous[0];
-                decoded.Write(current, 0, current.Length);
-                codeTable.Add(current);
-            }
-            else
-            {
-                break;
-            }
 
-            previous = current;
-            chunk = CalculateChunk(codeTable.Count, earlyChange);
+                if (command.Value == Eod)
+                {
+                    break;
+                }
+
+                if (command.Value == ClearTable)
+                {
+                    chunk = 9;
+                    codeTable = CreateCodeTable();
+                    previous = null;
+                    continue;
+                }
+
+                byte[] current;
+                if (command.Value < codeTable.Count)
+                {
+                    current = codeTable[command.Value];
+                    decoded.Write(current, 0, current.Length);
+
+                    if (previous is not null)
+                    {
+                        byte[] entry = new byte[previous.Length + 1];
+                        Buffer.BlockCopy(previous, 0, entry, 0, previous.Length);
+                        entry[^1] = current[0];
+                        codeTable.Add(entry);
+                    }
+                }
+                else if (command.Value == codeTable.Count && previous is not null)
+                {
+                    current = new byte[previous.Length + 1];
+                    Buffer.BlockCopy(previous, 0, current, 0, previous.Length);
+                    current[^1] = previous[0];
+                    decoded.Write(current, 0, current.Length);
+                    codeTable.Add(current);
+                }
+                else
+                {
+                    throw new EndOfStreamException($"Invalid LZW code: {command.Value}");
+                }
+
+                previous = current;
+                chunk = CalculateChunk(codeTable.Count, earlyChange);
+            }
+        }
+        catch (EndOfStreamException exception)
+        {
+            LOG.LogWarning(exception, "Premature EOF in LZW stream, EOD code missing");
         }
     }
 

@@ -32,6 +32,8 @@ namespace PdfBox.Net.PDModel.Graphics.Shading;
 
 public sealed class AxialShadingContext : ShadingContext
 {
+    private static ILogger<AxialShadingContext> LOG => PdfBoxLogging.CreateLogger<AxialShadingContext>();
+
     /// <summary>
     /// Creates a context used for axial-shading fill operations.
     /// </summary>

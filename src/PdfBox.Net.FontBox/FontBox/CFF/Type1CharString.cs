@@ -27,10 +27,15 @@
 
 using PdfBox.Net.Util.Geometry;
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
+
 namespace PdfBox.Net.FontBox.CFF;
 
 public class Type1CharString
 {
+    private static ILogger<Type1CharString> LOG => PdfBoxLogging.CreateLogger<Type1CharString>();
+
     private readonly GeneralPath _path = new();
 
     public Type1CharString(string fontName, string glyphName, byte[] bytes)

@@ -152,6 +152,11 @@ public sealed class PostScriptTable() : TTFTable(TAG)
                         GlyphNames[i] = name;
                     }
                 }
+                else
+                {
+                    LOG.LogDebug("Incorrect glyph name index {GlyphNameIndex}, valid numbers 0..{MaximumGlyphNameIndex}",
+                        index, WGL4Names.NumberOfMacGlyphs);
+                }
             }
         }
         else if (FormatType == 3.0f)

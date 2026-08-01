@@ -30,6 +30,8 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Resources;
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.MultiPdf;
 
@@ -38,6 +40,8 @@ namespace PdfBox.Net.MultiPdf;
 /// </summary>
 public class PDFMergerUtility
 {
+    private static ILogger<PDFMergerUtility> LOG => PdfBoxLogging.CreateLogger<PDFMergerUtility>();
+
     private readonly List<object> _sources = [];
     private PDDocumentInformation? _destinationDocumentInformation;
     private PDMetadata? _destinationMetadata;

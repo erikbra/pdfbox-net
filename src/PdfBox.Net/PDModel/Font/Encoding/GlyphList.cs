@@ -38,6 +38,8 @@ namespace PdfBox.Net.PDModel.Font.Encoding;
 /// </summary>
 public class GlyphList
 {
+    private static ILogger<GlyphList> LOG => PdfBoxLogging.CreateLogger<GlyphList>();
+
     private static readonly Lazy<GlyphList> _adobeGlyphList = new(LoadAdobeGlyphList, isThreadSafe: true);
     private static readonly Lazy<GlyphList> _zapfDingbats = new(LoadZapfDingbats, isThreadSafe: true);
 
@@ -186,6 +188,11 @@ public class GlyphList
             string? unicode = ParseUnicodeString(hexCodes);
             if (unicode != null)
             {
+                if (nameToUnicode.TryGetValue(name, out string? oldMapping))
+                {
+                    LOG.LogWarning("duplicate value for {Name} -> {Unicode} {OldMapping}",
+                        name, hexCodes, oldMapping);
+                }
                 nameToUnicode[name] = unicode;
 
                 // Match PDFBox's preference for names used by the standard encodings.
@@ -245,6 +252,14 @@ public class GlyphList
                 {
                     if (!int.TryParse(hex.AsSpan(i, 4), System.Globalization.NumberStyles.HexNumber, null, out int cp))
                     {
+                        LOG.LogWarning("Not a number in Unicode character name: {Name}", name);
+                        valid = false;
+                        break;
+                    }
+
+                    if (cp is > 0xD7FF and < 0xE000)
+                    {
+                        LOG.LogWarning("Unicode character name with disallowed code area: {Name}", name);
                         valid = false;
                         break;
                     }
@@ -266,12 +281,24 @@ public class GlyphList
         {
             string hex = name[1..];
             if (hex.Length is >= 4 and <= 6 &&
-                int.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out int cp) &&
-                cp is >= 0 and <= 0x10FFFF)
+                int.TryParse(hex, System.Globalization.NumberStyles.HexNumber, null, out int cp))
             {
+                if (cp is > 0xD7FF and < 0xE000)
+                {
+                    LOG.LogWarning("Unicode character name with disallowed code area: {Name}", name);
+                    return false;
+                }
+
+                if (cp is < 0 or > 0x10FFFF)
+                {
+                    return false;
+                }
+
                 result = char.ConvertFromUtf32(cp);
                 return true;
             }
+
+            LOG.LogWarning("Not a number in Unicode character name: {Name}", name);
         }
 
         return false;
