@@ -7700,12 +7700,12 @@
     "conversion_notes": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; see reports/issue-913-upstream-sync-assessment.md."
   },
   {
-    "source_path": null,
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfwriter/OperatorNameTest.java",
     "target_path": "tests/PdfBox.Net.Tests/ContentStreamWriterTest.cs",
-    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "source_commit": "e5cbdeeb4adf3d2b3f7578bac953ddff5c3d4330",
     "port_mode": "native-test",
-    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
-    "conversion_notes": "Native regression coverage added for Apache PDFBox 3.0 synchronization issue #913."
+    "sync_commit": "e5cbdeeb4adf3d2b3f7578bac953ddff5c3d4330",
+    "conversion_notes": "The cached operator-name assertions are represented by a generalized xUnit check, and testUnkownOperator is a literal C# port through issue #943; see reports/issue-943-upstream-sync-assessment.md."
   },
   {
     "source_path": null,

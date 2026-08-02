@@ -8997,5 +8997,15 @@
     "status": "in-sync",
     "last_checked_utc": "2026-08-01T11:53:27Z",
     "note": "Port-local COS operand helper supporting the Apache PDFBox 3.0 glyph-layout content-stream port in issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfwriter/OperatorNameTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/ContentStreamWriterTest.cs",
+    "source_commit": "e5cbdeeb4adf3d2b3f7578bac953ddff5c3d4330",
+    "sync_commit": "e5cbdeeb4adf3d2b3f7578bac953ddff5c3d4330",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-02T18:23:37.217Z",
+    "note": "The new testUnkownOperator assertion is converted literally; existing cached-name assertions remain represented by generalized xUnit coverage. See reports/issue-943-upstream-sync-assessment.md."
   }
 ]

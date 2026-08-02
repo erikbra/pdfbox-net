@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-08-01T11:55:35Z",
-  "upstream_root": "/private/tmp/apache-pdfbox-3-sync-audit-20260801",
-  "upstream_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
-  "pdfbox_net_commit": "cfd8556fb4ba9942257c4d66b7e9fe2abb98ecf0",
+  "generated_at_utc": "2026-08-02T18:26:19Z",
+  "upstream_root": "/private/tmp/apache-pdfbox-issue943-20260802",
+  "upstream_commit": "e5cbdeeb4adf3d2b3f7578bac953ddff5c3d4330",
+  "pdfbox_net_commit": "5232f44ced15bc3a5c3cdb631df7075866254d39",
   "scope": {
     "modules": [
       "io",
@@ -55988,13 +55988,6 @@
           "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPopup.cs",
           "namespace": "PdfBox.Net.PDModel.Interactive.Annotation",
           "name": "PDAnnotationPopup",
-          "kind": "class"
-        },
-        {
-          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPopup.java",
-          "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationPopup.cs",
-          "namespace": "PdfBox.Net.PDModel.Interactive.Annotation",
-          "name": "PDAnnotationMarkupImpl",
           "kind": "class"
         }
       ],
