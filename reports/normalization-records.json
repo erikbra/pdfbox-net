@@ -5363,5 +5363,17 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Port-local helper reviewed and compiled for Apache PDFBox 3.0 synchronization issue #913."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfwriter/OperatorNameTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/ContentStreamWriterTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertion and annotation converted to xUnit",
+      "Java IllegalArgumentException mapped to System.ArgumentException"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Literal C# conversion of testUnkownOperator through Apache PDFBox 3.0 synchronization issue #943."
   }
 ]

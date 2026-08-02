@@ -11,9 +11,9 @@
     "preflight": 116,
     "preflight-app": 0
   },
-  "upstream_head_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
-  "tracked_parity_baseline_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
-  "last_scan_utc": "2026-08-01T11:57:09.388Z",
+  "upstream_head_commit": "e5cbdeeb4adf3d2b3f7578bac953ddff5c3d4330",
+  "tracked_parity_baseline_commit": "e5cbdeeb4adf3d2b3f7578bac953ddff5c3d4330",
+  "last_scan_utc": "2026-08-02T18:23:37.217Z",
   "upstream_java_files_total": 1077,
   "mapped_java_files_total": 1077,
   "missing_java_files_total": 0,
