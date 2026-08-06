@@ -2185,10 +2185,10 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
     "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Mechanical PDPage mapping is parity-complete for inherited boxes/rotation/resources, annotation wrappers, and content stream accessors."
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Mechanical PDPage mapping includes upstream Type 0 descendant CID-font and PDFontDescriptor cache eviction through issue #946."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
@@ -2212,7 +2212,7 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "adapted",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Added ExtGState and typed XObject lookup helpers for gs/Do processing."
+    "conversion_notes": "Adapted resource lookup includes the upstream cache-aware PDFontFactory call required to make PDFBOX-6175 effective; reviewed in issue #946 without advancing this unchanged upstream source revision."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDStructureElementNameTreeNode.java",
@@ -3088,35 +3088,35 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Issue #51: added CIDSystemInfo accessor for composite Type0 CMap/UCS2 integration paths."
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Adapted CID font implementation includes PDFBOX-6175 ResourceCache reuse/insertion for indirect descendant PDFontDescriptor instances through issue #946."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType0.cs",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Issue #51: validated CIDFontType0 descendant integration through Type0 encoding CMap-driven CID resolution and width delegation."
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Adapted CIDFontType0 constructor accepts ResourceCache for PDFBOX-6175 while retaining the one-argument compatibility overload; synchronized through issue #946."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Implemented CIDFontType2 wrapper for embedded TrueType fonts with shared CID width default handling."
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Adapted CIDFontType2 loading propagates ResourceCache through its three-argument constructor while preserving the existing optional TrueTypeFont constructor; synchronized through issue #946."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Adapted stub; PDCIDFontType2 embedding deferred pending PDFontDescriptor setters."
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Adapted embedder reviewed through PDFBOX-6175; upstream getCIDFont() is absent locally and equivalent embedded construction remains in PDType0Font with no resource cache."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDSystemInfo.java",
@@ -3145,10 +3145,10 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Added font factory dispatch based on PDF font subtype."
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Font and descendant factory dispatch now propagates ResourceCache for Type 0 descriptor caching while retaining one-argument compatibility overloads; synchronized through issue #946."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
@@ -3184,11 +3184,11 @@
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-    "target_path": "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Issue #51: wired Type0 /Encoding CMap parsing (stream and predefined identity fallback), CodeToCID via Type0 CMap, and composite ToUnicode fallback chaining to UCS2/preferred descendant mapping."
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Adapted Type0 loading now reuses, creates, and inserts indirect descendant CID fonts through ResourceCache for PDFBOX-6175; synchronized through issue #946."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -7546,5 +7546,21 @@
     "port_mode": "native-test",
     "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "conversion_notes": "Added regression coverage for glyph-layout content stream hooks emitting hexadecimal Tj/TJ operands and Ts text rise."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfwriter/OperatorNameTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/ContentStreamWriterTest.cs",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "port_mode": "native-test",
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "The cached-name assertions remain generalized, and testUnkownOperator is a literal JUnit-to-xUnit port through issue #946."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDModelResourceContentStreamGapTest.cs",
+    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "port_mode": "native-test",
+    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
+    "conversion_notes": "Added deterministic native regression tests for PDFBOX-6175 Type 0 descendant descriptor reuse and page-resource cache eviction in issue #946."
   }
 ]

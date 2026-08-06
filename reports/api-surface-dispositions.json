@@ -6787,14 +6787,6 @@
       "reviewed_by": "Codex"
     },
     {
-      "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|constructor|PDCIDFontType2|1|arity-drift",
-      "disposition": "intentional-dotnet-adaptation",
-      "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",
-      "issue": 912,
-      "reviewed_at_utc": "2026-08-01T11:22:52Z",
-      "reviewed_by": "Codex"
-    },
-    {
       "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType2|method|codeToGID|2|arity-drift",
       "disposition": "intentional-dotnet-adaptation",
       "note": "PDFBOX-6175 removed the stored Java parent-font reference and now passes PDType0Font through descendant-font constructors and protected methods. PdfBox.Net already keeps CMap/delegation state on PDType0Font, so its parentless descendant-font signatures remain intentional.",

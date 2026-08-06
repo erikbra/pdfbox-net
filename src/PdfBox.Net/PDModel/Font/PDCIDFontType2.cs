@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java
- * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  */
 
 /*
@@ -48,7 +48,21 @@ public partial class PDCIDFontType2 : PDCIDFont
     private readonly bool _isEmbedded;
 
     public PDCIDFontType2(COSDictionary dictionary, TrueTypeFont? trueTypeFont = null)
-        : base(dictionary)
+        : this(dictionary, trueTypeFont, null)
+    {
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="dictionary">The font dictionary according to the PDF specification.</param>
+    /// <param name="trueTypeFont">The true type font used to create the parent font.</param>
+    /// <param name="resourceCache">Resource cache; may be <see langword="null"/>.</param>
+    public PDCIDFontType2(
+        COSDictionary dictionary,
+        TrueTypeFont? trueTypeFont,
+        ResourceCache? resourceCache)
+        : base(dictionary, resourceCache)
     {
         _isEmbedded = trueTypeFont is not null;
         _trueTypeFont = trueTypeFont ?? new TrueTypeFont();
@@ -57,6 +71,11 @@ public partial class PDCIDFontType2 : PDCIDFont
     }
 
     internal static PDCIDFontType2 Load(COSDictionary dictionary)
+    {
+        return Load(dictionary, null);
+    }
+
+    internal static PDCIDFontType2 Load(COSDictionary dictionary, ResourceCache? resourceCache)
     {
         TrueTypeFont? ttf = null;
         try
@@ -73,7 +92,7 @@ public partial class PDCIDFontType2 : PDCIDFont
             // Keep non-throwing CID font construction behavior.
         }
 
-        return new PDCIDFontType2(dictionary, ttf);
+        return new PDCIDFontType2(dictionary, ttf, resourceCache);
     }
 
     private static TrueTypeFont? TryParseEmbeddedFont(COSDictionary descriptor, COSName key, bool preferOpenType)

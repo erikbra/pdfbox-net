@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java
- * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  */
 
 /*
@@ -34,7 +34,17 @@ public partial class PDCIDFontType0 : PDCIDFont
     private static ILogger<PDCIDFontType0> LOG => PdfBoxLogging.CreateLogger<PDCIDFontType0>();
 
     public PDCIDFontType0(COSDictionary dictionary)
-        : base(dictionary)
+        : this(dictionary, null)
+    {
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="dictionary">The font dictionary according to the PDF specification.</param>
+    /// <param name="resourceCache">Resource cache; may be <see langword="null"/>.</param>
+    public PDCIDFontType0(COSDictionary dictionary, ResourceCache? resourceCache)
+        : base(dictionary, resourceCache)
     {
     }
 }

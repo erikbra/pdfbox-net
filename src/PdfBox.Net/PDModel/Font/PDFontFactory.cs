@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java
- * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  */
 
 /*
@@ -41,6 +41,17 @@ public sealed class PDFontFactory
 
     public static PDFont CreateFont(COSDictionary dictionary)
     {
+        return CreateFont(dictionary, null);
+    }
+
+    /// <summary>
+    /// Creates a new font instance with the appropriate subclass.
+    /// </summary>
+    /// <param name="dictionary">A font dictionary.</param>
+    /// <param name="resourceCache">Resource cache; may be <see langword="null"/>.</param>
+    /// <returns>A font instance based on the SubType entry of the dictionary.</returns>
+    public static PDFont CreateFont(COSDictionary dictionary, ResourceCache? resourceCache)
+    {
         ArgumentNullException.ThrowIfNull(dictionary);
 
         COSName fontType = COSName.GetPDFName("Font");
@@ -53,13 +64,13 @@ public sealed class PDFontFactory
         string? subtype = dictionary.GetNameAsString(SubtypeKey);
         return subtype switch
         {
-            "Type0" => PDType0Font.Load(dictionary),
+            "Type0" => PDType0Font.Load(dictionary, resourceCache),
             "Type1" => (PDFont?)PDType1CFont.Load(dictionary) ?? PDType1Font.Load(dictionary),
             "MMType1" => new PDMMType1Font(dictionary),
             "Type3" => new PDType3Font(dictionary),
             "TrueType" => PDTrueTypeFont.Load(dictionary) ?? (PDFont)PDDictionaryFont.Create(dictionary),
-            "CIDFontType0" => new PDCIDFontType0(dictionary),
-            "CIDFontType2" => PDCIDFontType2.Load(dictionary),
+            "CIDFontType0" => new PDCIDFontType0(dictionary, resourceCache),
+            "CIDFontType2" => PDCIDFontType2.Load(dictionary, resourceCache),
             _ => CreateFallbackFont(dictionary, subtype),
         };
     }
@@ -72,11 +83,24 @@ public sealed class PDFontFactory
 
     internal static PDCIDFont CreateDescendantFont(COSDictionary dictionary)
     {
+        return CreateDescendantFont(dictionary, null);
+    }
+
+    /// <summary>
+    /// Creates a new descendant CID font with the appropriate subclass.
+    /// </summary>
+    /// <param name="dictionary">Descendant font dictionary.</param>
+    /// <param name="resourceCache">Resource cache; may be <see langword="null"/>.</param>
+    /// <returns>A descendant font based on the SubType entry of the dictionary.</returns>
+    internal static PDCIDFont CreateDescendantFont(
+        COSDictionary dictionary,
+        ResourceCache? resourceCache)
+    {
         string? subtype = dictionary.GetNameAsString(SubtypeKey);
         return subtype switch
         {
-            "CIDFontType2" => PDCIDFontType2.Load(dictionary),
-            _ => new PDCIDFontType0(dictionary),
+            "CIDFontType2" => PDCIDFontType2.Load(dictionary, resourceCache),
+            _ => new PDCIDFontType0(dictionary, resourceCache),
         };
     }
 }

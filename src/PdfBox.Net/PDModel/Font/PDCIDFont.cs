@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java
- * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  */
 
 /*
@@ -40,21 +40,55 @@ public abstract partial class PDCIDFont : PDFont
     private static readonly COSName DWKey = COSName.GetPDFName("DW");
     private static readonly COSName DW2Key = COSName.GetPDFName("DW2");
     private static readonly COSName CidSystemInfoKey = COSName.GetPDFName("CIDSystemInfo");
+    private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
 
     private readonly Dictionary<int, float> _widthsByCid = [];
     private readonly Dictionary<int, float> _verticalDisplacementY = [];
     private readonly Dictionary<int, Vector> _positionVectors = [];
     private readonly List<VerticalDisplacementRange> _displacementRanges = [];
     private readonly float[] _dw2 = [880f, -1000f];
+    private readonly PDFontDescriptor? _fontDescriptor;
     protected readonly float DefaultWidth;
 
     protected PDCIDFont(COSDictionary fontDictionary)
+        : this(fontDictionary, null)
+    {
+    }
+
+    /// <summary>
+    /// Constructor.
+    /// </summary>
+    /// <param name="fontDictionary">The font dictionary according to the PDF specification.</param>
+    /// <param name="resourceCache">Resource cache; may be <see langword="null"/>.</param>
+    protected PDCIDFont(COSDictionary fontDictionary, ResourceCache? resourceCache)
         : base(fontDictionary)
     {
         DefaultWidth = fontDictionary.GetFloat(DWKey, 1000f);
         ReadCIDWidths(fontDictionary.GetCOSArray(WKey), _widthsByCid);
         ReadVerticalDisplacements(fontDictionary);
+
+        PDFontDescriptor? fontDescriptor = null;
+        COSObject? fdIndirectObject = fontDictionary.GetCOSObject(FontDescriptorKey);
+        if (fdIndirectObject is not null && resourceCache is not null)
+        {
+            fontDescriptor = resourceCache.GetFontDescriptor(fdIndirectObject);
+        }
+        if (fontDescriptor is null)
+        {
+            COSDictionary? fdDictionary = fontDictionary.GetCOSDictionary(FontDescriptorKey);
+            if (fdDictionary is not null)
+            {
+                fontDescriptor = new PDFontDescriptor(fdDictionary);
+                if (resourceCache is not null && fdIndirectObject is not null)
+                {
+                    resourceCache.Put(fdIndirectObject, fontDescriptor);
+                }
+            }
+        }
+        _fontDescriptor = fontDescriptor;
     }
+
+    public override PDFontDescriptor? GetFontDescriptor() => _fontDescriptor;
 
     public virtual int CodeToCID(int code) => code;
 
