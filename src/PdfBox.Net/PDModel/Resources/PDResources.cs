@@ -110,7 +110,7 @@ public class PDResources
         PDFont? font = null;
         if (Get(FontKey, name) is COSDictionary fontDict)
         {
-            font = PDFontFactory.CreateFont(fontDict);
+            font = PDFontFactory.CreateFont(fontDict, _resourceCache);
         }
 
         if (_resourceCache is not null && indirect is not null && font is not null)

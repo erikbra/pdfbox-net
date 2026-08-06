@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java
- * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  */
 
 /*
@@ -30,6 +30,9 @@ using PdfBox.Net.ContentStream;
 using PdfBox.Net.IO;
 using PdfBox.Net.PDModel.Annotations;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics;
+using PdfBox.Net.PDModel.Graphics.Form;
 using PdfBox.Net.PDModel.Interactive.Action;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.Measurement;
@@ -601,36 +604,104 @@ public sealed partial class PDPage : COSObjectable, PDContentStream
             return;
         }
 
-        RemovePageResources(COSName.GetPDFName("Font"), indirect => _resourceCache.RemoveFont(indirect));
-        RemovePageResources(COSName.GetPDFName("ColorSpace"), indirect => _resourceCache.RemoveColorSpace(indirect));
-        RemovePageResources(COSName.GetPDFName("XObject"), indirect => _resourceCache.RemoveXObject(indirect));
-        RemovePageResources(COSName.GetPDFName("ExtGState"), indirect => _resourceCache.RemoveExtState(indirect));
-        RemovePageResources(COSName.GetPDFName("Shading"), indirect => _resourceCache.RemoveShading(indirect));
-        RemovePageResources(COSName.GetPDFName("Pattern"), indirect => _resourceCache.RemovePattern(indirect));
-        RemovePageResources(COSName.GetPDFName("Properties"), indirect => _resourceCache.RemoveProperties(indirect));
+        // Limit purge operation to page resources; don't remove inherited resources.
+        RemoveResources(_page.GetCOSDictionary(COSName.RESOURCES));
     }
 
-    private void RemovePageResources(COSName category, Action<COSObject> removeAction)
+    private void RemoveResources(COSDictionary? resources)
     {
-        COSBase? resourceBase = PDPageTree.GetInheritableAttribute(_page, COSName.RESOURCES);
-        if (resourceBase is not COSDictionary resources)
+        if (resources is null || _resourceCache is null)
         {
             return;
         }
 
-        COSDictionary? categoryDictionary = resources.GetCOSDictionary(category);
-        if (categoryDictionary is null)
+        foreach (COSObject indirect in GetIndirectResourceObjects(resources, COSName.COLORSPACE))
         {
-            return;
+            _resourceCache.RemoveColorSpace(indirect);
         }
-
-        foreach (COSName name in categoryDictionary.KeySet())
+        foreach (COSObject indirect in GetIndirectResourceObjects(resources, COSName.GetPDFName("ExtGState")))
         {
-            if (categoryDictionary.GetItem(name) is COSObject indirect)
+            _resourceCache.RemoveExtState(indirect);
+        }
+        foreach (COSObject indirect in GetIndirectResourceObjects(resources, COSName.GetPDFName("Pattern")))
+        {
+            _resourceCache.RemovePattern(indirect);
+        }
+        foreach (COSObject indirect in GetIndirectResourceObjects(resources, COSName.GetPDFName("Properties")))
+        {
+            _resourceCache.RemoveProperties(indirect);
+        }
+        foreach (COSObject indirect in GetIndirectResourceObjects(resources, COSName.SHADING))
+        {
+            _resourceCache.RemoveShading(indirect);
+        }
+        foreach (COSObject indirect in GetIndirectResourceObjects(resources, COSName.GetPDFName("Font")))
+        {
+            PDFont? removedFont = _resourceCache.RemoveFont(indirect);
+            if (removedFont is null)
             {
-                removeAction(indirect);
+                continue;
+            }
+
+            COSDictionary fontDictionary = removedFont.GetCOSObject();
+            if (removedFont is PDType0Font)
+            {
+                COSArray? descendantFonts = fontDictionary.GetCOSArray(COSName.GetPDFName("DescendantFonts"));
+                if (descendantFonts is not null && descendantFonts.Size() > 0)
+                {
+                    COSBase? descendantFontBaseObject = descendantFonts.Get(0);
+                    if (descendantFontBaseObject is COSObject descendantIndirect)
+                    {
+                        _resourceCache.RemoveCIDFont(descendantIndirect);
+                    }
+
+                    // The font descriptor of a Type 0 font is part of the descendant font,
+                    // not of the parent font.
+                    if (descendantFonts.GetObject(0) is COSDictionary descendantFont)
+                    {
+                        COSObject? fdIndirectObject = descendantFont.GetCOSObject(
+                            COSName.GetPDFName("FontDescriptor"));
+                        if (fdIndirectObject is not null)
+                        {
+                            _resourceCache.RemoveFontDescriptor(fdIndirectObject);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                COSObject? fdIndirectObject = fontDictionary.GetCOSObject(
+                    COSName.GetPDFName("FontDescriptor"));
+                if (fdIndirectObject is not null)
+                {
+                    _resourceCache.RemoveFontDescriptor(fdIndirectObject);
+                }
             }
         }
+        foreach (COSObject indirect in GetIndirectResourceObjects(resources, COSName.GetPDFName("XObject")))
+        {
+            PDXObject? removedXObject = _resourceCache.RemoveXObject(indirect);
+            if (removedXObject is PDFormXObject formXObject)
+            {
+                RemoveResources(formXObject.GetCOSObject()?.GetCOSDictionary(COSName.RESOURCES));
+            }
+        }
+    }
+
+    private static List<COSObject> GetIndirectResourceObjects(
+        COSDictionary pageResources,
+        COSName kind)
+    {
+        COSDictionary? resourcesDictionary = pageResources.GetCOSDictionary(kind);
+        if (resourcesDictionary is null)
+        {
+            return [];
+        }
+
+        return resourcesDictionary.GetValues()
+            .OfType<COSObject>()
+            .Where(indirect => indirect.IsDereferenced())
+            .ToList();
     }
 
     public List<PDViewportDictionary>? GetViewports()

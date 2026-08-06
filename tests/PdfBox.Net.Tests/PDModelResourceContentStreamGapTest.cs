@@ -48,6 +48,71 @@ public class PDModelResourceContentStreamGapTest
     }
 
     [Fact]
+    public void PDResources_Type0DescendantsReuseCachedFontDescriptor()
+    {
+        RecordingResourceCache cache = new();
+        COSObject descriptorIndirect = new(
+            CreateFontDescriptor(),
+            new COSObjectKey(90, 0));
+        COSDictionary resourcesDictionary = new();
+        COSDictionary fonts = new();
+        fonts.SetItem(
+            COSName.GetPDFName("F1"),
+            CreateType0Font(descriptorIndirect, parentObjectNumber: 91, descendantObjectNumber: 92));
+        fonts.SetItem(
+            COSName.GetPDFName("F2"),
+            CreateType0Font(descriptorIndirect, parentObjectNumber: 93, descendantObjectNumber: 94));
+        resourcesDictionary.SetItem(COSName.GetPDFName("Font"), fonts);
+
+        PDResources resources = new(resourcesDictionary, cache);
+        PDType0Font first = Assert.IsType<PDType0Font>(resources.GetFont(COSName.GetPDFName("F1")));
+        PDType0Font second = Assert.IsType<PDType0Font>(resources.GetFont(COSName.GetPDFName("F2")));
+
+        PDFontDescriptor firstDescriptor = Assert.IsType<PDFontDescriptor>(first.GetFontDescriptor());
+        PDFontDescriptor secondDescriptor = Assert.IsType<PDFontDescriptor>(second.GetFontDescriptor());
+        Assert.Same(firstDescriptor, secondDescriptor);
+        Assert.Equal(2, cache.CIDFontPutCount);
+        Assert.Equal(1, cache.FontDescriptorPutCount);
+    }
+
+    [Fact]
+    public void PDPage_RemovePageResourceFromCacheEvictsType0DescendantAndDescriptor()
+    {
+        using PDDocument document = new();
+        RecordingResourceCache cache = new();
+        document.SetResourceCache(cache);
+
+        COSObject descriptorIndirect = new(
+            CreateFontDescriptor(),
+            new COSObjectKey(100, 0));
+        COSObject parentFontIndirect = CreateType0Font(
+            descriptorIndirect,
+            parentObjectNumber: 101,
+            descendantObjectNumber: 102);
+        COSDictionary fonts = new();
+        fonts.SetItem(COSName.GetPDFName("F1"), parentFontIndirect);
+        COSDictionary resourcesDictionary = new();
+        resourcesDictionary.SetItem(COSName.GetPDFName("Font"), fonts);
+
+        PDPage page = new();
+        ((COSDictionary)page.GetCOSObject()).SetItem(COSName.RESOURCES, resourcesDictionary);
+        document.AddPage(page);
+
+        PDPage readPage = document.GetPage(0);
+        Assert.IsType<PDType0Font>(readPage.GetResources()!.GetFont(COSName.GetPDFName("F1")));
+        Assert.Equal(1, cache.CIDFontPutCount);
+        Assert.Equal(1, cache.FontDescriptorPutCount);
+
+        readPage.RemovePageResourceFromCache();
+
+        Assert.Equal(1, cache.FontRemoveCount);
+        Assert.Equal(1, cache.CIDFontRemoveCount);
+        Assert.Equal(1, cache.FontDescriptorRemoveCount);
+        Assert.Null(cache.GetFont(parentFontIndirect));
+        Assert.Null(cache.GetFontDescriptor(descriptorIndirect));
+    }
+
+    [Fact]
     public void PDFormXObject_RetainsResourceWrapper_ForDirectNestedFontResources()
     {
         RecordingResourceCache cache = new();
@@ -211,18 +276,55 @@ public class PDModelResourceContentStreamGapTest
         return resources;
     }
 
+    private static COSObject CreateType0Font(
+        COSObject descriptorIndirect,
+        long parentObjectNumber,
+        long descendantObjectNumber)
+    {
+        COSDictionary descendant = new();
+        descendant.SetName(COSName.TYPE, "Font");
+        descendant.SetName(COSName.SUBTYPE, "CIDFontType0");
+        descendant.SetItem(COSName.GetPDFName("FontDescriptor"), descriptorIndirect);
+
+        COSArray descendants = new();
+        descendants.Add(new COSObject(descendant, new COSObjectKey(descendantObjectNumber, 0)));
+
+        COSDictionary parent = new();
+        parent.SetName(COSName.TYPE, "Font");
+        parent.SetName(COSName.SUBTYPE, "Type0");
+        parent.SetItem(COSName.GetPDFName("DescendantFonts"), descendants);
+        return new COSObject(parent, new COSObjectKey(parentObjectNumber, 0));
+    }
+
+    private static COSDictionary CreateFontDescriptor()
+    {
+        COSDictionary descriptor = new();
+        descriptor.SetName(COSName.TYPE, "FontDescriptor");
+        descriptor.SetName(COSName.GetPDFName("FontName"), "CachedType0Descriptor");
+        return descriptor;
+    }
+
     private sealed class RecordingResourceCache : ResourceCache
     {
         public int FontPutCount { get; private set; }
+        public int FontRemoveCount { get; private set; }
+        public int CIDFontPutCount { get; private set; }
+        public int CIDFontRemoveCount { get; private set; }
+        public int FontDescriptorPutCount { get; private set; }
+        public int FontDescriptorRemoveCount { get; private set; }
         public int XObjectPutCount { get; private set; }
         public int XObjectRemoveCount { get; private set; }
 
         private readonly Dictionary<COSObject, PDFont> _fonts = [];
+        private readonly Dictionary<COSObject, PDCIDFont> _cidFonts = [];
+        private readonly Dictionary<COSObject, PDFontDescriptor> _fontDescriptors = [];
         private readonly Dictionary<COSObject, PDXObject> _xObjects = [];
 
         public PDFont? GetFont(COSObject indirect) => _fonts.TryGetValue(indirect, out PDFont? font) ? font : null;
-        public PDCIDFont? GetCIDFont(COSObject indirect) => null;
-        public PDFontDescriptor? GetFontDescriptor(COSObject indirect) => null;
+        public PDCIDFont? GetCIDFont(COSObject indirect) =>
+            _cidFonts.TryGetValue(indirect, out PDCIDFont? cidFont) ? cidFont : null;
+        public PDFontDescriptor? GetFontDescriptor(COSObject indirect) =>
+            _fontDescriptors.TryGetValue(indirect, out PDFontDescriptor? descriptor) ? descriptor : null;
         public PDColorSpace? GetColorSpace(COSObject indirect) => null;
         public PDExtendedGraphicsState? GetExtGState(COSObject indirect) => null;
         public PDShading? GetShading(COSObject indirect) => null;
@@ -238,10 +340,14 @@ public class PDModelResourceContentStreamGapTest
 
         public void Put(COSObject indirect, PDCIDFont cidFont)
         {
+            _cidFonts[indirect] = cidFont;
+            CIDFontPutCount++;
         }
 
         public void Put(COSObject indirect, PDFontDescriptor fontDescriptor)
         {
+            _fontDescriptors[indirect] = fontDescriptor;
+            FontDescriptorPutCount++;
         }
 
         public void Put(COSObject indirect, PDColorSpace colorSpace)
@@ -272,9 +378,38 @@ public class PDModelResourceContentStreamGapTest
 
         public PDColorSpace? RemoveColorSpace(COSObject indirect) => null;
         public PDExtendedGraphicsState? RemoveExtState(COSObject indirect) => null;
-        public PDFont? RemoveFont(COSObject indirect) => null;
-        public PDCIDFont? RemoveCIDFont(COSObject indirect) => null;
-        public PDFontDescriptor? RemoveFontDescriptor(COSObject indirect) => null;
+        public PDFont? RemoveFont(COSObject indirect)
+        {
+            if (_fonts.Remove(indirect, out PDFont? font))
+            {
+                FontRemoveCount++;
+                return font;
+            }
+
+            return null;
+        }
+
+        public PDCIDFont? RemoveCIDFont(COSObject indirect)
+        {
+            if (_cidFonts.Remove(indirect, out PDCIDFont? cidFont))
+            {
+                CIDFontRemoveCount++;
+                return cidFont;
+            }
+
+            return null;
+        }
+
+        public PDFontDescriptor? RemoveFontDescriptor(COSObject indirect)
+        {
+            if (_fontDescriptors.Remove(indirect, out PDFontDescriptor? descriptor))
+            {
+                FontDescriptorRemoveCount++;
+                return descriptor;
+            }
+
+            return null;
+        }
         public PDShading? RemoveShading(COSObject indirect) => null;
         public PDAbstractPattern? RemovePattern(COSObject indirect) => null;
         public PDPropertyList? RemoveProperties(COSObject indirect) => null;

@@ -5337,5 +5337,120 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPage.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDPage.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java stream iteration mapped to typed C# loops",
+      "Java instanceof resource cleanup mapped to C# pattern matching"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-6175 descendant-font and descriptor eviction normalized and validated in issue #946."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDResources.java",
+    "target_path": "src/PdfBox.Net/PDModel/Resources/PDResources.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Adapted local font-resource call path now passes ResourceCache"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Narrow adapter change makes upstream PDFBOX-6175 behavior reachable in the .NET resource path."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java final descriptor field mapped to C# readonly field",
+      "Adapted PDFont inheritance handled by descriptor override"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Descriptor lookup, reuse, insertion, and stable instance return match PDFBOX-6175."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType0.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Nullable ResourceCache constructor propagation",
+      "Compatibility constructor retained"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Constructor normalization preserves old callers and upstream cache behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Nullable ResourceCache constructor propagation",
+      "Null-literal overload ambiguity avoided"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "The upstream three-argument cache path is public; the existing two-argument TrueTypeFont shape remains unambiguous for compatibility."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2Embedder.cs",
+    "normalization_applied": false,
+    "change_categories": [],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Reviewed adapted file through PDFBOX-6175; changed upstream getCIDFont() architecture is absent and equivalent embedded construction remains uncached in PDType0Font."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Nullable ResourceCache overloads",
+      "Compatibility overload delegation"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Factory and descendant-factory cache propagation normalized for the adapted font hierarchy."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java instanceof cache path mapped to C# pattern matching",
+      "Compatibility load overload retained"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Indirect descendant cache reuse and insertion match PDFBOX-6175."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfwriter/OperatorNameTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/ContentStreamWriterTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit assertion and annotation converted to xUnit",
+      "Java IllegalArgumentException mapped to System.ArgumentException"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Literal C# conversion of testUnkownOperator through issue #946."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDModelResourceContentStreamGapTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Native xUnit cache identity and eviction fixtures"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Targeted PDFBOX-6175 cache reuse and eviction coverage added in issue #946."
   }
 ]

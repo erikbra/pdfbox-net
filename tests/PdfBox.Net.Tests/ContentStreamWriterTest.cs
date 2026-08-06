@@ -47,8 +47,12 @@ public class ContentStreamWriterTest
             Assert.Same(first, second);
             Assert.Equal(name, Encoding.ASCII.GetString(first));
         }
+    }
 
-        Assert.Throws<ArgumentException>(() => OperatorName.GetNameAsBytes("not-an-operator"));
+    [Fact]
+    public void TestUnkownOperator()
+    {
+        Assert.Throws<ArgumentException>(() => OperatorName.GetNameAsBytes("UNKNOWN"));
     }
 
     [Fact]

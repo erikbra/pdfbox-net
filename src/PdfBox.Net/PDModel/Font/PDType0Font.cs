@@ -3,9 +3,9 @@
  * Adapted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java
- * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  */
 
 /*
@@ -66,11 +66,30 @@ public partial class PDType0Font : PDVectorFont
 
     internal static PDType0Font Load(COSDictionary dictionary)
     {
+        return Load(dictionary, null);
+    }
+
+    internal static PDType0Font Load(COSDictionary dictionary, ResourceCache? resourceCache)
+    {
         PDCIDFont? descendant = null;
         COSArray? descendants = dictionary.GetCOSArray(COSName.GetPDFName("DescendantFonts"));
-        if (descendants != null && descendants.Size() > 0 && descendants.GetObject(0) is COSDictionary descendantDict)
+        if (descendants != null && descendants.Size() > 0 &&
+            descendants.GetObject(0) is COSDictionary descendantDict)
         {
-            descendant = PDFontFactory.CreateDescendantFont(descendantDict);
+            COSBase? descendantFontBaseObject = descendants.Get(0);
+            if (resourceCache is not null && descendantFontBaseObject is COSObject indirect)
+            {
+                descendant = resourceCache.GetCIDFont(indirect);
+            }
+            if (descendant is null)
+            {
+                descendant = PDFontFactory.CreateDescendantFont(descendantDict, resourceCache);
+                if (resourceCache is not null &&
+                    descendantFontBaseObject is COSObject descendantIndirect)
+                {
+                    resourceCache.Put(descendantIndirect, descendant);
+                }
+            }
         }
 
         return new PDType0Font(dictionary, descendant);

@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-08-01T15:57:48Z
-Apache PDFBox source commit: `fee11b453d66725c2b3a28b6f862a8dc24d33177`
-PdfBox.Net commit: `f50aa356192cdf4837ece64e65877a6ab423adbe`
+Generated (UTC): 2026-08-06T21:51:56Z
+Apache PDFBox source commit: `bf37c60dfa43cb9fb21497b44a667d091d809084`
+PdfBox.Net commit: `4e591dc2d089a013ab8fe5a2eda8d5f6f66ff443`
 
 ## Scope
 
@@ -23,10 +23,10 @@ PdfBox.Net commit: `f50aa356192cdf4837ece64e65877a6ab423adbe`
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6310 |
-| Matched members | 5402 |
-| Arity-drift members | 45 |
+| Matched members | 5403 |
+| Arity-drift members | 44 |
 | Missing members | 863 |
-| Reflected .NET extra members on matched types | 1648 |
+| Reflected .NET extra members on matched types | 1649 |
 
 Member coverage by name/signature heuristic: **5447 / 6310 = 86.3%**.
 
@@ -37,14 +37,14 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
 | Missing members | 863 | 863 | 0 |
-| Arity-drift members | 45 | 45 | 0 |
+| Arity-drift members | 44 | 44 | 0 |
 | Type-name/visibility gaps | 8 | 8 | 0 |
-| Total reviewable deltas | 916 | 916 | 0 |
+| Total reviewable deltas | 915 | 915 | 0 |
 
 | Disposition | Reviewed rows |
 |---|---:|
 | `behavior-covered` | 107 |
-| `intentional-dotnet-adaptation` | 708 |
+| `intentional-dotnet-adaptation` | 707 |
 | `internal-by-design` | 76 |
 | `not-applicable` | 25 |
 
