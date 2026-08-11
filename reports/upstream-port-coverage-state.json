@@ -7,21 +7,23 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head_commit": "bbea338208b7712bc151e2ff507764552eff03ad",
+  "upstream_head_commit": "bb678648ac6099e3a42e67954ff3ee4646a1f4e3",
   "tracked_parity_baseline_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
-  "last_scan_utc": "2026-08-09T07:48:54.015Z",
-  "upstream_java_files_total": 1073,
+  "last_scan_utc": "2026-08-11T08:06:29.867Z",
+  "upstream_java_files_total": 1074,
   "mapped_java_files_total": 1073,
-  "missing_java_files_total": 0,
+  "missing_java_files_total": 1,
   "mapped_java_files_provenance_total": 1072,
   "mapped_java_files_traceability_total": 809,
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "missing_source_paths_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "missing_source_paths_sample": [],
+  "missing_source_paths_sha256": "798ccaec65d415c4b62a9a43179df7382e393842ad5389d01bca8a324ccbd1c0",
+  "missing_source_paths_sample": [
+    "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/AbstractGlyphLayoutProcessor.java"
+  ],
   "missing_source_paths_sample_truncated": false,
   "target_100_percent_parity": {
-    "mapped_equals_total": true,
-    "missing_equals_zero": true,
+    "mapped_equals_total": false,
+    "missing_equals_zero": false,
     "traceability_non_insync_rows": 0,
     "definition": "100% parity requires mapped==total, missing==0, and no scoped traceability rows with status partial/partially-in-sync."
   }
