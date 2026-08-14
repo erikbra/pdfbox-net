@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java
- * PDFBOX_SOURCE_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PDFBOX_SOURCE_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  * PORT_MODE: adapted-minimal
- * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PORT_LAST_SYNC_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  */
 
 /*
@@ -41,6 +41,15 @@ public interface GlyphLayoutProcessorInterface
     /// <param name="font">Font to be checked.</param>
     /// <returns><see langword="true"/> if glyph layout is supported for this font.</returns>
     bool SupportsFont(PDFont font);
+
+    /// <summary>
+    /// Computes the width for text after glyph layout.
+    /// </summary>
+    /// <param name="font">Font to be used.</param>
+    /// <param name="fontSize">Font size.</param>
+    /// <param name="text">Text whose width is computed.</param>
+    /// <returns>The laid-out string width.</returns>
+    float GetStringWidth(PDType0Font font, float fontSize, string text);
 
     /// <summary>
     /// Shows a text using glyph positioning if needed.

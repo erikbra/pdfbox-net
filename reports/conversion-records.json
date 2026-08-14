@@ -3569,10 +3569,10 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Adapted stub; JPEG image factory requires platform-specific imaging APIs."
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Adapted working JPEG stream factory with SOF metadata parsing and direct DCT embedding. The upstream BufferedImage-to-JPEG custom-CMYK branch remains deferred because the core image proxy exposes ARGB rather than CMYK sample planes."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
@@ -7494,10 +7494,10 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
     "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutProcessorInterface.cs",
-    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
     "port_mode": "adapted-minimal",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
-    "conversion_notes": "Ported the upstream glyph-layout processor interface for Type 0 font text shaping integration."
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Ported the upstream glyph-layout processor interface, including GetStringWidth for Type 0 font text shaping integration."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
@@ -7518,10 +7518,10 @@
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java",
     "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutProcessorAwt.cs",
-    "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
     "port_mode": "adapted",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
-    "conversion_notes": "Ported the upstream AWT glyph-layout processor API; current .NET implementation emits conservative Identity-H glyph codes pending a real shaping backend."
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Ported the upstream AWT glyph-layout API on the shared abstract Bidi/width processor; core emits conservative Identity-H glyph codes while the optional Skia processor supplies HarfBuzz shaping."
   },
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
@@ -7562,5 +7562,64 @@
     "port_mode": "native-test",
     "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "conversion_notes": "Added deterministic native regression tests for PDFBOX-6175 Type 0 descendant descriptor reuse and page-resource cache eviction in issue #946."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeDescript.cs",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "port_mode": "mechanical",
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Ported PDFBOX-6231's short-range guard and structured error diagnostic literally before nested composite point-index assignment."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/AbstractGlyphLayoutProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/AbstractGlyphLayoutProcessor.cs",
+    "source_commit": "29924536e079f20086049ade35adb5bfd6f29677",
+    "namespace": "PdfBox.Net.PDModel",
+    "status": "converted",
+    "port_mode": "mechanical",
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "note": "New upstream production class converted into the core PDModel namespace.",
+    "conversion_notes": "Converted the new abstract processor with protected unidirectional width/text hooks and shared Bidi visual-run splitting; Unicode.Bidi stays private to the core implementation."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "port_mode": "adapted",
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Added the changed upstream OpenURL region using a redirect-following shared HttpClient and Java-shaped synchronous Stream return while rejecting non-HTTP(S) protocols."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/ShowSignature.cs",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "port_mode": "adapted",
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Mapped the changed verification output to SignedCms/X509Certificate2, including certificate signature algorithm and self-signed subject."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutLigaturesAndKerningTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/SkiaGlyphLayoutProcessorTest.cs",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "port_mode": "native-test",
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Converted the new string-width assertions to the actual .NET HarfBuzz backend and verifies that enabling kerning reduces shaped width."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Examples.Tests/Signature/TestSigUtils.cs",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "port_mode": "native-test",
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Added deterministic coverage that OpenURL rejects the FTP scheme with the upstream error shape."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/AbstractGlyphLayoutProcessorTest.cs",
+    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "port_mode": "native-test",
+    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "conversion_notes": "Added direct coverage of the new abstract base's mixed-direction visual-run ordering and width aggregation."
   }
 ]

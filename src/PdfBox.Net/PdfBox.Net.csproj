@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="JBig2Decoder.NETStandard" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Unicode.Bidi" />
     <ProjectReference Include="..\PdfBox.Net.IO\PdfBox.Net.IO.csproj" />
     <ProjectReference Include="..\PdfBox.Net.FontBox\PdfBox.Net.FontBox.csproj" />
   </ItemGroup>
