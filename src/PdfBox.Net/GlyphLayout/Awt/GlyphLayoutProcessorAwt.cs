@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java
- * PDFBOX_SOURCE_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PDFBOX_SOURCE_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PORT_LAST_SYNC_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  */
 
 /*
@@ -42,7 +42,7 @@ namespace PdfBox.Net.GlyphLayout.Awt;
 /// for Identity-H embedded fonts and a clear replacement point for a future
 /// HarfBuzz/Skia text shaping backend.
 /// </remarks>
-public class GlyphLayoutProcessorAwt : GlyphLayoutProcessorInterface
+public class GlyphLayoutProcessorAwt : AbstractGlyphLayoutProcessor, GlyphLayoutProcessorInterface
 {
     private readonly GlyphLayoutFontLoaderAwt _glyphLayoutFontLoaderAwt;
 
@@ -57,7 +57,7 @@ public class GlyphLayoutProcessorAwt : GlyphLayoutProcessorInterface
         ArgumentNullException.ThrowIfNull(awtFont);
     }
 
-    public bool SupportsFont(PDFont font)
+    public override bool SupportsFont(PDFont font)
     {
         return _glyphLayoutFontLoaderAwt.SupportsFont(font);
     }
@@ -103,12 +103,22 @@ public class GlyphLayoutProcessorAwt : GlyphLayoutProcessorInterface
         return glyphCodes.ToArray();
     }
 
-    public void ShowText(ContentStreamForGlyphLayoutInterface contentStream, PDType0Font font, float fontSize, string text)
+    protected override float GetStringWidthUni(
+        PDType0Font font,
+        float fontSize,
+        string text,
+        int bidiLevel)
     {
-        ShowTextUni(contentStream, font, fontSize, text, bidiLevel: 0);
+        int[] glyphCodes = ComputeGlyphCodes(font, fontSize, text, bidiLevel);
+        float width = 0;
+        foreach (int glyphCode in glyphCodes)
+        {
+            width += font.GetWidth(glyphCode) * font.GetFontMatrix().GetScaleX() * fontSize;
+        }
+        return width;
     }
 
-    protected virtual void ShowTextUni(
+    protected override void ShowTextUni(
         ContentStreamForGlyphLayoutInterface contentStream,
         PDType0Font font,
         float fontSize,

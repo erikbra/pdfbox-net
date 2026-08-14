@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java
- * PDFBOX_SOURCE_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
+ * PDFBOX_SOURCE_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  */
 
 /*
@@ -114,8 +114,19 @@ public class ShowSignature
 
                 try
                 {
-                    si.CheckSignature(verifySignatureOnly: false);
-                    Console.WriteLine("  Signature: VALID");
+                    si.CheckSignature(verifySignatureOnly: true);
+                    string signatureAlgorithm = cert?.SignatureAlgorithm.FriendlyName ??
+                        si.SignatureAlgorithm.FriendlyName ??
+                        si.SignatureAlgorithm.Value ??
+                        "Unknown";
+                    Console.WriteLine("  " + signatureAlgorithm + " signature verified");
+
+                    if (cert is not null &&
+                        cert.SubjectName.RawData.SequenceEqual(cert.IssuerName.RawData))
+                    {
+                        Console.Error.WriteLine(
+                            "Certificate for '" + cert.SubjectName.Name + "' is self-signed, LOL!");
+                    }
                 }
                 catch (CryptographicException ex)
                 {

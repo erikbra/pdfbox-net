@@ -5051,7 +5051,7 @@
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Ported the upstream glyph-layout processor interface for Type 0 font text shaping integration."
+    "note": "Added the upstream GetStringWidth contract with Java-shaped naming and Type 0 font parameters."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
@@ -5089,7 +5089,7 @@
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Ported the upstream AWT glyph-layout processor API; current .NET implementation emits conservative Identity-H glyph codes pending a real shaping backend."
+    "note": "Inherited the shared abstract Bidi/width processor and normalized fallback width computation against the existing Identity-H glyph-code adapter."
   },
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
@@ -5452,5 +5452,110 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Targeted PDFBOX-6175 cache reuse and eviction coverage added in issue #946."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeDescript.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java Short.MAX_VALUE mapped to C# short.MaxValue",
+      "Log4j placeholder mapped to Microsoft.Extensions.Logging named template"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "The PDFBOX-6231 overflow guard retains upstream control flow and diagnostic data."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/AbstractGlyphLayoutProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/AbstractGlyphLayoutProcessor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax and naming adapted to C#",
+      "java.text.Bidi mapped behind Unicode.Bidi without leaking dependency types",
+      "Collections.unmodifiableList mapped to IReadOnlyList"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Visual-run order, Bidi levels, width aggregation, and unidirectional dispatch preserve upstream behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
+    "normalization_applied": false,
+    "change_categories": [],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Reviewed through PDFBOX-6235. The working stream factory is unchanged; custom-CMYK BufferedImage encoding is deferred because the proxy does not expose CMYK samples."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "URLConnection mapped to shared HttpClient",
+      "Checked URL and URI exceptions mapped to IOException",
+      "Response content buffered to return an ownership-independent Stream"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "HTTP(S)-only validation and automatic redirects match the current upstream OpenURL contract."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/ShowSignature.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "BouncyCastle certificate metadata mapped to X509Certificate2",
+      "Java stdout/stderr mapped to Console output"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Verification output includes the certificate signature algorithm and self-signed subject as upstream now does."
+  },
+  {
+    "source_path": null,
+    "target_path": "src/PdfBox.Net.SkiaSharp/GlyphLayout/SkiaGlyphLayoutProcessor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Optional HarfBuzz adapter inherits upstream-shaped abstract processor",
+      "HarfBuzz design-unit advances normalized to user-space font size"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "GetStringWidth sums shaped horizontal advances and the shared base applies visual Bidi run ordering."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutLigaturesAndKerningTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/SkiaGlyphLayoutProcessorTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "JUnit width assertions converted to xUnit",
+      "Java AWT shaping mapped to the optional Skia/HarfBuzz backend"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "The test retains the upstream behavioral assertion that kerning reduces shaped width."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Examples.Tests/Signature/TestSigUtils.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Native xUnit protocol-rejection fixture"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Deterministic non-network coverage for the changed OpenURL protocol boundary."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/AbstractGlyphLayoutProcessorTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Native xUnit mixed-direction Bidi fixture"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Directly verifies the new core base rather than only the optional Skia resolver helper."
   }
 ]
