@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java
- * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PDFBOX_SOURCE_COMMIT: 2902dd4e5fcca22bda75327a5570c0ea9936a904
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 2902dd4e5fcca22bda75327a5570c0ea9936a904
  */
 
 /*
@@ -81,6 +81,12 @@ public class GlyfCompositeDescript : GlyfDescript
         int firstContour = 0;
         foreach (GlyfCompositeComp comp in _components)
         {
+            if (firstIndex > short.MaxValue)
+            {
+                // PDFBOX-6231: protect against wide nested composite glyphs
+                LOG.LogError("firstIndex is {FirstIndex}, aborting resolve", firstIndex);
+                break;
+            }
             comp.FirstIndex = firstIndex;
             comp.FirstContour = firstContour;
             if (_descriptions.TryGetValue(comp.GlyphIndex, out GlyphDescription? desc))

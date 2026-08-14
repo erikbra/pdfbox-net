@@ -71,6 +71,31 @@ public class SkiaGlyphLayoutProcessorTest
     }
 
     [Fact]
+    public void GetStringWidth_ReflectsKerning()
+    {
+        const string text = "AV";
+        const float fontSize = 12;
+
+        using PDDocument document = new();
+        using SkiaGlyphLayoutProcessor processor = new();
+        using FileStream plainInput = File.OpenRead(FontPath("LiberationSans-Regular.ttf"));
+        using FileStream kernedInput = File.OpenRead(FontPath("LiberationSans-Regular.ttf"));
+
+        PDType0Font plainFont = processor.LoadFont(document, plainInput);
+        SkiaGlyphLayoutProcessor.FontOptions options = new();
+        options.SetKerningOn();
+        PDType0Font kernedFont = processor.LoadFont(document, kernedInput, options);
+
+        float plainPdfWidth = plainFont.GetStringWidth(text) * plainFont.GetFontMatrix().GetScaleX() * fontSize;
+        float kernedPdfWidth = kernedFont.GetStringWidth(text) * kernedFont.GetFontMatrix().GetScaleX() * fontSize;
+        float plainLayoutWidth = processor.GetStringWidth(plainFont, fontSize, text);
+        float kernedLayoutWidth = processor.GetStringWidth(kernedFont, fontSize, text);
+
+        Assert.Equal(plainPdfWidth, kernedPdfWidth);
+        Assert.True(kernedLayoutWidth < plainLayoutWidth);
+    }
+
+    [Fact]
     public void ComputeGlyphs_AppliesComplexScriptSubstitution()
     {
         using PDDocument document = new();

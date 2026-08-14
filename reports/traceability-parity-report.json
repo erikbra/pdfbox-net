@@ -802,12 +802,12 @@
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
     "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "port_mode": "mechanical",
+    "source_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "sync_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T16:09:20Z",
-    "note": "Ported from Java upstream to src/PdfBox.Net.Examples/Signature/SigUtils.cs"
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "Added the upstream-shaped OpenURL method with redirect-following HttpClient behavior and explicit URI-scheme rejection of non-HTTP(S) protocols; the malformed duplicated Java conditional was normalized into one valid guard."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/TSAClient.java",
@@ -1785,7 +1785,9 @@
     "source_commit": "n/a",
     "port_mode": "native-test",
     "sync_commit": "n/a",
-    "conversion_notes": "Expanded operator processor tests to cover state, path, painting, clipping, color, inline-image hooks, type3, compatibility, and multi-operator scenario."
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "Native operator-processor regression coverage; canonical traceability fields completed during issue #950 report validation."
   },
   {
     "source_path": "n/a",
@@ -4781,12 +4783,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "sync_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-30T12:49:25Z",
-    "note": "Adapted stub – JPEG image factory requires platform-specific imaging APIs."
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "The adapted factory embeds JPEG streams and parses Gray/RGB/CMYK metadata. Upstream PDFBOX-6235 changes only the absent BufferedImage-to-JPEG path; custom-CMYK encoding and its test resource remain explicitly deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
@@ -8871,12 +8873,12 @@
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java",
     "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutProcessorAwt.cs",
-    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
-    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "source_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "sync_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-08-01T11:53:27Z",
-    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "Now inherits the upstream-shaped AbstractGlyphLayoutProcessor so Bidi splitting is separate from text emission and exposes fallback glyph-code string widths; the optional Skia implementation supplies real HarfBuzz shaping."
   },
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
@@ -8901,12 +8903,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
     "target_path": "src/PdfBox.Net/PDModel/GlyphLayoutProcessorInterface.cs",
-    "source_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
-    "sync_commit": "ddb7e78992bebc36140ba0d864c8212ec5da697b",
+    "source_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "sync_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
     "port_mode": "adapted-minimal",
     "status": "in-sync",
-    "last_checked_utc": "2026-08-01T11:53:27Z",
-    "note": "Ported and synchronized with Apache PDFBox 3.0 through issue #913; applicability and regression coverage are recorded in reports/issue-913-upstream-sync-assessment.md."
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "Added the upstream GetStringWidth contract for Type 0 font shaping implementations."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphsAndPositions.java",
@@ -9007,5 +9009,35 @@
     "status": "in-sync",
     "last_checked_utc": "2026-08-02T18:23:37.217Z",
     "note": "The new testUnkownOperator assertion is converted literally; existing cached-name assertions remain represented by generalized xUnit coverage. See reports/issue-943-upstream-sync-assessment.md."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeDescript.cs",
+    "source_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "sync_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "Ported PDFBOX-6231's short-range guard and diagnostic before assigning a nested composite component first-point index."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/AbstractGlyphLayoutProcessor.java",
+    "target_path": "src/PdfBox.Net/PDModel/AbstractGlyphLayoutProcessor.cs",
+    "source_commit": "90813af0b681b8ea7592a8ad05be470641bec13d",
+    "sync_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "port_mode": "mechanical",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "Converted the new abstract processor, including reusable Bidi visual-run splitting, string-width aggregation, and unidirectional text dispatch; Unicode.Bidi is isolated behind the protected Java-shaped API."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutLigaturesAndKerningTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/SkiaGlyphLayoutProcessorTest.cs",
+    "source_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "sync_commit": "2902dd4e5fcca22bda75327a5570c0ea9936a904",
+    "port_mode": "native-test",
+    "status": "in-sync",
+    "last_checked_utc": "2026-08-14T20:15:41Z",
+    "note": "Converted the new width behavior into deterministic HarfBuzz coverage that verifies ordinary PDF widths are option-independent while kerning reduces shaped width."
   }
 ]
