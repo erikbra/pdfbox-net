@@ -3,9 +3,9 @@
  * Mechanically converted from Apache PDFBox Java source with AI assistance.
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java
- * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PDFBOX_SOURCE_COMMIT: 2902dd4e5fcca22bda75327a5570c0ea9936a904
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 2902dd4e5fcca22bda75327a5570c0ea9936a904
  */
 
 /*
@@ -41,6 +41,10 @@ namespace PdfBox.Net.Examples.Signature;
 public sealed class SigUtils
 {
     private static ILogger<SigUtils> LOG => PdfBoxLogging.CreateLogger<SigUtils>();
+    private static readonly HttpClient HttpClient = new(new HttpClientHandler
+    {
+        AllowAutoRedirect = true
+    });
 
     private SigUtils()
     {
@@ -214,5 +218,37 @@ public sealed class SigUtils
         }
 
         return last;
+    }
+
+    /// <summary>
+    /// Like opening a URL stream, but follows redirection from HTTP to HTTPS.
+    /// </summary>
+    /// <param name="urlString">HTTP URL string.</param>
+    /// <returns>A readable stream containing the URL response body.</returns>
+    /// <exception cref="IOException">If the scheme is not HTTP(S) or the request fails.</exception>
+    public static Stream OpenURL(string urlString)
+    {
+        ArgumentNullException.ThrowIfNull(urlString);
+
+        if (!Uri.TryCreate(urlString, UriKind.Absolute, out Uri? url))
+        {
+            throw new IOException($"Invalid URL: {urlString}");
+        }
+
+        if (!string.Equals(url.Scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(url.Scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new IOException(url.Scheme + " protocol not supported");
+        }
+
+        try
+        {
+            byte[] response = HttpClient.GetByteArrayAsync(url).GetAwaiter().GetResult();
+            return new MemoryStream(response, writable: false);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            throw new IOException("Could not open URL: " + url, ex);
+        }
     }
 }

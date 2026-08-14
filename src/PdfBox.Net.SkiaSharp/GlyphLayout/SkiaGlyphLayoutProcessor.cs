@@ -23,7 +23,7 @@ namespace PdfBox.Net.GlyphLayout.SkiaSharp;
 /// This optional backend provides the actual shaping engine without exposing
 /// SkiaSharp or HarfBuzzSharp types through core PDFBox APIs.
 /// </remarks>
-public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, IDisposable
+public sealed class SkiaGlyphLayoutProcessor : AbstractGlyphLayoutProcessor, GlyphLayoutProcessorInterface, IDisposable
 {
     private const float PositionDelta = 0.001f;
 
@@ -121,22 +121,18 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
     /// </summary>
     /// <param name="font">The font to check.</param>
     /// <returns><see langword="true"/> if glyph layout is supported for this font.</returns>
-    public bool SupportsFont(PDFont font)
+    public override bool SupportsFont(PDFont font)
     {
         return !_disposed && font is PDType0Font type0Font && _fonts.ContainsKey(type0Font);
     }
 
-    /// <summary>
-    /// Shows text using shaped glyph IDs and glyph positioning.
-    /// </summary>
-    /// <param name="contentStream">The content stream.</param>
-    /// <param name="font">Font to be used.</param>
-    /// <param name="fontSize">Font size.</param>
-    /// <param name="text">Text to show.</param>
-    public void ShowText(ContentStreamForGlyphLayoutInterface contentStream, PDType0Font font, float fontSize, string text)
+    protected override float GetStringWidthUni(
+        PDType0Font font,
+        float fontSize,
+        string text,
+        int bidiLevel)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        ArgumentNullException.ThrowIfNull(contentStream);
         ArgumentNullException.ThrowIfNull(font);
 
         if (!_fonts.TryGetValue(font, out ShapedFont? shapedFont))
@@ -144,11 +140,8 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
             throw new InvalidOperationException("The font has not been registered with this glyph layout processor.");
         }
 
-        string safeText = text ?? string.Empty;
-        foreach (BidiTextRunResolver.TextRun run in BidiTextRunResolver.GetVisualRuns(safeText))
-        {
-            ShowTextUni(contentStream, font, fontSize, run.Text, run.BidiLevel, shapedFont);
-        }
+        ShapedGlyph[] glyphs = ShapeText(shapedFont, text, bidiLevel);
+        return glyphs.Sum(glyph => glyph.XAdvanceTextUnits) * fontSize / 1000f;
     }
 
     /// <summary>
@@ -183,14 +176,22 @@ public sealed class SkiaGlyphLayoutProcessor : GlyphLayoutProcessorInterface, ID
         return ShapeText(shapedFont, text ?? string.Empty, bidiLevel);
     }
 
-    private static void ShowTextUni(
+    protected override void ShowTextUni(
         ContentStreamForGlyphLayoutInterface contentStream,
         PDType0Font font,
         float fontSize,
         string text,
-        int bidiLevel,
-        ShapedFont shapedFont)
+        int bidiLevel)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        ArgumentNullException.ThrowIfNull(contentStream);
+        ArgumentNullException.ThrowIfNull(font);
+
+        if (!_fonts.TryGetValue(font, out ShapedFont? shapedFont))
+        {
+            throw new InvalidOperationException("The font has not been registered with this glyph layout processor.");
+        }
+
         ShapedGlyph[] glyphs = ShapeText(shapedFont, text, bidiLevel);
         GlyphsAndPositions glyphsAndPositions = new();
 
