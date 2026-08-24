@@ -7,21 +7,23 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head_commit": "276388d0c2ce3f26fafcb2f6e7da2acdd8a73c9e",
+  "upstream_head_commit": "6ef022401873bc6f9a13de1a9e5485f931134d54",
   "tracked_parity_baseline_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
-  "last_scan_utc": "2026-08-21T07:37:14.170Z",
-  "upstream_java_files_total": 1073,
+  "last_scan_utc": "2026-08-24T07:52:32.122Z",
+  "upstream_java_files_total": 1074,
   "mapped_java_files_total": 1073,
-  "missing_java_files_total": 0,
+  "missing_java_files_total": 1,
   "mapped_java_files_provenance_total": 1072,
   "mapped_java_files_traceability_total": 810,
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "missing_source_paths_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "missing_source_paths_sample": [],
+  "missing_source_paths_sha256": "5c67d274b79bac8386a0d7eacbfc58fb36ba17fa2d0ad52dd1cd06d19d3f00fe",
+  "missing_source_paths_sample": [
+    "debugger/src/main/java/org/apache/pdfbox/debugger/certificatepane/CertificatePane.java"
+  ],
   "missing_source_paths_sample_truncated": false,
   "target_100_percent_parity": {
-    "mapped_equals_total": true,
-    "missing_equals_zero": true,
+    "mapped_equals_total": false,
+    "missing_equals_zero": false,
     "traceability_non_insync_rows": 0,
     "definition": "100% parity requires mapped==total, missing==0, and no scoped traceability rows with status partial/partially-in-sync."
   }
