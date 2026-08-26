@@ -7,18 +7,19 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head_commit": "1ce74adc463b89b73caacee3732be74937238608",
+  "upstream_head_commit": "4d50786435f6a7196a3f28f42b6e2e8ce1a5f3bd",
   "tracked_parity_baseline_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
-  "last_scan_utc": "2026-08-25T07:38:32.520Z",
-  "upstream_java_files_total": 1074,
+  "last_scan_utc": "2026-08-26T07:40:21.194Z",
+  "upstream_java_files_total": 1075,
   "mapped_java_files_total": 1073,
-  "missing_java_files_total": 1,
+  "missing_java_files_total": 2,
   "mapped_java_files_provenance_total": 1072,
   "mapped_java_files_traceability_total": 810,
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "missing_source_paths_sha256": "5c67d274b79bac8386a0d7eacbfc58fb36ba17fa2d0ad52dd1cd06d19d3f00fe",
+  "missing_source_paths_sha256": "e8d8985e9d2a1060f1aff162103ca46a337bdd05fed1ece6829826618f78ed94",
   "missing_source_paths_sample": [
-    "debugger/src/main/java/org/apache/pdfbox/debugger/certificatepane/CertificatePane.java"
+    "debugger/src/main/java/org/apache/pdfbox/debugger/certificatepane/CertificatePane.java",
+    "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFUtils.java"
   ],
   "missing_source_paths_sample_truncated": false,
   "target_100_percent_parity": {
