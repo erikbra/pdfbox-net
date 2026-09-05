@@ -190,11 +190,8 @@ public partial class PDType1Font : PDSimpleFont
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(pfbStream);
 
-        using MemoryStream buffer = new();
-        pfbStream.CopyTo(buffer);
-        byte[] pfbBytes = buffer.ToArray();
-        PfbParser pfbParser = new(pfbBytes);
-        Type1Font type1Font = Type1Font.CreateWithPFB(pfbBytes);
+        PfbParser pfbParser = new(pfbStream);
+        Type1Font type1Font = Type1Font.CreateWithSegments(pfbParser.GetSegment1(), pfbParser.GetSegment2());
 
         COSDictionary dictionary = new();
         dictionary.SetItem(TypeKey, COSName.GetPDFName("Font"));

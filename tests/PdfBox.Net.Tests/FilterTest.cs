@@ -178,6 +178,27 @@ public class FilterTest
     }
 
     [Fact]
+    public void CCITTFaxDecodeBoundsChangingElementBuffersBeforeReadingInput()
+    {
+        CCITTFaxDecodeFilter filter = new();
+        // The 4 MiB bitmap fits the 256 MiB budget; the two changing-element rows do not.
+        COSDictionary parameters = CreateCcittDecodeParameters(32 * 1024 * 1024, 1, blackIsOne: true);
+        using UnreadableStream input = new();
+        using MemoryStream output = new();
+
+        IOException exception = Assert.Throws<IOException>(() => filter.Decode(input, output, parameters, 0, DecodeOptions.DEFAULT));
+
+        Assert.Contains("changesSize: 268435472", exception.Message);
+        Assert.Empty(output.ToArray());
+    }
+
+    private sealed class UnreadableStream : MemoryStream
+    {
+        public override int Read(byte[] buffer, int offset, int count) =>
+            throw new InvalidOperationException("Dimension validation must run before input is read.");
+    }
+
+    [Fact]
     public void DctFilterDecodesRgbJpegFixture()
     {
         byte[] encoded = File.ReadAllBytes(Path.Combine("Fixtures", "Images", "test-2x1-rgb.jpg"));

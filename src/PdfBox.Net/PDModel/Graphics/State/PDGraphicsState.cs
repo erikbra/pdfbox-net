@@ -292,8 +292,10 @@ public partial class PDGraphicsState
             _renderingIntent,
             _strokingColorSpace,
             _nonStrokingColorSpace,
-            new PDColor((float[])_strokingColor.GetComponents().Clone(), _strokingColor.GetColorSpace()),
-            new PDColor((float[])_nonStrokingColor.GetComponents().Clone(), _nonStrokingColor.GetColorSpace()),
+            // PDColor is immutable. Retain the complete color, including its pattern
+            // name, when q saves the graphics state (as in PDFBox's clone()).
+            _strokingColor,
+            _nonStrokingColor,
             _clippingWindingRule,
             [.. _clippingPaths],
             _alphaConstant,

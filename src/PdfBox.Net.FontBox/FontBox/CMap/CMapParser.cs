@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cmap/CMapParser.java
  * PDFBOX_SOURCE_COMMIT: 746cf4e103f4c5ef3897edd3715088ca43beee42
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 746cf4e103f4c5ef3897edd3715088ca43beee42
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -426,6 +426,12 @@ public class CMapParser
 
     private RandomAccessRead GetExternalCMap(string name)
     {
+        // Validate name to point to the (predefined) resources in the classpath.
+        if (name.Length == 0 || name.IndexOf('/') > -1 || name.IndexOf('\\') > -1 || name[0] == '.')
+        {
+            throw new IOException("Error: Invalid CMap name " + name);
+        }
+
         Stream? stream = GetType().Assembly.GetManifestResourceStream(name)
             ?? GetType().Assembly.GetManifestResourceStream($"{typeof(CMapParser).Namespace}.{name}");
 

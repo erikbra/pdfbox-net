@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutFontLoaderAwt.java
  * PDFBOX_SOURCE_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -67,8 +67,9 @@ public class GlyphLayoutFontLoaderAwt
         inputStream.CopyTo(buffer);
         byte[] fontBytes = buffer.ToArray();
 
-        using MemoryStream pdFontInput = new(fontBytes, writable: false);
-        PDType0Font pdType0Font = PDType0Font.Load(pdDocument, pdFontInput, embedSubset);
+        // Reuse the buffered bytes; routing through the stream overload copies them again.
+        // As with PDType0Font.Load(Stream, bool), the port currently embeds the full font.
+        PDType0Font pdType0Font = PDType0Font.Load(pdDocument, fontBytes);
 
         using MemoryStream awtFontInput = new(fontBytes, writable: false);
         LoadAwtFont(pdType0Font, awtFontInput, fontOptions);

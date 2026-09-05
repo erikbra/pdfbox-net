@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -173,10 +173,7 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
     {
         foreach (PDPage page in pages)
         {
-            if (page.HasContents())
-            {
-                ProcessPage(page);
-            }
+            ProcessPage(page);
 
             _currentPageNo++;
         }

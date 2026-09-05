@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFField.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -25,7 +25,6 @@
  * limitations under the License.
  */
 
-using System.Text;
 using System.Xml;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.Common;
@@ -92,12 +91,16 @@ public partial class FDFField : COSObjectable
         }
     }
 
+    /// <summary>Writes this field as XML.</summary>
+    /// <exception cref="InvalidOperationException">The field name is missing.</exception>
     public void WriteXml(TextWriter output)
     {
         ArgumentNullException.ThrowIfNull(output);
 
+        string partialFieldName = GetPartialFieldName()
+            ?? throw new InvalidOperationException("Field name is missing");
         output.Write("<field name=\"");
-        output.Write(GetPartialFieldName());
+        output.Write(FDFUtils.EscapeXML10(partialFieldName));
         output.Write("\">\n");
 
         object? value = GetValue();
@@ -105,14 +108,14 @@ public partial class FDFField : COSObjectable
         {
             case string text:
                 output.Write("<value>");
-                output.Write(EscapeXml(text));
+                output.Write(FDFUtils.EscapeXML10(text));
                 output.Write("</value>\n");
                 break;
             case IList<string> items:
                 foreach (string item in items)
                 {
                     output.Write("<value>");
-                    output.Write(EscapeXml(item));
+                    output.Write(FDFUtils.EscapeXML10(item));
                     output.Write("</value>\n");
                 }
 
@@ -123,7 +126,7 @@ public partial class FDFField : COSObjectable
         if (richText is not null)
         {
             output.Write("<value-richtext>");
-            output.Write(EscapeXml(richText));
+            output.Write(FDFUtils.EscapeXML10(richText));
             output.Write("</value-richtext>\n");
         }
 
@@ -360,42 +363,4 @@ public partial class FDFField : COSObjectable
         _field.SetItem(name, value.HasValue ? COSInteger.Get(value.Value) : null);
     }
 
-    private static string EscapeXml(string input)
-    {
-        StringBuilder escapedXml = new();
-        foreach (char c in input)
-        {
-            switch (c)
-            {
-                case '<':
-                    escapedXml.Append("&lt;");
-                    break;
-                case '>':
-                    escapedXml.Append("&gt;");
-                    break;
-                case '"':
-                    escapedXml.Append("&quot;");
-                    break;
-                case '&':
-                    escapedXml.Append("&amp;");
-                    break;
-                case '\'':
-                    escapedXml.Append("&apos;");
-                    break;
-                default:
-                    if (c > 0x7e)
-                    {
-                        escapedXml.Append("&#").Append((int)c).Append(';');
-                    }
-                    else
-                    {
-                        escapedXml.Append(c);
-                    }
-
-                    break;
-            }
-        }
-
-        return escapedXml.ToString();
-    }
 }

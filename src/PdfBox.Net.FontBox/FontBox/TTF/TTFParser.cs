@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fc00e427de8a1046efe6348d64d5529b479aea13
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -59,17 +59,7 @@ public class TTFParser
     /// <returns>The parsed TrueType font.</returns>
     public virtual TrueTypeFont Parse(RandomAccessRead randomAccessRead)
     {
-        MemoryTTFDataStream dataStream = new(randomAccessRead);
-        try
-        {
-            randomAccessRead.Close();
-            return Parse(dataStream);
-        }
-        catch
-        {
-            dataStream.Close();
-            throw;
-        }
+        return Parse(randomAccessRead, new MemoryTTFDataStream(randomAccessRead));
     }
 
     public virtual TrueTypeFont Parse(byte[] bytes)
@@ -84,11 +74,17 @@ public class TTFParser
     /// <returns>The parsed TrueType font.</returns>
     public virtual TrueTypeFont ParseEmbedded(Stream inputStream)
     {
-        MemoryTTFDataStream dataStream = new(inputStream);
+        return Parse(inputStream, new MemoryTTFDataStream(inputStream));
+    }
+
+    private TrueTypeFont Parse(IDisposable input, MemoryTTFDataStream dataStream)
+    {
         try
         {
-            inputStream.Close();
-            return Parse(dataStream);
+            using (input)
+            {
+                return Parse(dataStream);
+            }
         }
         catch
         {

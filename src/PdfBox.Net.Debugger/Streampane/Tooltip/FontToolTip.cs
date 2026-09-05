@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/FontToolTip.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -59,7 +59,7 @@ public sealed class FontToolTip : IToolTip
                 var font = resources.GetFont(name);
                 if (font != null)
                 {
-                    ToolTipText = $"<html>{font.GetName()}</html>";
+                    ToolTipText = $"<html>{EscapeHtml(font.GetName())}</html>";
                 }
             }
             catch (Exception ex)
@@ -70,6 +70,18 @@ public sealed class FontToolTip : IToolTip
 
             break;
         }
+    }
+
+    /// <summary>
+    /// Escapes document-derived font names so an HTML renderer treats them as inert text.
+    /// </summary>
+    private static string? EscapeHtml(string? text)
+    {
+        return text?.Replace("&", "&amp;", StringComparison.Ordinal)
+            .Replace("<", "&lt;", StringComparison.Ordinal)
+            .Replace(">", "&gt;", StringComparison.Ordinal)
+            .Replace("\"", "&quot;", StringComparison.Ordinal)
+            .Replace("'", "&#39;", StringComparison.Ordinal);
     }
 
     private static string ExtractFontReference(string rowText)

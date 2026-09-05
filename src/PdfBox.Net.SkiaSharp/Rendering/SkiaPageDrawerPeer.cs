@@ -6,7 +6,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -182,10 +182,13 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         float savedPageHeight = _pageHeightPt;
         float savedPageLowerLeftX = _pageLowerLeftXPt;
         float savedPageLowerLeftY = _pageLowerLeftYPt;
+        ITransparencyGroupCompositor? savedCompositor = _transparencyGroupCompositor;
+        _transparencyGroupCompositor = null;
         _graphics = graphics;
         if (graphics.BitmapHeight is int bitmapHeight && bitmapHeight > 0)
         {
-            _pageHeightPt = bitmapHeight;
+            float deviceScale = Math.Abs(new Matrix(graphics.GetTransform()).GetScalingFactorY());
+            _pageHeightPt = bitmapHeight / (deviceScale == 0 ? 1 : deviceScale);
         }
         _pageLowerLeftXPt = 0;
         _pageLowerLeftYPt = 0;
@@ -201,6 +204,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             _pageHeightPt = savedPageHeight;
             _pageLowerLeftXPt = savedPageLowerLeftX;
             _pageLowerLeftYPt = savedPageLowerLeftY;
+            _transparencyGroupCompositor = savedCompositor;
         }
     }
 
@@ -1381,6 +1385,13 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
     private void DrawImage(PDImage image, Matrix matrix)
     {
+        if (image.IsStencil())
+        {
+            DrawStencilImage(image.GetData(), image.GetWidth(), image.GetHeight(), image.GetDecode(),
+                matrix, image.GetInterpolate());
+            return;
+        }
+
         DrawDecodedImage(
             SampledImageReader.GetRGBImage(image, GetColorManagementContext()),
             image.GetWidth(),
@@ -1393,6 +1404,13 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
     {
         int width = image.GetWidth();
         int height = image.GetHeight();
+        if (image.GetCOSObject()?.GetBoolean(COSName.IMAGE_MASK, false) == true)
+        {
+            DrawStencilImage(image.DecodeImageData().Data, width, height, image.GetCOSObject()?.GetCOSArray(COSName.DECODE),
+                GetGraphicsState().GetCurrentTransformationMatrix(), image.GetInterpolate());
+            return;
+        }
+
         byte[] rgb = SampledImageReader.GetRGBImage(image, GetColorManagementContext());
         byte[]? alpha = CreateSoftMaskAlpha(image, width, height);
 
@@ -1404,6 +1422,81 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             image.GetInterpolate(),
             alpha,
             preferDctSampling: IsDctDecodeImage(image));
+    }
+
+    private void DrawStencilImage(byte[] data, int width, int height, COSArray? decode,
+        Matrix matrix, bool interpolate)
+    {
+        if (_graphics?.GetSkiaCanvas() is null || !IsContentRendered() || width <= 0 || height <= 0)
+        {
+            return;
+        }
+
+        int rowBytes = checked((width + 7) / 8);
+        if (data.Length < checked(rowBytes * height))
+        {
+            throw new IOException("Truncated stencil image data");
+        }
+
+        bool inverse = decode is not null && decode.Size() >= 2 &&
+            decode.GetInt(0) > decode.GetInt(1);
+        using SKBitmap bitmap = new(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                bool sample = (data[y * rowBytes + x / 8] & (0x80 >> (x % 8))) != 0;
+                bitmap.SetPixel(x, y, sample == inverse ? SKColors.White : SKColors.Transparent);
+            }
+        }
+
+        using SKImage mask = SKImage.FromBitmap(bitmap);
+        SKMatrix imageTransform = CreateImageTransform(matrix, width, height);
+        SKSamplingOptions sampling = GetImageSamplingOptions(width, height, matrix, interpolate, false);
+        using SKPathBuilder builder = new();
+        SKPoint p0 = imageTransform.MapPoint(0, 0);
+        SKPoint p1 = imageTransform.MapPoint(width, 0);
+        SKPoint p2 = imageTransform.MapPoint(width, height);
+        SKPoint p3 = imageTransform.MapPoint(0, height);
+        builder.MoveTo(p0);
+        builder.LineTo(p1);
+        builder.LineTo(p2);
+        builder.LineTo(p3);
+        builder.Close();
+        using SKPath bounds = builder.Detach();
+        using SKPaint paint = CreateSkiaPaint(GetGraphicsState(), stroke: false);
+        SKBlendMode blendMode = paint.BlendMode;
+        paint.BlendMode = SKBlendMode.SrcOver;
+        using SKPaint shapePaint = CreateShapePaint(paint);
+        using SKShader maskShader = mask.ToShader(
+            SKShaderTileMode.Decal, SKShaderTileMode.Decal, sampling, imageTransform);
+        using SKPaint maskPaint = new() { BlendMode = SKBlendMode.DstIn, Shader = maskShader };
+
+        // PDFBOX-6077: preserve the pattern's transparent gaps when applying the stencil.
+        // Keep paint and soft-mask lookup in page-device coordinates. Skia's layer carries
+        // the page transform, so a separately scaled scratch raster is unnecessary here.
+        void DrawStencil(SKCanvas canvas, SKPaint fillPaint, SKBlendMode layerBlend)
+        {
+            using SKPaint layerPaint = new() { BlendMode = layerBlend };
+            canvas.SaveLayer(bounds.Bounds, layerPaint);
+            try
+            {
+                canvas.DrawPath(bounds, fillPaint);
+                // Cover the entire layer, including fractional edge pixels painted
+                // by the antialiased bounds. A bounded DrawImage can leave that
+                // fringe unmasked; Decal supplies zero alpha outside the stencil.
+                canvas.DrawPaint(maskPaint);
+            }
+            finally
+            {
+                canvas.Restore();
+            }
+        }
+
+        DrawWithCurrentClip(
+            canvas => DrawStencil(canvas, paint, blendMode),
+            canvas => DrawStencil(canvas, shapePaint, SKBlendMode.SrcOver),
+            drawSource: canvas => DrawStencil(canvas, paint, SKBlendMode.SrcOver));
     }
 
     private void DrawDecodedImage(
@@ -2227,23 +2320,46 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
             : null;
         PDColor? uncoloredPatternColor = underlyingColorSpace is null ? null : color;
         IPaint tilingPaint = _tilingPaintFactory.Create(tilingPattern, underlyingColorSpace, uncoloredPatternColor, _xform);
-        return tilingPaint is TilingPaint paint ? CreateTextureShader(paint.TexturePaint) : null;
+        return tilingPaint is TilingPaint paint ? CreateTextureShader(paint) : null;
     }
 
-    private static SKShader CreateTextureShader(TexturePaint texturePaint)
+    private SKShader CreateTextureShader(TilingPaint tilingPaint)
     {
+        TexturePaint texturePaint = tilingPaint.TexturePaint;
         BufferedImage image = texturePaint.Image;
         Rectangle2D anchor = texturePaint.AnchorRect;
-        double anchorWidth = Math.Abs(anchor.Width) > double.Epsilon ? Math.Abs(anchor.Width) : image.Width;
-        double anchorHeight = Math.Abs(anchor.Height) > double.Epsilon ? Math.Abs(anchor.Height) : image.Height;
-        float scaleX = (float)(image.Width / anchorWidth);
-        float scaleY = (float)(image.Height / anchorHeight);
+        Matrix patternMatrix = tilingPaint.PatternMatrix;
+        // Axis-aligned reflections have signed scale factors. Undo that sign in
+        // the anchor before interpreting the pattern's own XStep/YStep direction.
+        float patternScaleX = patternMatrix.GetScalingFactorX();
+        float patternScaleY = patternMatrix.GetScalingFactorY();
+        patternScaleX = patternScaleX == 0 ? 1 : patternScaleX;
+        patternScaleY = patternScaleY == 0 ? 1 : patternScaleY;
+        float left = (float)anchor.X / patternScaleX;
+        float bottom = (float)anchor.Y / patternScaleY;
+        float xStep = (float)anchor.Width / patternScaleX;
+        float yStep = (float)anchor.Height / patternScaleY;
+        float width = Math.Abs(xStep);
+        float height = Math.Abs(yStep);
+        float startX = left + (xStep < 0 ? width : 0);
+        float endX = left + (xStep < 0 ? 0 : width);
+        float startY = bottom + (yStep < 0 ? 0 : height);
+        float endY = bottom + (yStep < 0 ? height : 0);
+        (float x0, float y0) = PdfToCanvas(startX, startY, patternMatrix);
+        (float x1, float y1) = PdfToCanvas(endX, startY, patternMatrix);
+        (float x2, float y2) = PdfToCanvas(startX, endY, patternMatrix);
+
+        // A shader's local matrix maps bitmap pixels into page points. Preserve
+        // the pattern matrix (including reflections/translation) and cancel the
+        // device scale already used to rasterize the cell.
         SKMatrix localMatrix = new()
         {
-            ScaleX = scaleX,
-            ScaleY = scaleY,
-            TransX = (float)(-anchor.X * scaleX),
-            TransY = (float)(-anchor.Y * scaleY),
+            ScaleX = (x1 - x0) / image.Width,
+            SkewY = (y1 - y0) / image.Width,
+            SkewX = (x2 - x0) / image.Height,
+            ScaleY = (y2 - y0) / image.Height,
+            TransX = x0,
+            TransY = y0,
             Persp2 = 1,
         };
 

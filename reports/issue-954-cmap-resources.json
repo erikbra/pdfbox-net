@@ -1,0 +1,375 @@
+{
+  "upstream_commit": "046747da99a870902217efabf1c41297de157059",
+  "source_directory": "fontbox/src/main/resources/org/apache/fontbox/cmap",
+  "target_directory": "src/PdfBox.Net.FontBox/FontBox/CMap/Resources",
+  "resources": [
+    {
+      "name": "83pv-RKSJ-H",
+      "sha256": "8a4d60015eb64baa6a73646a9983e7c6b987c0ab06e7c8b4b7e35a32a9ef1449"
+    },
+    {
+      "name": "90ms-RKSJ-H",
+      "sha256": "3e591fe1447fee58a8df9c4dcc52f42a134f014dc7884ebcf3cd64f5e02fcfe1"
+    },
+    {
+      "name": "90ms-RKSJ-V",
+      "sha256": "f61fb56f9360bcd43850cfa094f83e933d274bba5894d5edb6b4c5f42abefe63"
+    },
+    {
+      "name": "90msp-RKSJ-H",
+      "sha256": "824e53249249ebb3b67762cec9b814975b42d8311fa40795548ddf4fa79e4bec"
+    },
+    {
+      "name": "90msp-RKSJ-V",
+      "sha256": "603f62a6aef8d2af13b6107734f43ecc4e3973d635b16bcf4677798fbd5cf60d"
+    },
+    {
+      "name": "90pv-RKSJ-H",
+      "sha256": "560f4ee82591d5d3f818e094a15a9fd50a9285b11e5ae8735c6e07f10e2d0d24"
+    },
+    {
+      "name": "90pv-RKSJ-V",
+      "sha256": "f635a43f916d59c40f4f22d03f6a9f986ecfbe06e40de0bdb59eb52279f1c382"
+    },
+    {
+      "name": "Add-RKSJ-H",
+      "sha256": "633343db1a48217594859e4beaac76958cff002b533bfbe03c5aa6280d7bffce"
+    },
+    {
+      "name": "Add-RKSJ-V",
+      "sha256": "28ee457da75ee57462428e5aceb6a3b36f8e4a76da5ffcb809b02dfba1059600"
+    },
+    {
+      "name": "Adobe-CNS1-0",
+      "sha256": "4d0fbf58240e829be555656c69ff5035df3c9b96e65ace4b88a36da25cfb1cc5"
+    },
+    {
+      "name": "Adobe-CNS1-1",
+      "sha256": "def350b60edc58bd83eae5f0fd4042c5ee396c6439243a5694ee72aaa3a64350"
+    },
+    {
+      "name": "Adobe-CNS1-2",
+      "sha256": "5508dc9163640b54e5ccac4c27ce7c5c41517d4527f05b19598fe021e50883ba"
+    },
+    {
+      "name": "Adobe-CNS1-3",
+      "sha256": "81a5ea00f07f4a7b4d9889e2b5eba58b457e9abb894d8ae5e2a3de6e5ed189f7"
+    },
+    {
+      "name": "Adobe-CNS1-4",
+      "sha256": "e0baf6d32584ac942075cc56bea708bbe2472a78083c5fc3bca8b42c79afd237"
+    },
+    {
+      "name": "Adobe-CNS1-5",
+      "sha256": "552cac06aafa81418c70f0c5f2c9f9ed4d59152a72e981d20b7d51fdbef494e4"
+    },
+    {
+      "name": "Adobe-CNS1-6",
+      "sha256": "9190f32e01d5aed99dbaf5db9ee325b83eb8ab2fce4c336f821e2d9061994fc6"
+    },
+    {
+      "name": "Adobe-CNS1-UCS2",
+      "sha256": "27eae250f6ce060b1d144c645d4176411b29cb2ef188d83cbe66811eb7997539"
+    },
+    {
+      "name": "Adobe-GB1-0",
+      "sha256": "dccee80c8763a28653e932953f55fb61a1b0776773855d63a286bc11a8c10128"
+    },
+    {
+      "name": "Adobe-GB1-1",
+      "sha256": "7b2530073fe760ff0bbd08938ca199a224caeb574d3f7d14be84ec32649a17d7"
+    },
+    {
+      "name": "Adobe-GB1-2",
+      "sha256": "d94c753cfdac8a00b9934306a26e4f139a4286d5ffc83d773561e3878d0273b9"
+    },
+    {
+      "name": "Adobe-GB1-3",
+      "sha256": "b86dfcca26dd1de22e57efa4a6f331c571e572fe172644318d1bc573dfa10b90"
+    },
+    {
+      "name": "Adobe-GB1-4",
+      "sha256": "eda6981ec7fb1df6e85b9c3ad85cab4a95997c012166356e7083e23ec755ec36"
+    },
+    {
+      "name": "Adobe-GB1-5",
+      "sha256": "c33f09da6fafc29259b853ad73177e8e2161b099621127690a7643038b6047d2"
+    },
+    {
+      "name": "Adobe-GB1-UCS2",
+      "sha256": "039bec9e3e378ba479b5fe458aed57743d2d469d037ea5489a9f86c40c09e997"
+    },
+    {
+      "name": "Adobe-Japan1-0",
+      "sha256": "c63388ab8d18d5cbbf9911b10329d057d60e1e9295b5644941e00fc8f8489452"
+    },
+    {
+      "name": "Adobe-Japan1-1",
+      "sha256": "9c93b77ac7de09ab1510e3d3b36c2ea64ab98d4b95938e5b5b83f1bf061ba391"
+    },
+    {
+      "name": "Adobe-Japan1-2",
+      "sha256": "51abc4a77a662306a66a1fadcb0d0e7526dbee73533b5aed266471177ee26076"
+    },
+    {
+      "name": "Adobe-Japan1-3",
+      "sha256": "b9241616bb96a3e76993787f986da7dcacf5e381ab79293e607864621ee1df16"
+    },
+    {
+      "name": "Adobe-Japan1-4",
+      "sha256": "43a9cdb72943d9522cd7d8a75a9b5f6674e3fa4e076b1df3792957619f089dd9"
+    },
+    {
+      "name": "Adobe-Japan1-5",
+      "sha256": "bb027d172491e320104b4d5ba8e4e9a80e3cadc15cc1cac97dc64de741ed202e"
+    },
+    {
+      "name": "Adobe-Japan1-6",
+      "sha256": "284f546fd6a6d41a4df764b00ccae5a62f4bd7c5f156140d45e23abc581f3acd"
+    },
+    {
+      "name": "Adobe-Japan1-7",
+      "sha256": "7290cf1ef3c5f4c1d2efd7c6ef32c18fafc33ded7154b99b37386aa8b3b7ccdd"
+    },
+    {
+      "name": "Adobe-Japan1-UCS2",
+      "sha256": "0e392f53d43bfb3e26ee459bd198e133faf61f97ddcc980e433a8965632c3671"
+    },
+    {
+      "name": "Adobe-Japan2-0",
+      "sha256": "e7c0a1a9eed5971c2b7cbfa9684d578a82facb14eb00e904e4fe2b885df417d1"
+    },
+    {
+      "name": "Adobe-Korea1-0",
+      "sha256": "6ef218726585b71e563a23d9978d47df58c40ca6fe7e77954af4c2ea5b28fd26"
+    },
+    {
+      "name": "Adobe-Korea1-1",
+      "sha256": "d1e84a360208a70d1eb50e2d751bfd9eaca7f2806365831839505744eb7ea096"
+    },
+    {
+      "name": "Adobe-Korea1-2",
+      "sha256": "b9ca3d49b1d36eb883fb878aecc88120ebb227f01a463866e2fc0b2aa6ca9ef0"
+    },
+    {
+      "name": "Adobe-Korea1-UCS2",
+      "sha256": "aa7cfb680fdafa53e9d9ec054309d56611eb0e568c99e1c1895efb3c94743f6d"
+    },
+    {
+      "name": "B5pc-H",
+      "sha256": "bdd5f880359612ec71fd3bee930ab4ee2a550fbe7193ae1a0cba727f3b37314b"
+    },
+    {
+      "name": "B5pc-V",
+      "sha256": "6ea096eb62f99ca54fdefc036bfb21058ba1664fc263411f5f7d3d3307e3c690"
+    },
+    {
+      "name": "CNS-EUC-H",
+      "sha256": "5bcb99e1829ce797c246462cf79c1e484223449355b4f91070046c7c804ef0eb"
+    },
+    {
+      "name": "CNS-EUC-V",
+      "sha256": "4e9dd5c2bac3283d7d582dc69c5b2fc1de612ae5d2ed2d257bf48a69c1b06bb5"
+    },
+    {
+      "name": "ETen-B5-H",
+      "sha256": "b885a24a86a0adee73c724b636facce5b33351155bc26adb320a797afee1effa"
+    },
+    {
+      "name": "ETen-B5-V",
+      "sha256": "c8ec6c4af760c07e3b46ed0d586f87a28278518f3adab17bbf78180e16c0bee9"
+    },
+    {
+      "name": "ETenms-B5-H",
+      "sha256": "98f7bc74c7accb0341398d2d949a4953528f25d38d070ba51d028da1bc3df40c"
+    },
+    {
+      "name": "ETenms-B5-V",
+      "sha256": "283856f9060d23ad6006cd84dbc22213ac70e83674d96288e3f35e8f2ba8bee9"
+    },
+    {
+      "name": "EUC-H",
+      "sha256": "02fc3b4034a9550084439ecf24a9cb2a057840cd4c20ff377a8245f0d7fa2f58"
+    },
+    {
+      "name": "EUC-V",
+      "sha256": "beaf35ca3bc2ad1bbe3d87a295f80393425c347bca7ad33e68958908f04079a9"
+    },
+    {
+      "name": "Ext-RKSJ-H",
+      "sha256": "ea4cbe2526a53486e48ab7acbb075e29fd8cdee2b056133610854af1510962ab"
+    },
+    {
+      "name": "Ext-RKSJ-V",
+      "sha256": "d943e0ae518c2bc1eea6b39dfcfab69c396bbdbdbf913c3c070f1cf3d83d54ae"
+    },
+    {
+      "name": "GB-EUC-H",
+      "sha256": "fa25c5791620ed8dae9d7f199c2c415d4d4b84971f85069ba9802efc2fb054bf"
+    },
+    {
+      "name": "GB-EUC-V",
+      "sha256": "714c9658f04d00c2ecf40a8c61765fada60122b3ea42cc77698f971d5b5d6cb1"
+    },
+    {
+      "name": "GBK-EUC-H",
+      "sha256": "9a5dd798943b1a022cc04569c9b219d89b1f2dc11ae3346433d8e5dd55fa518b"
+    },
+    {
+      "name": "GBK-EUC-V",
+      "sha256": "3f517d357c3aa087361728eddc09f099673eb50896610a56efe5aae400a1d8c6"
+    },
+    {
+      "name": "GBK2K-H",
+      "sha256": "94b54de60a7949d1ad6d7eafd5fa27f71c9adb5178854fa51a0e4453b7c86381"
+    },
+    {
+      "name": "GBK2K-V",
+      "sha256": "a78c093fd20cd6518259803c83981308e11d2a6755e2b0b354a85ae67c2251a3"
+    },
+    {
+      "name": "GBKp-EUC-H",
+      "sha256": "6d69b495381489ee27ce375c4874177e96a20e106331d8d90429d27140e77e16"
+    },
+    {
+      "name": "GBKp-EUC-V",
+      "sha256": "18ac591fe2129fbbcfcef9b8bbd485e97e5348c492aefc31c2472018a14cb3a7"
+    },
+    {
+      "name": "GBpc-EUC-H",
+      "sha256": "bb641407340acf3d86ef6c32938799c7b6785e10dcdd539d159d88992fc6c935"
+    },
+    {
+      "name": "GBpc-EUC-V",
+      "sha256": "80545181928392bcfac425cf3badb115f9b5ede9fbf3ca894e8a2e54a6c0a84b"
+    },
+    {
+      "name": "H",
+      "sha256": "6a9a490592a6a014b61b8e778da66f27f837558e4de8b40081c821909afd88cf"
+    },
+    {
+      "name": "HKscs-B5-H",
+      "sha256": "a9d484d9038eebfe056cab89af9304537b94cbe2c56031dbb64c1578391bc8d0"
+    },
+    {
+      "name": "HKscs-B5-V",
+      "sha256": "fc31fafb887a9af37eed4d1170d1ca6067140c2665b3214e95516a7ccbc7f1ac"
+    },
+    {
+      "name": "Identity-H",
+      "sha256": "866c40836b501ddc098d4077d8d31e8ab8f4b9f9842db91ea9acf87488e6d7c1"
+    },
+    {
+      "name": "Identity-V",
+      "sha256": "1c5ae69b98af36325cc8539f4cbe4d041f8b55b497b1e9ea45b3a75c484ed5c2"
+    },
+    {
+      "name": "KSC-EUC-H",
+      "sha256": "4aa1c382cc5c291e9af14db1a35f8e1a5ddc8507420fdcc16dfb8bd0d9537184"
+    },
+    {
+      "name": "KSC-EUC-V",
+      "sha256": "963ae7419ae0c87e2d9b56bda40446af4e46453f27a4384bc8b3e8106fee51b4"
+    },
+    {
+      "name": "KSCms-UHC-H",
+      "sha256": "94ea4aeb4aff7b75dea32fa5425fef6f9a2859d99d001e874fb7948f672ffbb2"
+    },
+    {
+      "name": "KSCms-UHC-HW-H",
+      "sha256": "317ddb148acf62c396f9610ddabcccb7fb4d8035af247c60184ae8dcaa969eff"
+    },
+    {
+      "name": "KSCms-UHC-HW-V",
+      "sha256": "d3628080a1e9ea9ba388fc65c3d2ebd80e7f297b3916495ecc57e977dfdbd10f"
+    },
+    {
+      "name": "KSCms-UHC-V",
+      "sha256": "eb999e7aedff28d89a21c6c3f57d4450dd68054a1f40fa39e0259afad3a6e5cc"
+    },
+    {
+      "name": "KSCpc-EUC-H",
+      "sha256": "43f20e1fc1b09caf46e0756ace2ac4ee8fb9380c32ab83f18dc2eb608c84c92b"
+    },
+    {
+      "name": "KSCpc-EUC-V",
+      "sha256": "4fbf738a8f5a2509d576b76b1c0f4a025ee30ceb0918f318098ae55e4aa8870a"
+    },
+    {
+      "name": "UniCNS-UCS2-H",
+      "sha256": "66d61241fc5753ad3552a323cb9a19df13d7fe8f20d93b4ff3ffdbd612f95c66"
+    },
+    {
+      "name": "UniCNS-UCS2-V",
+      "sha256": "bcab0409b46fbe543702385af21fcb157a3a48dfdf1c8339b9c207cd475c749a"
+    },
+    {
+      "name": "UniCNS-UTF16-H",
+      "sha256": "72ca52e339289db8d99f0efec1deda556a21c8aa24ca90b2b286542f1791a3c6"
+    },
+    {
+      "name": "UniCNS-UTF16-V",
+      "sha256": "9a569876c221587c192ba1051747dddc31025b295380a69e75d7c43652eb336e"
+    },
+    {
+      "name": "UniGB-UCS2-H",
+      "sha256": "4603049c11199a18eadde1bb868cb9e8fb77b48f9f94cc1a8479dc575dfbe7d7"
+    },
+    {
+      "name": "UniGB-UCS2-V",
+      "sha256": "2c244746379aab24392bc55faba4970fa536ee3c2c116c9126f4e8f97cd5b59b"
+    },
+    {
+      "name": "UniGB-UTF16-H",
+      "sha256": "5bd239e20b678428318efb1ba3085c5ff19ea3c82dc4d9ea790efe46aa6bff81"
+    },
+    {
+      "name": "UniGB-UTF16-V",
+      "sha256": "d5f7dd7c6ddd6b5d39a971a728c5d721fc1786227b3f1725bf8d26ce6dd530a4"
+    },
+    {
+      "name": "UniJIS-UCS2-H",
+      "sha256": "25a5fa588b689c13501498d08d34866b77c42582e6299a4e223849db9281e86b"
+    },
+    {
+      "name": "UniJIS-UCS2-HW-H",
+      "sha256": "3008e520b23f8d3838f2463efb1a9842f66adca29cbecf15cd6bda1955788e57"
+    },
+    {
+      "name": "UniJIS-UCS2-HW-V",
+      "sha256": "45d7bd6e0cbf31853e3b517d5b6d2939e0831d86ca4318887a059967b9512545"
+    },
+    {
+      "name": "UniJIS-UCS2-V",
+      "sha256": "cf815152be6bee432087f63fba26345b581d718c7ce5ba4560fd6ebde8f2ad2a"
+    },
+    {
+      "name": "UniJIS-UTF16-H",
+      "sha256": "d2fd8b3c6001ea398c04e0f910e0bc63819405e5ae63a167d93d2a2160466afa"
+    },
+    {
+      "name": "UniJIS-UTF16-V",
+      "sha256": "f18385a7fdf57183091f9cadc8fbfbf27712284934f04ae44f3a4d3bdefa032f"
+    },
+    {
+      "name": "UniKS-UCS2-H",
+      "sha256": "bd4277d5ae23f3a92252cc54e6449c240d25c918c3b91f6abbccb1a2be4b9acf"
+    },
+    {
+      "name": "UniKS-UCS2-V",
+      "sha256": "904f9c063ab89075b09bf2c471cfc2ac4db6604c3a2ae29a08c9c37761a353e4"
+    },
+    {
+      "name": "UniKS-UTF16-H",
+      "sha256": "ddd37676e3ae5ced89062cd2c8c859dda4363f5a835c16aca989855f47b1f70c"
+    },
+    {
+      "name": "UniKS-UTF16-V",
+      "sha256": "334ae271967e8bc786efd35283c615e99c23052b43e15039cc656b8954ee2a18"
+    },
+    {
+      "name": "V",
+      "sha256": "8eea3990962a4c5dd9565fcdfd30497747b6004940bb8d71fa2e0b0669eb9237"
+    }
+  ]
+}

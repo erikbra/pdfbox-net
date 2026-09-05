@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java
  * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 using PdfBox.Net.ContentStream.Operator;
@@ -184,7 +184,7 @@ internal sealed class AppearanceGeneratorHelper
 
     private static PDRectangle ComputeBBox(PDAnnotationWidget widget, int rotation)
     {
-        PDRectangle rectangle = widget.GetRectangle()!;
+        PDRectangle rectangle = widget.GetRectangle() ?? throw new IOException("Missing rectangle");
         Matrix rotationMatrix = Matrix.GetRotateInstance(Math.PI * rotation / 180.0, 0, 0);
         Vector transformedUpperRight = rotationMatrix.TransformPoint(rectangle.GetWidth(), rectangle.GetHeight());
         return new PDRectangle(Math.Abs(transformedUpperRight.GetX()), Math.Abs(transformedUpperRight.GetY()));
@@ -252,7 +252,7 @@ internal sealed class AppearanceGeneratorHelper
             }
         }
 
-        WriteToStream(buffer.ToArray(), stream);
+        WriteToStream(buffer, stream);
     }
 
     private void WriteValue(PDAnnotationWidget widget, PDAppearanceStream stream, string value, PDDefaultAppearanceString defaultAppearance)
@@ -360,7 +360,7 @@ internal sealed class AppearanceGeneratorHelper
             writer.WriteTokens(tokens.Skip(emcIndex).ToList());
         }
 
-        WriteToStream(buffer.ToArray(), stream);
+        WriteToStream(buffer, stream);
     }
 
     private float CalculateFontSize(PDDefaultAppearanceString defaultAppearance, PDFont font, PDRectangle contentRect, string value)
@@ -478,10 +478,10 @@ internal sealed class AppearanceGeneratorHelper
             .Replace(")", "\\)", StringComparison.Ordinal);
     }
 
-    private static void WriteToStream(byte[] data, PDAppearanceStream stream)
+    private static void WriteToStream(MemoryStream buffer, PDAppearanceStream stream)
     {
         using Stream output = stream.GetCOSObject()!.CreateOutputStream();
-        output.Write(data);
+        buffer.WriteTo(output);
     }
 
     private static PDRectangle ResolveBoundingBox(PDAnnotationWidget widget, PDAppearanceStream stream)

@@ -30,4 +30,7 @@ namespace PdfBox.Net.PDModel.Font;
 public interface FontMapper
 {
     string? FindFontFile(string postScriptName);
+
+    /// <summary>Finds a substitute for a CID font, or null when this mapper has no CID mapping.</summary>
+    CIDFontMapping? GetCIDFont(string baseFont, PDFontDescriptor? fontDescriptor, PDCIDSystemInfo? cidSystemInfo) => null;
 }

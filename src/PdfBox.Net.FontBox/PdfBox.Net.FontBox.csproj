@@ -30,6 +30,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="FontBox/TTF/Scripts.txt" />
+    <EmbeddedResource Include="FontBox/CMap/Resources/*" LogicalName="PdfBox.Net.FontBox.CMap.%(Filename)%(Extension)" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="licenses/AdobeCMaps/" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

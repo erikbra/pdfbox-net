@@ -187,7 +187,7 @@ public class AdvancedRenderingIssue419Test
         maskRaster.SetPixel(0, 0, [0, 0, 0, 255]);
         maskRaster.SetPixel(1, 0, [255, 255, 255, 255]);
 
-        SoftMask softMask = new(Color.Black, mask, new Rectangle2D(0, 0, 2, 1), null, null);
+        SoftMask softMask = new(Color.Black, mask, new Point2D(10, 20), null, null);
         using PaintContext context = softMask.CreateContext(
             new ColorModel(),
             new Rectangle(0, 0, 2, 1),
@@ -195,7 +195,7 @@ public class AdvancedRenderingIssue419Test
             new AffineTransform(),
             new RenderingHints());
 
-        Raster raster = context.GetRaster(0, 0, 2, 1);
+        Raster raster = context.GetRaster(10, 20, 2, 1);
         int[] pixel = new int[4];
 
         raster.GetPixel(0, 0, pixel);

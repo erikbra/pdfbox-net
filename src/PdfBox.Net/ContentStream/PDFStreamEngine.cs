@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -199,6 +199,10 @@ public class PDFStreamEngine
 
         try
         {
+            // A pattern is a separate content stream with a clean graphics state.
+            // Inheriting the painted object's CTM, clipping path, or soft mask moves
+            // its cell outside the tile raster (notably for pattern-filled stencils).
+            _currentGraphicsState = new PDGraphicsState();
             if (colorSpace is not null && color is not null)
             {
                 PDColor patternColor = new(color.GetComponents(), colorSpace);
@@ -209,6 +213,7 @@ public class PDFStreamEngine
             }
 
             ConcatenateMatrix(patternMatrix);
+            ClipToRect(tilingPattern.GetBBox());
             using Stream content = tilingPattern.GetContents();
             ProcessStream(content);
         }

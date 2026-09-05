@@ -1,7 +1,7 @@
 {
-  "generated_at_utc": "2026-09-05T11:04:55.395Z",
+  "generated_at_utc": "2026-09-05T21:54:30.157Z",
   "upstream_repository": "apache/pdfbox",
-  "upstream_branch": "trunk",
+  "upstream_branch": "046747da99a870902217efabf1c41297de157059",
   "excluded_upstream_modules": [
     "pdfbox-layout-fop"
   ],
@@ -9,11 +9,11 @@
     "pdfbox-layout-fop": 4
   },
   "upstream_head": "046747da99a870902217efabf1c41297de157059",
-  "tracked_parity_baseline_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+  "tracked_parity_baseline_commit": "046747da99a870902217efabf1c41297de157059",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1075,
-  "mapped": 1073,
-  "missing": 2,
+  "mapped": 1075,
+  "missing": 0,
   "modules": [
     {
       "module": "benchmark",
@@ -25,9 +25,9 @@
     {
       "module": "debugger",
       "java_files": 92,
-      "mapped": 91,
-      "missing": 1,
-      "pct": 98.9
+      "mapped": 92,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "examples",
@@ -53,9 +53,9 @@
     {
       "module": "pdfbox",
       "java_files": 623,
-      "mapped": 622,
-      "missing": 1,
-      "pct": 99.8
+      "mapped": 623,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "pdfbox-layout-awt",
@@ -90,9 +90,9 @@
     {
       "family": "debugger:debugger",
       "java_files": 92,
-      "mapped": 91,
-      "missing": 1,
-      "pct": 98.9
+      "mapped": 92,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "examples:examples",
@@ -223,9 +223,9 @@
     {
       "family": "pdfbox:pdmodel",
       "java_files": 433,
-      "mapped": 432,
-      "missing": 1,
-      "pct": 99.8
+      "mapped": 433,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "pdfbox:printing",
@@ -299,17 +299,10 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 816,
-    "in-sync": 816,
+    "total_rows": 833,
+    "in-sync": 833,
     "partially-in-sync": 0,
     "partial": 0
   },
-  "top_missing_modules": {
-    "debugger": [
-      "debugger/src/main/java/org/apache/pdfbox/debugger/certificatepane/CertificatePane.java"
-    ],
-    "pdfbox": [
-      "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFUtils.java"
-    ]
-  }
+  "top_missing_modules": {}
 }

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/BengaliPdfGenerationHelloWorld.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -111,8 +111,8 @@ public class BengaliPdfGenerationHelloWorld
     private static IList<IList<string>> GetReAlignedTextBasedOnPageHeight(IList<string> originalLines,
         PDFont font, float workablePageHeight)
     {
-        float newLineHeight = font.GetFontDescriptor()?.GetFontBoundingBox().GetHeight() / 1000f * FontSize + LineGap
-            ?? FontSize + LineGap;
+        PdfBox.Net.FontBox.Util.BoundingBox? fontBoundingBox = font.GetFontDescriptor()?.GetFontBoundingBox();
+        float newLineHeight = (fontBoundingBox?.GetHeight() ?? 1500f) / 1000f * FontSize + LineGap;
         IList<IList<string>> realignedTexts = new List<IList<string>>();
         float consumedHeight = 0;
         IList<string> linesInAPage = new List<string>();

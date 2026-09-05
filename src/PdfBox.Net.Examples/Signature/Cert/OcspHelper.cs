@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/cert/OcspHelper.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -92,6 +92,8 @@ public sealed class OcspHelper
             throw new CertificateVerificationException(
                 $"Could not verify certificate {_certToCheck.Subject}: no OCSP responder URL was supplied.");
         }
+
+        SigUtils.CheckAccess(new Uri(_ocspUrl, UriKind.Absolute));
 
         try
         {

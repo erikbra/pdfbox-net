@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddAnnotations.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -119,6 +119,7 @@ public static class AddAnnotations
             // Square annotation
             PDAnnotationSquare aSquare = new PDAnnotationSquare();
             aSquare.SetContents("Square Annotation");
+            aSquare.SetInteriorColor(blue);
             aSquare.SetColor(red);
             PDRectangle squarePos = new PDRectangle();
             squarePos.SetLowerLeftX(pw - 2 * Inch);
@@ -142,6 +143,11 @@ public static class AddAnnotations
             actionGoto.SetDestination(dest);
             pageLink.SetAction(actionGoto);
             annotations.Add(pageLink);
+
+            PDAnnotationCaret annotationCaret = new();
+            annotationCaret.SetColor(blue);
+            annotationCaret.SetRectangle(new PDRectangle(300, 50, 100, 100));
+            annotations.Add(annotationCaret);
 
             document.Save(args[0]);
         }

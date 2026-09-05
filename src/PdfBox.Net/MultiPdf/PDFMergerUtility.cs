@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -183,6 +183,9 @@ public class PDFMergerUtility
     /// <summary>
     /// Appends all pages from source to destination.
     /// </summary>
+    /// <param name="destination">The document to receive the pages.</param>
+    /// <param name="source">The document originating the new pages. This should not be a PDDocument that
+    /// you created on the fly; it should be saved first if it contains any fonts that are subset.</param>
     public void AppendDocument(PDDocument destination, PDDocument source)
     {
         ArgumentNullException.ThrowIfNull(destination);

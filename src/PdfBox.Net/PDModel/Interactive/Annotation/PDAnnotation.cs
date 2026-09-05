@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotation.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -432,13 +432,26 @@ public abstract partial class PDAnnotation : COSObjectable
     /// </summary>
     public PDColor? GetColor()
     {
-        COSArray? c = _dictionary.GetCOSArray(COSName.C);
+        return GetColor(COSName.C);
+    }
+
+    protected PDColor? GetColor(COSName itemName)
+    {
+        COSArray? c = _dictionary.GetCOSArray(itemName);
         if (c != null)
         {
+            if (c.Size() == 3)
+            {
+                float[] components = c.ToFloatArray();
+                // Adobe converts "rg" into "g" when the RGB components are equal.
+                return components[0] == components[1] && components[2] == components[1]
+                    ? new PDColor([components[0]], PDDeviceGray.Instance)
+                    : new PDColor(components, PDDeviceRGB.Instance);
+            }
+
             return c.Size() switch
             {
                 1 => new PDColor(c, PDDeviceGray.Instance),
-                3 => new PDColor(c, PDDeviceRGB.Instance),
                 4 => new PDColor(c, PDDeviceCMYK.Instance),
                 _ => null
             };

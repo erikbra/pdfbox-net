@@ -49,19 +49,7 @@ public abstract partial class PDAnnotationSquareCircle : PDAnnotationMarkup
 
     public override PDColor? GetInteriorColor()
     {
-        COSArray? c = GetCOSDictionary().GetCOSArray(COSName.GetPDFName("IC"));
-        if (c == null)
-        {
-            return null;
-        }
-
-        return c.Size() switch
-        {
-            1 => new PDColor(c, PDDeviceGray.Instance),
-            3 => new PDColor(c, PDDeviceRGB.Instance),
-            4 => new PDColor(c, PDDeviceCMYK.Instance),
-            _ => null
-        };
+        return GetColor(COSName.GetPDFName("IC"));
     }
 
     public override void SetInteriorColor(PDColor? color)

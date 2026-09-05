@@ -1,8 +1,8 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-09-05T11:04:55.395Z
-Reference upstream Java repository: Apache PDFBox `trunk`
-Tracked parity baseline commit: `1187c45f9dcee38ed5ac12bc15df04913b348875`
+Datetime (UTC): 2026-09-05T21:54:30.157Z
+Reference upstream Java repository: Apache PDFBox `046747da99a870902217efabf1c41297de157059`
+Tracked parity baseline commit: `046747da99a870902217efabf1c41297de157059`
 Latest upstream head scanned: `046747da99a870902217efabf1c41297de157059`
 
 ## Scope and method
@@ -20,22 +20,22 @@ Excluded upstream modules:
 | Upstream module | Java files | Mapped C# ports | Missing | % Done |
 |---|---:|---:|---:|---:|
 | `benchmark` | 3 | 3 | 0 | 100.0% |
-| `debugger` | 92 | 91 | 1 | 98.9% |
+| `debugger` | 92 | 92 | 0 | 100.0% |
 | `examples` | 93 | 93 | 0 | 100.0% |
 | `fontbox` | 143 | 143 | 0 | 100.0% |
 | `io` | 18 | 18 | 0 | 100.0% |
-| `pdfbox` | 623 | 622 | 1 | 99.8% |
+| `pdfbox` | 623 | 623 | 0 | 100.0% |
 | `pdfbox-layout-awt` | 3 | 3 | 0 | 100.0% |
 | `tools` | 26 | 26 | 0 | 100.0% |
 | `xmpbox` | 74 | 74 | 0 | 100.0% |
-| **TOTAL** | **1075** | **1073** | **2** | **99.8%** |
+| **TOTAL** | **1075** | **1075** | **0** | **100.0%** |
 
-Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **857 / 858 = 99.9%**.
+Library-core subset (`pdfbox` + `fontbox` + `xmpbox` + `io`) coverage: **858 / 858 = 100.0%**.
 
 ## Traceability status for mapped upstream source rows
 
-Among **816** rows with scoped upstream `source_path`:
-- `in-sync`: **816**
+Among **833** rows with scoped upstream `source_path`:
+- `in-sync`: **833**
 - `partially-in-sync`: **0**
 - `partial`: **0**
 
@@ -51,19 +51,17 @@ The generated `reports/upstream-file-comparison.json` contains one row for each 
 
 | Gap category | Files |
 |---|---:|
-| `missing-port` | 2 |
+| `missing-port` | 0 |
 | `missing-provenance-marker` | 1 |
-| `missing-traceability-row` | 263 |
-| `none` | 809 |
+| `missing-traceability-row` | 251 |
+| `none` | 823 |
 
 | Gap category | Module | Files |
 |---|---|---:|
-| `missing-port` | `debugger` | 1 |
-| `missing-port` | `pdfbox` | 1 |
 | `missing-provenance-marker` | `pdfbox` | 1 |
 | `missing-traceability-row` | `benchmark` | 3 |
-| `missing-traceability-row` | `fontbox` | 93 |
+| `missing-traceability-row` | `fontbox` | 92 |
 | `missing-traceability-row` | `io` | 8 |
-| `missing-traceability-row` | `pdfbox` | 133 |
-| `missing-traceability-row` | `tools` | 26 |
+| `missing-traceability-row` | `pdfbox` | 125 |
+| `missing-traceability-row` | `tools` | 23 |
 

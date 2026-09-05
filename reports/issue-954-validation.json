@@ -1,0 +1,91 @@
+{
+  "issue": 954,
+  "upstream_base_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+  "upstream_target_commit": "046747da99a870902217efabf1c41297de157059",
+  "dotnet_main_base_commit": "761f23157e2ac8f2e552288236443fac34b9ec77",
+  "release_build": "passed",
+  "release_tests": {
+    "passed": 1657,
+    "failed": 0,
+    "skipped": 15
+  },
+  "focused_rendering_fonts_debugger": {
+    "passed": 145,
+    "failed": 0,
+    "skipped": 0
+  },
+  "final_antialiasing_renderer_gate": {
+    "passed": 108,
+    "failed": 0,
+    "skipped": 0,
+    "new_red_to_green_regressions": 4
+  },
+  "api_ratchet": {
+    "result": "passed",
+    "unreviewed_deltas": 0,
+    "invalid_dispositions": 0,
+    "allowances_changed": false
+  },
+  "runtime_ratchet": {
+    "result": "passed",
+    "generated_at_utc": "2026-09-05T21:52:57Z",
+    "operation_rows": 691,
+    "statuses": {
+      "match": 691
+    },
+    "pdf_count": 161,
+    "merge_pair_count": 80,
+    "visual_equivalence_count": 72,
+    "visual_equivalence_allowance": 72,
+    "trailing_whitespace_semantic_matches": 0,
+    "allowances_changed": false,
+    "comparison_sha256": "548b6057682b06d5e8c35cf5126d6caa451eaa5a1c3b2bab26b55b647f7d7f2a"
+  },
+  "real_cid_fixture": {
+    "result": "passed",
+    "fixture": "PDFBOX-6249-cns1-nonembedded-latin.pdf",
+    "font": "NotoSansCJKtc-Regular.otf",
+    "font_git_blob": "f9376bae1d421520f73a3c6c9d50b22f89548301",
+    "h_width": 728,
+    "h_path_segments": 13,
+    "zhong_gid": 9544
+  },
+  "package_contents": {
+    "Core": "licenses/LiberationSans/LICENSE.txt",
+    "FontBox": "licenses/AdobeCMaps/LICENSE",
+    "result": "passed"
+  },
+  "upstream_resource_integrity": {
+    "cmap_count": 92,
+    "cmap_bytes_match": true,
+    "liberation_sans_bytes_match": true
+  },
+  "inventory": {
+    "mapped": 1075,
+    "in_scope": 1075,
+    "missing": 0,
+    "changed_upstream_paths": 67,
+    "missing_dispositions": 0,
+    "extra_dispositions": 0,
+    "changed_cs_report_row_gaps": 0
+  },
+  "deferred_tests": [
+    "AppearanceGenerationTest: pre-existing FreeText/Caret/Polygon handlers and Line/Highlight/Square geometry",
+    "TestCreateSignature: live TSA/LTV cases",
+    "CRLVerifierTest: unsupported LDAP transport and real CRL adapter"
+  ],
+  "whitespace_integrity": {
+    "initial_unstaged_check_did_not_include_new_vendor_files": true,
+    "vendor_bytes_preserved": true,
+    "exemptions": {
+      "src/PdfBox.Net.FontBox/FontBox/CMap/Resources/*": [
+        "blank-at-eol"
+      ],
+      "src/PdfBox.Net/PDModel/Font/Resources/TTF/LICENSE.txt": [
+        "space-before-tab"
+      ]
+    },
+    "all_other_whitespace_checks_enabled": true,
+    "staged_diff_check_with_worktree_attributes": "passed"
+  }
+}

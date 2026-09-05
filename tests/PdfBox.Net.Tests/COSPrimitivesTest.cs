@@ -50,8 +50,6 @@ public class COSPrimitivesTest
         byte[] bytes = Encoding.UTF8.GetBytes($"collectible-name-{Guid.NewGuid():N}");
         WeakReference<COSName> reference = CreateCollectibleName(bytes);
 
-        Assert.True(IsNameCached(bytes));
-
         for (int attempt = 0; attempt < 10 && IsNameCached(bytes); attempt++)
         {
             GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
@@ -210,6 +208,8 @@ public class COSPrimitivesTest
     {
         COSName name = COSName.GetPDFName(bytes);
         Assert.Same(name, COSName.GetPDFName(bytes));
+        Assert.True(IsNameCached(bytes));
+        GC.KeepAlive(name);
         return new WeakReference<COSName>(name);
     }
 

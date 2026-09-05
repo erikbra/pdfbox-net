@@ -60,9 +60,9 @@ internal static class FontBoxTestFixtures
         return BuildPfb(segment1, segment2);
     }
 
-    public static byte[] CreateMinimalOpenTypeCff()
+    public static byte[] CreateMinimalOpenTypeCff(bool cidKeyed = false)
     {
-        byte[] cff = CreateMinimalType1Cff();
+        byte[] cff = cidKeyed ? CreateMinimalCidCff(identityGlyph: true) : CreateMinimalType1Cff();
         byte[] head = CreateHeadTable();
         byte[] maxp = CreateMaxpTable();
         byte[] name = CreateNameTable("MiniCFF");
@@ -117,13 +117,16 @@ internal static class FontBoxTestFixtures
         return CreateMinimalType1Cff(useExpertCharsetEncoding: true);
     }
 
-    public static byte[] CreateMinimalCidCff()
+    public static byte[] CreateMinimalCidCff(bool identityGlyph = false)
     {
         byte[] nameIndex = BuildIndex([Encoding.ASCII.GetBytes("MiniCID")]);
         byte[] stringIndex = BuildIndex([Encoding.ASCII.GetBytes("Adobe"), Encoding.ASCII.GetBytes("Identity")]);
         byte[] globalSubrIndex = BuildIndex([]);
-        byte[] charStringsIndex = BuildIndex([[14], [14]]);
-        byte[] charsetData = [0, 0, 42]; // format 0, gid 1 -> cid 42
+        // Optional outlined Identity glyph supports deterministic CID substitution tests.
+        byte[] charStringsIndex = identityGlyph
+            ? BuildIndex([[14], [139, 139, 21, 239, 139, 139, 239, 39, 139, 5, 14]])
+            : BuildIndex([[14], [14]]);
+        byte[] charsetData = [0, 0, (byte)(identityGlyph ? 1 : 42)];
         byte[] fdSelectData = [0, 0, 0]; // format 0, two gids mapped to FD 0
         byte[] privateDict = BuildDict(
             EncodeInteger(500), [20],

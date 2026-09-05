@@ -7,6 +7,47 @@ namespace PdfBox.Net.FontBox.Tests;
 
 public class CMapParserTest
 {
+    [Theory]
+    [InlineData("")]
+    [InlineData("../Identity-H")]
+    [InlineData("resource/Identity-H")]
+    [InlineData("resource\\Identity-H")]
+    [InlineData(".Identity-H")]
+    public void ParsePredefined_RejectsNamesOutsidePredefinedResources(string name)
+    {
+        IOException exception = Assert.Throws<IOException>(() => new CMapParser().ParsePredefined(name));
+        Assert.Equal("Error: Invalid CMap name " + name, exception.Message);
+    }
+
+    [Theory]
+    [InlineData("UniCNS-UTF16-H", "Adobe-CNS1-UCS2")]
+    [InlineData("UniGB-UTF16-H", "Adobe-GB1-UCS2")]
+    [InlineData("UniJIS-UTF16-H", "Adobe-Japan1-UCS2")]
+    [InlineData("UniKS-UTF16-H", "Adobe-Korea1-UCS2")]
+    public void PredefinedCjkEncodingResolvesUnicodeThroughCharacterCollection(string encodingName, string ucs2Name)
+    {
+        CMapParser parser = new();
+        FontBoxCMap encoding = parser.ParsePredefined(encodingName);
+        FontBoxCMap unicode = parser.ParsePredefined(ucs2Name);
+        int cid = encoding.ToCID([0, 0x41]);
+        Assert.NotEqual(0, cid);
+        Assert.Equal("A", unicode.ToUnicode(cid));
+    }
+
+    [Fact]
+    public void EveryBundledPredefinedCMapCanBeParsed()
+    {
+        const string prefix = "PdfBox.Net.FontBox.CMap.";
+        string[] names = typeof(CMapParser).Assembly.GetManifestResourceNames()
+            .Where(name => name.StartsWith(prefix, StringComparison.Ordinal)).ToArray();
+        Assert.Equal(92, names.Length);
+        foreach (string name in names)
+        {
+            FontBoxCMap cmap = new CMapParser().ParsePredefined(name[prefix.Length..]);
+            Assert.False(string.IsNullOrEmpty(cmap.Name), name);
+        }
+    }
+
     [Fact]
     public void ParseRepresentativeCMapStreamAndResolveMappings()
     {

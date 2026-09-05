@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java
  * PDFBOX_SOURCE_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -43,8 +43,37 @@ public sealed class SigUtils
     private static ILogger<SigUtils> LOG => PdfBoxLogging.CreateLogger<SigUtils>();
     private static readonly HttpClient HttpClient = new(new HttpClientHandler
     {
-        AllowAutoRedirect = true
+        AllowAutoRedirect = false
     });
+
+    // Certificates / CRLs / LDAP needed for the upstream unit tests; add yours
+    // or create your own logic in CheckAccess().
+    private static readonly HashSet<string> AllowUrlSet = new(StringComparer.Ordinal)
+    {
+        "http://www.pki.admin.ch/aia/RegularCA01.crt",
+        "http://www.pki.admin.ch/aia/RootCAII.crt",
+        "http://www.pki.admin.ch/aia/RootCAIV.crt",
+        "http://www.pki.admin.ch/crl/RegularCA01.crl",
+        "http://www.pki.admin.ch/crl/RootCAII.crl",
+        "http://www.pki.admin.ch/aia/RegulatedCA02.crt",
+        "http://www.pki.admin.ch/aia/ocsp",
+        "http://www.pki.admin.ch/crl/RegulatedCA02.crl",
+        "http://repository.certum.pl/ctnca2.cer",
+        "http://repository.certum.pl/ctnca.cer",
+        "http://subca.repository.certum.pl/ctsca2021.cer",
+        "http://crl.geotrust.com/crls/adobeca1.crl",
+        "http://crl.adobe.com/cds.crl",
+        "http://subca.crl.certum.pl/ctsca2021.crl",
+        "http://subca.ocsp-certum.com",
+        "http://crl.certum.pl/ctnca2.crl",
+        "http://www.freetsa.org/tsa.crt",
+        "http://www.freetsa.org:2560",
+        "http://www.freetsa.org/crl/root_ca.crl",
+        "http://www.gemboxsoftware.com/test/pki/cert/GemBoxCA.crt",
+        "http://www.gemboxsoftware.com/test/pki/cert/GemBoxRSA.crt",
+        "http://www.ca.gov.si/crt/si-trust-root.crt",
+        "ldap://x500.gov.si/cn=SI-TRUST%20Root,oi=VATSI-17659957,o=Republika%20Slovenija,c=SI?certificateRevocationList"
+    };
 
     private SigUtils()
     {
@@ -221,12 +250,28 @@ public sealed class SigUtils
     }
 
     /// <summary>
+    /// A simple but very restrictive access control logic. Create your own using a zero-trust mindset.
+    /// </summary>
+    /// <param name="uri">The URI to check against the example allowlist.</param>
+    /// <exception cref="IOException">The URI is not in the allowlist.</exception>
+    public static void CheckAccess(Uri uri)
+    {
+        ArgumentNullException.ThrowIfNull(uri);
+        if (!AllowUrlSet.Contains(uri.OriginalString))
+        {
+            throw new IOException($"URL '{uri.OriginalString}' not in allowUrlSet");
+        }
+    }
+
+    /// <summary>
     /// Like opening a URL stream, but follows redirection from HTTP to HTTPS.
     /// </summary>
     /// <param name="urlString">HTTP URL string.</param>
     /// <returns>A readable stream containing the URL response body.</returns>
     /// <exception cref="IOException">If the scheme is not HTTP(S) or the request fails.</exception>
-    public static Stream OpenURL(string urlString)
+    public static Stream OpenURL(string urlString) => OpenURL(urlString, HttpClient);
+
+    internal static Stream OpenURL(string urlString, HttpClient client)
     {
         ArgumentNullException.ThrowIfNull(urlString);
 
@@ -241,14 +286,43 @@ public sealed class SigUtils
             throw new IOException(url.Scheme + " protocol not supported");
         }
 
+        CheckAccess(url);
+
         try
         {
-            byte[] response = HttpClient.GetByteArrayAsync(url).GetAwaiter().GetResult();
-            return new MemoryStream(response, writable: false);
+            using HttpResponseMessage response = client.GetAsync(url).GetAwaiter().GetResult();
+            LOG.LogInformation("{StatusCode} {ReasonPhrase}", (int)response.StatusCode, response.ReasonPhrase);
+            if (response.StatusCode is System.Net.HttpStatusCode.MovedPermanently or
+                System.Net.HttpStatusCode.Found or System.Net.HttpStatusCode.SeeOther &&
+                response.Headers.Location is Uri location &&
+                urlString.StartsWith("http://", StringComparison.Ordinal) &&
+                location.OriginalString.StartsWith("https://", StringComparison.Ordinal) &&
+                urlString[7..] == location.OriginalString[8..])
+            {
+                LOG.LogInformation("redirection to {Location} followed", location);
+                using HttpResponseMessage redirected = client.GetAsync(location).GetAwaiter().GetResult();
+                return ReadResponse(redirected);
+            }
+
+            if (response.Headers.Location is Uri ignoredLocation)
+            {
+                LOG.LogInformation("redirection to {Location} ignored", ignoredLocation);
+            }
+            return ReadResponse(response);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
             throw new IOException("Could not open URL: " + url, ex);
         }
+    }
+
+    private static Stream ReadResponse(HttpResponseMessage response)
+    {
+        if ((int)response.StatusCode >= 400)
+        {
+            response.EnsureSuccessStatusCode();
+        }
+        byte[] data = response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+        return new MemoryStream(data, writable: false);
     }
 }
