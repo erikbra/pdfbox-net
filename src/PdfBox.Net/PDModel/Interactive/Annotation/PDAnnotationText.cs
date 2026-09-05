@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationText.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -105,7 +105,7 @@ public partial class PDAnnotationText : PDAnnotationMarkup
     /// <param name="open">Boolean value, true = open false = closed.</param>
     public void SetOpen(bool open)
     {
-        GetCOSDictionary().SetBoolean(COSName.GetPDFName("Open"), open);
+        GetCOSDictionary().SetBoolean(COSName.OPEN, open);
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ public partial class PDAnnotationText : PDAnnotationMarkup
     /// <returns>The initial state, true = open false = closed.</returns>
     public bool GetOpen()
     {
-        return GetCOSDictionary().GetBoolean(COSName.GetPDFName("Open"), false);
+        return GetCOSDictionary().GetBoolean(COSName.OPEN, false);
     }
 
     /// <summary>

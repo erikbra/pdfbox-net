@@ -62,6 +62,8 @@ internal class TilingPaint : IContextPaint
 
     internal TexturePaint TexturePaint => _paint;
 
+    internal Matrix PatternMatrix => _patternMatrix;
+
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
         AffineTransform xformPattern = xform.Clone();

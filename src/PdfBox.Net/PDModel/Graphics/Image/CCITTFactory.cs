@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java
  * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -37,6 +37,8 @@ namespace PdfBox.Net.PDModel.Graphics.Image;
 /// </summary>
 /// <remarks>
 /// TIFF input is decoded by an optional image provider and re-encoded as CCITT Group 4 image data.
+/// The provider interprets TIFF T4Options, including uncompressed mode (bit 1) and fill bits
+/// before EOL (bit 2); neither option is mapped to the PDF EncodedByteAlign flag.
 /// </remarks>
 public static class CCITTFactory
 {
@@ -60,6 +62,7 @@ public static class CCITTFactory
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(stream);
 
+        // The caller owns the input; only the output writer created below is disposed here.
         DecodedTiffRaster raster = PdfBoxNetImageServices.TiffRasterDecoder.DecodeOneBitRows(stream);
         byte[] encoded = EncodeGroup4(raster.OneBitRows, raster.Width, raster.Height);
 

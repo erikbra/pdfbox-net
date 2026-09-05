@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/SoftMask.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -39,25 +39,42 @@ internal class SoftMask : IPaint
 
     private readonly IPaint _paint;
     private readonly BufferedImage _mask;
-    private readonly Rectangle2D _bboxDevice;
+    private readonly Point2D _origin;
     private readonly PDFunction? _transferFunction;
     private readonly int _backdropComponent;
 
-    internal SoftMask(IPaint paint, BufferedImage mask, Rectangle2D bboxDevice, PDColor? backdropColor, PDFunction? transferFunction)
+    /// <param name="paint">Underlying paint.</param>
+    /// <param name="mask">Soft mask.</param>
+    /// <param name="origin">Origin of the soft mask in the underlying Graphics2D device space.</param>
+    /// <param name="backdropColor">Color outside the transparency group's bounding box; null uses black.</param>
+    /// <param name="transferFunction">Optional transfer function.</param>
+    internal SoftMask(IPaint paint, BufferedImage mask, Point2D origin, PDColor? backdropColor, PDFunction? transferFunction)
     {
         _paint = paint;
         _mask = mask;
-        _bboxDevice = bboxDevice;
+        _origin = origin;
         _transferFunction = transferFunction is PDFunctionTypeIdentity ? null : transferFunction;
         _backdropComponent = GetBackdropGray(backdropColor);
     }
+
+    // PDFBOX-6077: PageDrawer can look up alpha in page-device coordinates when
+    // the underlying paint is rendered into a scratch image at a different scale.
+    internal IPaint GetPaint() => _paint;
+
+    internal BufferedImage GetMask() => _mask;
+
+    internal Point2D GetOrigin() => _origin;
+
+    internal int GetBackdropColorValue() => _backdropComponent;
+
+    internal PDFunction? GetTransferFunction() => _transferFunction;
 
     public PaintContext CreateContext(ColorModel cm, Rectangle deviceBounds, Rectangle2D userBounds, AffineTransform xform, RenderingHints hints)
     {
         return new SoftPaintContext(
             CreatePaintContext(_paint, cm, deviceBounds, userBounds, xform, hints),
             _mask,
-            _bboxDevice,
+            _origin,
             _transferFunction,
             _backdropComponent);
     }
@@ -103,15 +120,15 @@ internal class SoftMask : IPaint
     {
         private readonly PaintContext _context;
         private readonly BufferedImage _mask;
-        private readonly Rectangle2D _bboxDevice;
+        private readonly Point2D _origin;
         private readonly PDFunction? _transferFunction;
         private readonly int _backdropComponent;
 
-        internal SoftPaintContext(PaintContext context, BufferedImage mask, Rectangle2D bboxDevice, PDFunction? transferFunction, int backdropComponent)
+        internal SoftPaintContext(PaintContext context, BufferedImage mask, Point2D origin, PDFunction? transferFunction, int backdropComponent)
         {
             _context = context;
             _mask = mask;
-            _bboxDevice = bboxDevice;
+            _origin = origin;
             _transferFunction = transferFunction;
             _backdropComponent = backdropComponent;
         }
@@ -133,8 +150,8 @@ internal class SoftMask : IPaint
             WritableRaster outputRaster = GetColorModel().CreateCompatibleWritableRaster(width, height);
             WritableRaster maskRaster = _mask.GetRaster();
 
-            int maskOffsetX = x - (int)_bboxDevice.X;
-            int maskOffsetY = y - (int)_bboxDevice.Y;
+            int maskOffsetX = x - (int)_origin.X;
+            int maskOffsetY = y - (int)_origin.Y;
             float[] input = new float[1];
             float?[] transferMap = new float?[256];
             int[] gray = new int[4];

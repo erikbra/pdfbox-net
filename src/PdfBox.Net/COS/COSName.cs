@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -164,6 +164,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName N = GetPDFName("N");
     public static readonly COSName NUMS = GetPDFName("Nums");
     // O
+    public static readonly COSName OPEN = GetPDFName("Open");
     public static readonly COSName OPEN_ACTION = GetPDFName("OpenAction");
     public static readonly COSName ORDER = GetPDFName("Order");
     public static readonly COSName OUTLINES = GetPDFName("Outlines");

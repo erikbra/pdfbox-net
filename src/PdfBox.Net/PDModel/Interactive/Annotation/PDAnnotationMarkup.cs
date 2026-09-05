@@ -203,9 +203,7 @@ public abstract partial class PDAnnotationMarkup : PDAnnotation
 
     public virtual PDColor? GetInteriorColor()
     {
-        return GetCOSDictionary().GetCOSArray(InteriorColorName) is COSArray array
-            ? CreateColor(array)
-            : null;
+        return GetColor(InteriorColorName);
     }
 
     public virtual void SetInteriorColor(PDColor? color)

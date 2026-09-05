@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/pfb/PfbParser.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -46,18 +46,20 @@ public sealed class PfbParser
     private readonly int[] _lengths = new int[3];
 
     public PfbParser(string filename)
-        : this(File.ReadAllBytes(filename))
     {
+        using Stream input = File.OpenRead(filename);
+        ParsePfb(input);
     }
 
     public PfbParser(Stream input)
-        : this(ReadAllBytes(input))
     {
+        ParsePfb(input);
     }
 
     public PfbParser(byte[] bytes)
     {
-        ParsePfb(bytes);
+        using MemoryStream input = new(bytes, writable: false);
+        ParsePfb(input);
     }
 
     public int[] GetLengths() => (int[])_lengths.Clone();
@@ -72,23 +74,10 @@ public sealed class PfbParser
 
     public byte[] GetSegment2() => _pfbData[_lengths[0]..(_lengths[0] + _lengths[1])];
 
-    private static byte[] ReadAllBytes(Stream input)
+    private void ParsePfb(Stream stream)
     {
-        using MemoryStream buffer = new();
-        input.CopyTo(buffer);
-        return buffer.ToArray();
-    }
-
-    private void ParsePfb(byte[] pfb)
-    {
-        if (pfb.Length < PfbHeaderLength)
-        {
-            throw new IOException("PFB header missing");
-        }
-
         List<int> types = [];
         List<byte[]> segments = [];
-        using MemoryStream stream = new(pfb, writable: false);
         long total = 0;
 
         while (true)
@@ -122,14 +111,10 @@ public sealed class PfbParser
                 throw new IOException($"record size {size} is negative");
             }
 
-            if (size > pfb.Length)
-            {
-                throw new IOException($"record size {size} would be larger than the input");
-            }
-
-            byte[] segment = new byte[size];
-            int read = stream.Read(segment, 0, size);
-            if (read != size)
+            // PDFBOX-6044: grow the buffer only as bytes actually arrive, so a bogus/huge
+            // size cannot force an allocation larger than what the stream really holds.
+            byte[] segment = ReadSegment(stream, size);
+            if (segment.Length != size)
             {
                 throw new EndOfStreamException("EOF while reading PFB font");
             }
@@ -139,9 +124,9 @@ public sealed class PfbParser
             segments.Add(segment);
         }
 
-        if (total > pfb.Length)
+        if (total < PfbHeaderLength)
         {
-            throw new IOException($"total record size {total} would be larger than the input");
+            throw new IOException("PFB header missing");
         }
 
         _pfbData = new byte[total];
@@ -187,6 +172,26 @@ public sealed class PfbParser
             Array.Copy(clearToMark, 0, _pfbData, dst, clearToMark.Length);
             _lengths[2] = clearToMark.Length;
         }
+    }
+
+    private static byte[] ReadSegment(Stream stream, int size)
+    {
+        using MemoryStream segment = new();
+        byte[] buffer = new byte[Math.Min(size, 8192)];
+        int remaining = size;
+        while (remaining > 0)
+        {
+            int read = stream.Read(buffer, 0, Math.Min(remaining, buffer.Length));
+            if (read == 0)
+            {
+                break;
+            }
+
+            segment.Write(buffer, 0, read);
+            remaining -= read;
+        }
+
+        return segment.ToArray();
     }
 
     private static int ReadLittleEndianInt(Stream stream)

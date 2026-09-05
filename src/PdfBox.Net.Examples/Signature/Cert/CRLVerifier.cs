@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CRLVerifier.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -28,7 +28,6 @@
 using Microsoft.Extensions.Logging;
 using PdfBox.Net.Logging;
 using System.Formats.Asn1;
-using System.Net.Http;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -48,11 +47,6 @@ namespace PdfBox.Net.Examples.Signature.Cert;
 public sealed class CRLVerifier
 {
     private static ILogger<CRLVerifier> LOG => PdfBoxLogging.CreateLogger<CRLVerifier>();
-
-    private static readonly HttpClient _http = new(new HttpClientHandler
-    {
-        AllowAutoRedirect = true,
-    });
 
     private CRLVerifier()
     {
@@ -162,21 +156,21 @@ public sealed class CRLVerifier
     public static byte[] DownloadCrl(string url)
     {
         if (!url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) &&
-            !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) &&
-            !url.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase))
+            !url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
             throw new CertificateVerificationException(
                 $"Cannot download CRL from unsupported scheme: {url}");
         }
 
-        using var response = _http.GetAsync(url).GetAwaiter().GetResult();
-        response.EnsureSuccessStatusCode();
-        return response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult();
+        using Stream input = SigUtils.OpenURL(url);
+        using MemoryStream output = new();
+        input.CopyTo(output);
+        return output.ToArray();
     }
 
     /// <summary>
     /// Parses the CRL Distribution Points extension of <paramref name="cert"/> and returns all
-    /// HTTP/HTTPS/FTP URLs found within it.
+    /// distribution-point URLs found within it.
     /// </summary>
     /// <remarks>
     /// The extension value is a DER-encoded <c>CRLDistributionPoints</c> sequence.

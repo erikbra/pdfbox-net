@@ -25,7 +25,8 @@ public class ParserRecoveryIssue442Test
             Assert.Equal(1, document.GetDocumentCatalog().GetPages().GetCount());
 
             string text = new PDFTextStripper().GetText(document);
-            Assert.Equal(string.Empty, text);
+            // Empty pages still emit the configured page separator, as upstream ProcessPage now visits them.
+            Assert.Equal(Environment.NewLine, text);
 
             using BufferedImage image = new PDFRenderer(document).RenderImage(0, 1f, ImageType.RGB);
             Assert.Equal(612, image.Width);

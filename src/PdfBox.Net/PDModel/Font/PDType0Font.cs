@@ -127,7 +127,8 @@ public partial class PDType0Font : PDVectorFont
     public static PDType0Font Load(PDDocument document, Stream input, bool embedSubset)
         => Load(document, input);
 
-    private static PDType0Font Load(PDDocument document, byte[] fontBytes)
+    // Shared by glyph-layout loaders that have already buffered the font for two consumers.
+    internal static PDType0Font Load(PDDocument document, byte[] fontBytes)
     {
         ArgumentNullException.ThrowIfNull(document);
         TrueTypeFont trueTypeFont = new TTFParser().Parse(fontBytes);
@@ -266,7 +267,9 @@ public partial class PDType0Font : PDVectorFont
     public override string GetName() => GetBaseFont();
     public override bool IsStandard14() => false;
     public override bool HasExplicitWidth(int code) => _descendantFont?.HasExplicitWidth(CodeToCID(code)) ?? base.HasExplicitWidth(code);
-    public override float GetWidthFromFont(int code) => _descendantFont?.GetWidthFromFont(CodeToCID(code)) ?? base.GetWidthFromFont(code);
+    public override float GetWidthFromFont(int code) => _descendantFont is PDCIDFontType0 type0
+        ? type0.GetWidthFromFont(code, this)
+        : _descendantFont?.GetWidthFromFont(CodeToCID(code)) ?? base.GetWidthFromFont(code);
     public override float GetWidth(int code) => _descendantFont?.GetWidth(CodeToCID(code)) ?? base.GetWidth(code);
     public override float GetAverageFontWidth() => _descendantFont?.GetAverageFontWidth() ?? base.GetAverageFontWidth();
     public override float GetSpaceWidth() => _descendantFont?.GetSpaceWidth() ?? base.GetSpaceWidth();
@@ -329,6 +332,10 @@ public partial class PDType0Font : PDVectorFont
 
     public override bool HasGlyph(int code)
     {
+        if (_descendantFont is PDCIDFontType0 type0)
+        {
+            return type0.HasGlyph(code, this);
+        }
         if (_descendantFont is PDCIDFontType2 type2)
         {
             int gid = type2.CodeToGID(CodeToCID(code));
@@ -340,6 +347,10 @@ public partial class PDType0Font : PDVectorFont
 
     public int CodeToGID(int code)
     {
+        if (_descendantFont is PDCIDFontType0 type0)
+        {
+            return type0.CodeToGID(code, this);
+        }
         return _descendantFont is PDCIDFontType2 type2
             ? type2.CodeToGID(CodeToCID(code))
             : CodeToCID(code);
@@ -347,6 +358,10 @@ public partial class PDType0Font : PDVectorFont
 
     public override GeneralPath GetNormalizedPath(int code)
     {
+        if (_descendantFont is PDCIDFontType0 type0)
+        {
+            return type0.GetPath(code, this);
+        }
         if (_descendantFont is PDCIDFontType2 type2)
         {
             int gid = type2.CodeToGID(CodeToCID(code));

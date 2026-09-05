@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/test/java/org/apache/fontbox/ttf/TrueTypeFontCollectionTest.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -32,10 +32,18 @@ namespace PdfBox.Net.FontBox.Tests;
 public class TTFTrueTypeFontCollectionTest
 {
     [Fact]
+    public void TestMissingTtcHeader()
+    {
+        IOException exception = Assert.Throws<IOException>(() => new TrueTypeCollection(new MemoryStream(new byte[4])));
+        Assert.Equal("Missing TTC header", exception.Message);
+    }
+
+    [Fact]
     public void TestNumberOfFonts()
     {
         // A TTC header with a very large (invalid) numFonts value
         byte[] payload = [0x74, 0x74, 0x63, 0x66, 0x00, 0x00, 0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF];
-        Assert.Throws<IOException>(() => new TrueTypeCollection(new MemoryStream(payload)));
+        IOException exception = Assert.Throws<IOException>(() => new TrueTypeCollection(new MemoryStream(payload)));
+        Assert.Equal("Invalid number of fonts 2147483647", exception.Message);
     }
 }

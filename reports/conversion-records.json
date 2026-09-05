@@ -1199,8 +1199,8 @@
     "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "adapted",
-    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Added active resource tracking and form XObject content traversal."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Java available() call reduction only. .NET uses MemoryStream.Position/Length and computes code length from before/after position without virtual available() calls. Existing decoding semantics already match. Also restored isolated graphics state and pattern BBox clipping for tiling-pattern processing, required by the synchronized stencil masking path. Upstream-test parity: converted: existing ContentStreamEngineTest character code processing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
@@ -1762,9 +1762,9 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
     "target_path": "src/PdfBox.Net/COS/COSName.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported COS name object caching, byte-level identity, visitor dispatch, and PDF name serialization escaping."
+    "port_mode": "adapted",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Added canonical COSName.OPEN constant. Also fixed existing cache test lifetime race by asserting cache membership while the strong reference remains alive; release assertions are unchanged. Upstream-test parity: converted: COSPrimitivesTest and annotation OPEN tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
@@ -1891,8 +1891,8 @@
     "target_path": "src/PdfBox.Net/Filter/CCITTFaxDecodeFilter.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Kept CCITTFax filter as an intentionally bounded implementation with explicit NotSupportedException guards and regression coverage for unsupported decode/encode paths."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Include both changing-element int rows in the CCITT decode memory bound before any decoder allocation/read; preserved exact upstream explanatory diagnostic. Upstream-test parity: converted: FilterTest.CCITTFaxDecodeBoundsChangingElementBuffersBeforeReadingInput plus CCITT round trips."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CryptFilter.java",
@@ -1995,8 +1995,8 @@
     "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
     "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
     "port_mode": "adapted",
-    "sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "conversion_notes": "Issue #92 closeout port to cover remaining core operator/parser/writer parity mapping gaps."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Upstream null pool-object guard is covered by .NET PDFParser.GetOrCreateIndirectObject, which returns an existing non-null object or creates one for a non-null key. No nullable GetObjectFromPool call exists in the adapted parser. Upstream-test parity: converted: existing parser/indirect-reference tests; no new null path introduced."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
@@ -2075,8 +2075,8 @@
     "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Extended COSWriter to implement ICOSVisitor: added VisitFromXxx methods for all COS types and rerouted Write(COSBase?) through visitor dispatch (value.Accept(this)). VisitFromDocument is a no-op; VisitFromObject dereferences the inner object. Existing static Serialize/WriteString helpers preserved."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Upstream incremental write removes final ByteArrayOutputStream.toByteArray allocation. Actual .NET PDDocument.SaveIncremental already resets MemoryStream.Position and CopyTo(output) without that final duplicate array. Upstream-test parity: converted: existing SaveIncrementalTests; unchanged allocation-equivalent path."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
@@ -2619,8 +2619,8 @@
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDUserAttributeObject.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "User-properties attribute object (O=UserProperties) with COSArray-backed PDUserProperty list management."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: All three added upstream missing-P guards already exist: empty getter, lazily created array on add, no-op removal. Upstream-test parity: converted: existing structure-tree/user-property tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserProperty.java",
@@ -2803,8 +2803,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Encryption/StandardSecurityHandler.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded StandardSecurityHandler with revision 2-6 decryption/authentication key-derivation logic and parity-aligned access-permission setup; encryption write-flow remains intentionally guarded."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Upstream RC4 input wrapper allocations are absent in .NET RC4Apply(byte[],byte[]) and owner/user password loops, which already pass arrays directly. Upstream-test parity: converted: existing standard-security round trips/password vectors."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
@@ -2971,8 +2971,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Escapes XML10 file href and omits absent file names. Existing .NET model remains adapted. Upstream-test parity: converted: FDFUtilsTest dictionary-writer XML parse regression passed in initial core focused run."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
@@ -2987,8 +2987,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFField.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted C# port of the upstream PDModel/FDF class with parity-focused dictionary and model behavior for issue #72 closeout."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Requires field name before output; shared XML10 escaping for field names, scalar/list values and rich text. Upstream-test parity: converted: all changed write sites covered by FDFUtilsTest; initial focused run passed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFIconFit.java",
@@ -3057,18 +3057,18 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FileSystemFontProvider.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FileSystemFontProvider.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "c8f537546342ae624f9db65966afd3fc53f8b851",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Added cross-platform file system font discovery provider with stable ordered enumeration and subset-prefix normalization."
+    "sync_commit": "c8f537546342ae624f9db65966afd3fc53f8b851",
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontMapper.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "5ae1692a652cde45116a73893998d4cab8bbd12b",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Added font mapper interface."
+    "sync_commit": "5ae1692a652cde45116a73893998d4cab8bbd12b",
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapperImpl.java",
@@ -3076,15 +3076,15 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Added default font provider wrapper with injectable file-system lookup for deterministic tests."
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMappers.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/FontMappers.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "977c0fe181d112446967becaf143764e8d9dea8a",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Added lazy global font mapper singleton wiring."
+    "sync_commit": "977c0fe181d112446967becaf143764e8d9dea8a",
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
@@ -3099,8 +3099,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType0.cs",
     "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
-    "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
-    "conversion_notes": "Adapted CIDFontType0 constructor accepts ResourceCache for PDFBOX-6175 while retaining the one-argument compatibility overload; synchronized through issue #946."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Implemented CFF embedded/substitute loading and parent-aware CID glyph/width routing; mismatched Identity ROS resolves glyphs through parent ToUnicode plus substitute cmap, with original same-ROS CFF charset behavior retained. Upstream-test parity: converted: PDCIDFontType0SubstituteTest synthetic Identity CID-keyed OTF and UniCNS without ToUnicode; independent real PDFBOX-6249 plus full official NotoSansCJKtc-Regular passed (H present/13 segments/width728; \u4e2d GID9544 equals cmap; rendered Hello Tika 123 \u4e2d\u6587); added UniCNS-UTF16-H without ToUnicode, CNS CID34 to A to substitute GID1 regression after real-fixture gate exposed absent CMaps."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
@@ -3188,7 +3188,7 @@
     "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
     "port_mode": "adapted",
     "sync_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
-    "conversion_notes": "Adapted Type0 loading now reuses, creates, and inserts indirect descendant CID fonts through ResourceCache for PDFBOX-6175; synchronized through issue #946."
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -3203,8 +3203,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDType1FontEmbedder.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Adapted stub; PDType1Font embedding deferred pending PfbParser port."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: The mapped helper remains an internal encoding holder; its stale deferred-embedding comment is corrected. The actual embedding path in PDType1Font.CreateEmbeddedType1FontData now uses one PfbParser(stream) and Type1Font.CreateWithSegments, eliminating a full copy and duplicate parse. Both implementation and helper are recorded. Upstream-test parity: converted: FontStubsReplacementTest.PDType1Font_StreamConstructor_EmbedsFontProgramAndMetrics and streaming PFB regressions."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
@@ -3553,10 +3553,10 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CCITTFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/CCITTFactory.cs",
-    "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "Adapted stub; CCITT/TIFF imaging requires platform-specific APIs."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Audited equivalent adapted path: TIFF interpretation, including T4Options bits 1/2, is delegated to the TIFF decoder; output is re-encoded as Group 4. There is no local raw-TIFF extractFromTiff bit test or borrowed output stream to fix. Caller input remains open, local output writer closes. Documented provider boundary; no artificial unsupported-option rejection was added. Upstream-test parity: Existing CCITTFactory image/decode tests and new caller-input lifetime test passed. Raw-TIFF passthrough/page-number overloads and exact Java unsupported-mode exception parity remain pre-existing adaptations.."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/CustomFactory.java",
@@ -3571,8 +3571,8 @@
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/JPEGFactory.cs",
     "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
     "port_mode": "adapted",
-    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
-    "conversion_notes": "Adapted working JPEG stream factory with SOF metadata parsing and direct DCT embedding. The upstream BufferedImage-to-JPEG custom-CMYK branch remains deferred because the core image proxy exposes ARGB rather than CMYK sample planes."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Directly copies the caller stream into its COSStream, reads JPEG metadata through a bounded stream parser, and wraps the populated stream without a full-size byte-array copy. Added CreateFromByteArray delegation. Existing adapted metadata parser and absence of createFromImage/encoding overloads remain baseline API differences. Upstream-test parity: JPEGFactoryStreamingTest and existing ImageFactoryTest passed: forward-only short reads, caller stream lifetime, raw-byte and pixel preservation, malformed/truncated JPEG segments. Full Java JPEGFactoryTest encoding-suite parity remains deferred because the baseline factory lacks createFromImage.."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
@@ -3924,7 +3924,7 @@
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
     "port_mode": "adapted",
     "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "conversion_notes": "Added alpha/blend/soft-mask/stroke-adjustment graphics state fields."
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDSoftMask.java",
@@ -4202,9 +4202,9 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotation.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotation.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Expanded PDAnnotation.CreateAnnotation subtype factory coverage for text markup, shape, line, attachment, stamp, and widget annotations."
+    "port_mode": "adapted",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Equal RGB components resolve to DeviceGray. Added shared protected GetColor(COSName) and routed existing Markup/SquareCircle interior color through it to preserve upstream call semantics. Upstream-test parity: converted: Issue954AnnotationAndTooltipTest RGB/gray/interior invariants passed; wider new AppearanceGenerationTest separately reports baseline gap."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationCaret.java",
@@ -4274,9 +4274,9 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationMarkup.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationMarkup.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
+    "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported additional interactive annotation subtype class for issue #32 parity scope."
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationPolygon.java",
@@ -4332,7 +4332,7 @@
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
     "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Interactive milestone closeout mapping refreshed for issue #68."
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationSquiggly.java",
@@ -4354,9 +4354,9 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationText.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationText.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "port_mode": "mechanical",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Ported additional interactive annotation subtype class for issue #32 parity scope."
+    "port_mode": "adapted",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Uses COSName.OPEN cached constant for getter and setter; equivalent name. Upstream-test parity: existing annotation API coverage; no new upstream tests."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationTextMarkup.java",
@@ -4849,10 +4849,10 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/AppearanceGeneratorHelper.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Form/AppearanceGeneratorHelper.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
-    "conversion_notes": "Synced form appearance glyph-layout propagation from PDAcroForm into appearance content streams."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Missing rectangle throws IOException in ComputeBBox; MemoryStream.WriteTo replaces ToArray intermediate allocation in both appearance write paths. Upstream-test parity: existing PDAppearanceGenerationTest validates both generated/updated parseable appearance streams."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/form/FieldUtils.java",
@@ -5395,8 +5395,8 @@
     "target_path": "tests/PdfBox.Net.Tests/DateConverterTest.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "Adapted port of DateConverter tests. Calendar API replaced with PdfGregorianCalendar alias. TimeZone.setDefault() removed; tests use UTC by default. Timezone name tests adapted for .NET TimeZoneInfo."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Upstream fixes typo in Antarctica/McMurdo timezone identifier and tests JDK DST history. .NET tests intentionally use fixed SimpleTimeZone offsets; no misspelled McMurdo identifier exists. Historical JDK TZDB assertions deferred to native timezone adapter coverage. Upstream-test parity: deferred: JDK timezone database specific change; fixed-offset conversion suite unchanged."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/util/TestHexUtil.java",
@@ -6170,8 +6170,8 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/Pfb/PfbParser.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "PFB (Printer Font Binary) segment parser ported.",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Parse input directly, read segment bytes incrementally, stop at PFB EOF marker, retain caller ownership, and validate minimum parsed length. .NET bounded chunk accumulation substitutes InputStream.readNBytes. Upstream-test parity: converted: PfbAndType1FontTest short reads/EOF marker/huge truncated size/malformed segments and existing Type1 semantic fixture.",
     "status": "in-sync",
     "last_checked_utc": "2026-05-23T20:54:48Z",
     "note": "PFB (Printer Font Binary) segment parser ported."
@@ -6192,8 +6192,8 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HeaderTable.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
-    "conversion_notes": "TTF head table (global font metadata).",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Removed Java explicit super() is already represented by the implicit C# base constructor; no behavior change. Upstream-test parity: converted: existing TTFParserTest header fields.",
     "status": "in-sync",
     "last_checked_utc": "2026-05-23T20:54:48Z",
     "note": "TTF head table (global font metadata)."
@@ -6280,8 +6280,8 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
     "source_commit": "7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf",
     "port_mode": "adapted",
-    "sync_commit": "fc00e427de8a1046efe6348d64d5529b479aea13",
-    "conversion_notes": "Reviewed through PDFBox trunk fc00e427: preserved the adapted parser, synced the parse-table-header documentation, and verified that random-access input ownership closes before return.",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Centralized source lifetime and error cleanup for random access and embedded inputs, matching upstream shared parse helper; memory-backed font data remains owned by returned font. Upstream-test parity: converted: TTFParserTest successful/malformed input closure and header-vs-complete parsing.",
     "status": "in-sync",
     "last_checked_utc": "2026-05-31T07:49:01Z",
     "note": "TTF parser now reads table directories for core mandatory tables, validates mandatory-table presence, and supports table-header extraction used by downstream font flows and regression tests."
@@ -6663,10 +6663,10 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fixup/processor/AcroFormOrphanWidgetsProcessor.java",
     "target_path": "src/PdfBox.Net/PDModel/Fixup/Processor/AcroFormOrphanWidgetsProcessor.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "conversion_notes": "PDModel fixup milestone parity row for issue #73.",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Upstream new null default-appearance return already covered by existing string.IsNullOrWhiteSpace guard; no behavior change required. Upstream-test parity: existing regression suite; upstream adds no changed test.",
     "status": "in-sync",
     "last_checked_utc": "2026-05-28T07:50:20Z",
     "note": "PDModel fixup milestone parity row for issue #73."
@@ -6720,8 +6720,8 @@
     "target_path": "src/PdfBox.Net.Debugger/PDFDebugger.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "port_mode": "adapted",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Added X.509 details for direct Cert strings and Cert/Certs arrays during COS tree inspection. Swing window centering, file dialogs, renderer-menu/tooltips and certificate tab widgets are accepted headless adaptations: apps/PdfBox.Net.Debugger.App calls InspectDocument; no desktop dispatcher or Swing event loop exists. Upstream-test parity: converted: Issue954DebuggerDataTest certificate string/stream and COS inspection; Swing-only interaction deferred to any future GUI."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSArrayBased.java",
@@ -6854,10 +6854,10 @@
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/PanoseFlag.java",
     "target_path": "src/PdfBox.Net.Debugger/Flagbitspane/PanoseFlag.cs",
-    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
     "port_mode": "adapted",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Added actual upstream byte normalization, missing-string handling, hexadecimal display and classification table data while preserving IFlag compatibility. Invalid family-kind values also yield a diagnostic, extending the upstream guard to all columns. Upstream-test parity: converted: Issue954DebuggerDataTest missing/short/exact/long strings and invalid classification values."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/flagbitspane/SigFlag.java",
@@ -7040,8 +7040,8 @@
     "target_path": "src/PdfBox.Net.Debugger/Pagepane/PagePane.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "port_mode": "adapted",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: The .NET PagePane is a page-selection data model with no hover windows, mouse handlers, Desktop.browse or link launching. Hover popup placement/lifetime, render-time rectangle-map rebuild, scheme confirmation and OS dispatcher guards are not applicable to the existing headless product. Existing PDAnnotation GetContents/GetTitlePopup expose reusable annotation text. Upstream-test parity: deferred: Swing event-loop and OS dispatcher tests outside headless product; no document link is dispatched by .NET debugger."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/signaturepane/SignaturePane.java",
@@ -7112,8 +7112,8 @@
     "target_path": "src/PdfBox.Net.Debugger/Streampane/Tooltip/FontToolTip.cs",
     "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
     "port_mode": "adapted",
-    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
-    "conversion_notes": "Ported debugger module source into the new PdfBox.Net.Debugger project with non-Swing adaptations where required."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Escapes document-supplied font-name markup including both quote forms before HTML tooltip output. Upstream-test parity: converted: Issue954AnnotationAndTooltipTest uses actual resource font and verifies inert HTML, passed."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/GToolTip.java",
@@ -7512,8 +7512,8 @@
     "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutFontLoaderAwt.cs",
     "source_commit": "56575fd583792844b6bd182d67739d26568b1d01",
     "port_mode": "adapted",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
-    "conversion_notes": "Ported the upstream AWT font-loader shape as a Java-compatible registration layer over the existing .NET AWT proxy."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Eliminated the extra byte-array copy by exposing the existing PDType0Font byte[] loader internally and loading the already-buffered font directly. The AWT registration proxy and full-font-only embedding remain baseline limitations. Supplemental file: src/PdfBox.Net/PDModel/Font/PDType0Font.cs. Upstream-test parity: Allocation-only route reuses the existing tested font parser. The 145-test focused gate (including CID substitute/metadata tests) passed; root full-suite validation is separate. No upstream AWT loader test changed in this window; actual AWT shaping/subsetting parity remains a baseline gap.."
   },
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java",
@@ -7587,8 +7587,8 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
     "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
     "port_mode": "adapted",
-    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
-    "conversion_notes": "Added the changed upstream OpenURL region using a redirect-following shared HttpClient and Java-shaped synchronous Stream return while rejecting non-HTTP(S) protocols."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954: Adds exact upstream URL allowlist and CheckAccess before certificate reads. .NET auto-redirect disabled; only one 301/302/303 exact HTTP-to-HTTPS upgrade followed. Intentional stricter adaptation versus Java implicit same-scheme redirects is documented; no arbitrary redirect chains. Upstream-test parity: converted native TestSigUtils exact allowlist rejections and fake-handler exact HTTPS upgrade, denied redirect and redirect-chain checks all passed; no live HTTP calls."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
@@ -7609,10 +7609,10 @@
   {
     "source_path": null,
     "target_path": "tests/PdfBox.Net.Examples.Tests/Signature/TestSigUtils.cs",
-    "source_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
     "port_mode": "native-test",
-    "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
-    "conversion_notes": "Added deterministic coverage that OpenURL rejects the FTP scheme with the upstream error shape."
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
   },
   {
     "source_path": null,
@@ -7621,5 +7621,421 @@
     "port_mode": "native-test",
     "sync_commit": "1187c45f9dcee38ed5ac12bc15df04913b348875",
     "conversion_notes": "Added direct coverage of the new abstract base's mixed-direction visual-run ordering and width aggregation."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/certificatepane/CertificatePane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Certificatepane/CertificatePane.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: New certificate data model uses X509CertificateLoader for decoded COSStream/COSString DER bytes and exposes certificate details or decoding diagnostic as inert text. Swing pane replaced by GetText for current headless inspector. Upstream-test parity: converted: Issue954DebuggerDataTest real self-signed DER/string/stream and malformed input."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/AddAnnotations.java",
+    "target_path": "src/PdfBox.Net.Examples/PDModel/AddAnnotations.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Adds blue square interior and blue caret at upstream rectangle. .NET example remains smaller than Java baseline; changed sample behaviors applied. Upstream-test parity: existing example suite; visual fixture parity reported separately."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/BengaliPdfGenerationHelloWorld.java",
+    "target_path": "src/PdfBox.Net.Examples/PDModel/BengaliPdfGenerationHelloWorld.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Missing font bounding box uses 1500-unit line-height fallback; .NET also tolerates absent descriptor. Upstream-test parity: upstream no new test; existing example suite."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractEmbeddedFiles.java",
+    "target_path": "src/PdfBox.Net.Examples/PDModel/ExtractEmbeddedFiles.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Restores upstream input-directory-relative extraction, file-spec preferred names/alternate streams and page attachments; canonicalizes every path component and final file symlink before directory containment check. .NET FileSystemInfo adapter retained in PORT-LOCAL region. Upstream-test parity: converted native integration: TestExtractEmbeddedFiles normal extraction, parent traversal, directory symlink and final-file symlink tests all passed on macOS."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs",
+    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Validates 4-element ByteRange before contents/TSA work; ports structured informational logging. Existing .NET TSA DER-splicing adapter retained. Upstream-test parity: converted native regression saves/loads malformed two-element ByteRange and asserts correct IOException before TSA/output; passed. Existing detached CMS signing/checking passed; online timestamp fixtures remain explicitly skipped."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CRLVerifier.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/Cert/CRLVerifier.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Removes FTP and routes HTTP(S) download through SigUtils guarded helper. LDAP remains explicitly unsupported by existing .NET adapter; underlying CRL cryptographic validation remains baseline platform adaptation. Upstream-test parity: converted native denied-URL and FTP tests passed; upstream LDAP network test deferred due missing LDAP transport."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CertificateVerificationResult.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/Cert/CertificateVerificationResult.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: The class deleted upstream remains locally because .NET CertificateVerifier returns this public type. Preserved as a compatibility API; deletion does not remove any live behavior or claim new upstream provenance. Upstream-test parity: not-applicable: compatibility retention; existing certificate verification tests."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/OcspHelper.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/Cert/OcspHelper.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Checks upstream URL allowlist immediately before optional BouncyCastle OCSP transport call; existing API adapter retained. Upstream-test parity: existing OCSP tests; CheckAccess unit regression shared with SigUtils."
+  },
+  {
+    "source_path": "examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestCreateSignature.java",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs",
+    "source_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Changed online LTV invocation and new TSA-certificate test require live TSA/CRL/OCSP; existing .NET deterministic signing test retained without empty success placeholder. Upstream-test parity: deferred online TSA/LTV/visible paths remain explicit skips; both existing deterministic detached CMS and empty form tests passed."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cmap/CMapParser.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CMap/CMapParser.cs",
+    "source_commit": "746cf4e103f4c5ef3897edd3715088ca43beee42",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Ported external predefined CMap name validation before resource lookup, preserving exception and accepted-name semantics. Restored all 92 upstream predefined CMap resources (3.3 MiB), absent in the baseline package, to make actual CJK font substitution reachable. Adobe licenses remain embedded and shipped with FontBox. Upstream-test parity: converted: CMapParserTest invalid predefined resource names plus existing mapping fixture; CMapParserTest verifies all 92 maps parse and all four CJK encoding/Unicode paths."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/pfb/PfbParserTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/PfbAndType1FontTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Ported negative/huge/short input validation and getters via deterministic synthetic Type1 fixture. External OpenSans/DejaVu/KIX full-glyph assertions are deferred because those fixture downloads are not part of .NET test assets. Upstream-test parity: partial: deterministic parser regressions converted; external font corpus deferred."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/TestTTFParser.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTFParserTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Ported header-vs-full-font comparison and source closure checks with repository-owned synthetic font. Exact LiberationSans kerning/IPA vertical-property corpus assertions are deferred; no corresponding production metric change exists in this batch. Upstream-test parity: partial: synthetic header contract converted; external IPA/font-specific values deferred."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/TrueTypeFontCollectionTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTFTrueTypeFontCollectionTest.cs",
+    "source_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Added exact missing-header/invalid-font-count exceptions. OS-installed-font assertions are deferred to provider tests using deterministic temporary collections rather than requiring Windows/macOS bundled fonts in CI. Upstream-test parity: partial: malformed collection coverage converted; installed font fixture assertions deferred."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilterDecoderStream.java",
+    "target_path": "src/PdfBox.Net/Filter/FlateFilterDecoderStream.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Java removal of synchronized on unsupported mark/reset has no .NET equivalent: existing nonseekable Stream methods already use no locks. Upstream-test parity: converted: existing FlateFilterDecoderStream/FilterTest behavior."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
+    "target_path": "src/PdfBox.Net/MultiPdf/PDFMergerUtility.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Ported documentation requiring save before append when source contains subset fonts. Upstream-test parity: not-applicable: documentation-only delta."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/RC4Cipher.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/RC4Cipher.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Upstream removes an always-zero private offset argument. Local byte-array Write already iterates from its first byte and has no offset argument. Upstream-test parity: converted: existing encryption known-vector/roundtrip tests."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFUtils.java",
+    "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFUtils.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: New XML10 codepoint utility preserves surrogate pairs, replaces invalid characters and logs replacement count. Upstream-test parity: converted: complete upstream parameter cases plus invalid-surrogate/codepoint boundaries and XML parse regressions, passed."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapperImpl.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/FontMapperImpl.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Implements functional GetCIDFont chain with actual lazy system FontInfo inventory/parsed-font cache, named/Standard14 substitutions, CJK ROS/Panose/weight scoring and licensed bundled fallback. Ports Identity ROS fallback, misleading NotoSans/Malgun codepage masks, regular-weight preference and DroidSans filter. Adopted nullable default interface preserves custom .NET mappers; full dependency/adaptation notes in issue954-font-dependency-notes.md. Upstream-test parity: converted: all six upstream CIDCharSetMatchTest cases plus masks, weight, DroidSans/barcode regression; FileSystemFontMetadataTest validates real TTF/CFF parser metadata/cmap/outlines/cache, installed substitution and bundled fallback; all passed in 906 focused run."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
+    "target_path": "src/PdfBox.Net/Rendering/PageDrawer.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Implemented stencil image painting for inline and XObject images using the current color/pattern and Decode direction. Skia layers preserve transparent paint gaps with DstIn and apply soft masks in page-device coordinates, avoiding the Java scratch-paint rescaling and alpha-dilation workaround. Fixed necessary baseline dependencies: a clean pattern graphics state/BBox clip, device-scale-independent tile height, full texture pattern matrix including signed reflections, and immutable PDColor retention across q/Q. The PageDrawer facade and Skia peer share the updated provenance marker; helper files retain their prior provenance because they were not comprehensively resynced. Existing transparency-group compositor/CMYK adaptations are preserved; broad pixel identity with Java is not claimed. Final runtime validation exposed antialiased fill residues at subpixel transparent-stencil edges. The DstIn mask now uses a Decal shader over the entire layer, clearing both fully transparent stencils and transparent outer borders without leaving bounded-image coverage fringes. Upstream-test parity: 145/145 focused tests passed (0 skipped), including 13 synthetic stencil/pattern/softmask/graphics-state tests, all three new real TestQuality fixtures, AdvancedRenderingIssue419Test, JPEGFactoryStreamingTest, ImageFactoryTest, CIDCharSetMatchTest, FileSystemFontMetadataTest, Issue954DebuggerDataTest and PDCIDFontType0SubstituteTest. The synthetic tests cover inline/XObject, inverse Decode, DPI 72/144, reflected patterns, q/Q state, transparent gaps, and alpha masks. Real tests run at 100 DPI; TestQuality also checks positive image/color payload to reject empty or black output. Final AA-fix gate: 108/108 tests passed, 0 skipped (StencilRenderingTest, Rendering.TestQuality, AdvancedRenderingIssue419Test, ImageFactoryTest). All four added 36-DPI transparent-stencil/transparent-border cases failed before the fix and passed after it, with nearest and interpolated sampling; painted-center assertions reject empty output. Synthetic stencil/state coverage is now 17 tests.."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/SoftMask.java",
+    "target_path": "src/PdfBox.Net/Rendering/SoftMask.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Ported Point2D origin and underlying paint/mask/origin/backdrop/transfer accessors. Existing alpha lookup uses the origin; native Skia applies full page-device masks through layers. Upstream-test parity: Native SoftMask_CreateContext_AppliesMaskAlpha now checks a nonzero origin. Upstream has no direct SoftMask test; new TestQuality fixture coverage exercises the Skia path. Initial focused run passed.."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java",
+    "target_path": "src/PdfBox.Net/Text/PDFTextStripper.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Always visit pages through ProcessPage so page selection can run before content checks, including empty-page processing. Upstream-test parity: converted: Issue954TextPageTraversalTest plus runtime text parity; ParserRecoveryIssue442Test now expects the configured page separator for the recovered blank page."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripperByArea.java",
+    "target_path": "src/PdfBox.Net/Text/PDFTextStripperByArea.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Removed eager HasContents condition and always dispatch ProcessPage, matching upstream page-selection behavior. Upstream-test parity: converted: Issue954TextPageTraversalTest.ExtractRegions_ProcessesEmptyPage."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/fdf/FDFUtilsTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/FDFUtilsTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: All 13 upstream cases translated, additional field/dictionary integration and invalid-codepoint coverage. Upstream-test parity: converted; passed."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/CIDCharSetMatchTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/CIDCharSetMatchTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: All new upstream ROS/codepage cases ported, with independent regression checks for codepage masks and font ranking. Test-only metadata provider proves filtering does not need outline loading; production inventory separately tested with binary fonts. Upstream-test parity: converted: six upstream cases plus eleven misleading-codepage cases and four ranking/filter tests; passed."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0SubstituteTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/PDCIDFontType0SubstituteTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Converted with deterministic synthetic CID-keyed Identity OTF and explicit mapper, so CID!=GID and nonempty outline/width assertions run on every machine without installed-font assumptions. Upstream-test parity: converted."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactoryTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/ImageFactoryTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: The upstream edit changes Color object identity to value equality in a comparison helper; equal colors already yielded zero RGB error before the change. Existing .NET image assertions compare byte/channel values; no corresponding identity-equality defect exists. Native JPEGFactoryStreamingTest covers the changed factory input route. Upstream-test parity: Adapted equivalents passed; full upstream createFromImage quality/encoding suite is deferred because the baseline .NET factory lacks those APIs.."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/interactive/annotation/AppearanceGenerationTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/AppearanceGenerationTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": null,
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Faithful upstream fixture/rectangle-reset/pixel comparison translated and executed: 111001 differing pixels. Existing FreeText/callout, Caret and Polygon handlers are stubs; Line endings/caption, Highlight shape and Square rectangle difference also deviate. Test now has an explicit Skip documenting this pre-existing behavior gap; original assertion is unchanged. Upstream-test parity: deferred: production handler prerequisites predate this upstream window and are outside the changed production slice; no all-appearance parity claim."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/rendering/TestQuality.java",
+    "target_path": "tests/PdfBox.Net.Tests/Rendering/TestQuality.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Ported all three changed upstream fixtures/assertions at 100 DPI with verified SHA-512 provenance. Strengthened 6077 with the green image payload and 5842 with the red map marker, because non-white assertions would accept the old opaque black stencil. Upstream-test parity: All three changed upstream test methods pass at 100 DPI, including stronger green-image payload and red-marker assertions. PDFBOX-6077 and PDFBOX-5842 prove before/after improvements; PDFBOX-5403 already passed the upstream dark-pixel check at baseline and is retained as a regression guard. Initial unchanged PDFBOX-4831 bitonal-scan identity test remains a baseline test-parity gap.."
+  },
+  {
+    "source_path": "pdfbox/src/test/resources/org/apache/pdfbox/pdmodel/interactive/annotation/Annotations.pdf",
+    "target_path": "tests/PdfBox.Net.Tests/Fixtures/Annotations.pdf",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Copied upstream fixture exactly for AppearanceGenerationTest. Initial genuine pixel comparison failed by 111001 pixels; existing FreeText/Caret/Polygon handler stubs and Line/Highlight/Square geometry gaps recorded in assessment. Test retained with explicit Skip; assertion is unchanged. Upstream-test parity: deferred: missing pre-existing appearance handler behavior outside the changed production slice."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/Decrypt.java",
+    "target_path": "src/PdfBox.Net/Tools/Decrypt.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Upstream documentation typo and-and is absent in the .NET CLI implementation. Upstream-test parity: not-applicable: documentation-only delta."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/Encrypt.java",
+    "target_path": "src/PdfBox.Net/Tools/Encrypt.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: Upstream documentation typo and-and is absent in the .NET CLI implementation. Upstream-test parity: not-applicable: documentation-only delta."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFText2Markdown.java",
+    "target_path": "src/PdfBox.Net/Tools/PDFText2Markdown.cs",
+    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954: The intentional text-only .NET converter uses fenced literal text, not upstream inline HTML/font styling. Hardened fence length and closing-line placement so all upstream metacharacters including backticks/HTML remain literal; styled Markdown remains the pre-existing adaptation. Upstream-test parity: converted: Issue954MarkdownEscapingTest literal metacharacters and embedded closing fence."
+  },
+  {
+    "source_path": null,
+    "target_path": "src/PdfBox.Net.Examples/AssemblyInfo.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
+    "target_path": "src/PdfBox.Net.SkiaSharp/Rendering/SkiaPageDrawerPeer.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. The Java-shaped facade continues to dispatch to the synchronized Skia backend."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaint.java",
+    "target_path": "src/PdfBox.Net.SkiaSharp/Rendering/TilingPaint.cs",
+    "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType1Font.cs",
+    "source_commit": "b07158974a4dbbcebf0e33d3797b9f0655cc62d9",
+    "sync_commit": "b07158974a4dbbcebf0e33d3797b9f0655cc62d9",
+    "port_mode": "adapted",
+    "conversion_notes": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestExtractEmbeddedFiles.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/CMapParserTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/PfbAndType1FontTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTFParserTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/AdvancedRenderingIssue419Test.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/COSPrimitivesTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FileSystemFontMetadataTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FilterTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/FontBoxTestFixtures.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/Issue954AnnotationAndTooltipTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/Issue954DebuggerDataTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/Issue954MarkdownEscapingTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/Issue954TextPageTraversalTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/JPEGFactoryStreamingTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/ParserRecoveryIssue442Test.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/StencilRenderingTest.cs",
+    "source_commit": "046747da99a870902217efabf1c41297de157059",
+    "sync_commit": "046747da99a870902217efabf1c41297de157059",
+    "port_mode": "native-test",
+    "conversion_notes": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
   }
 ]

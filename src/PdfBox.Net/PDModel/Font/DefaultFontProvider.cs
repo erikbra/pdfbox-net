@@ -30,6 +30,7 @@ namespace PdfBox.Net.PDModel.Font;
 public sealed class DefaultFontProvider : FontMapper
 {
     private readonly FileSystemFontProvider _provider;
+    private readonly Lazy<FontMapperImpl> _mapper;
 
     public DefaultFontProvider()
         : this(new FileSystemFontProvider())
@@ -39,7 +40,11 @@ public sealed class DefaultFontProvider : FontMapper
     internal DefaultFontProvider(FileSystemFontProvider provider)
     {
         _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+        _mapper = new(() => new FontMapperImpl(_provider));
     }
+
+    public CIDFontMapping? GetCIDFont(string baseFont, PDFontDescriptor? descriptor, PDCIDSystemInfo? systemInfo) =>
+        _mapper.Value.GetCIDFont(baseFont, descriptor, systemInfo);
 
     public string? FindFontFile(string postScriptName)
     {

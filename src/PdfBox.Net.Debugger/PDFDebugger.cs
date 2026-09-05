@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -27,6 +27,7 @@
 
 using Microsoft.Extensions.Logging;
 using PdfBox.Net.Logging;
+using PdfBox.Net.Debugger.Certificatepane;
 
 namespace PdfBox.Net.Debugger;
 
@@ -100,7 +101,13 @@ public sealed class PDFDebugger
                 foreach (PdfBox.Net.COS.COSName key in keys)
                 {
                     output.WriteLine(indent + "  " + key.GetName() + ":");
-                    DumpNode(dictionary.GetDictionaryObject(key), output, depth + 2, visited);
+                    object? value = dictionary.GetDictionaryObject(key);
+                    if ((key.GetName() == "Cert" || key.GetName() == "Certs") &&
+                        DumpCertificates(value, output, depth + 2))
+                    {
+                        continue;
+                    }
+                    DumpNode(value, output, depth + 2, visited);
                 }
                 return;
             case PdfBox.Net.COS.COSArray array:
@@ -120,5 +127,38 @@ public sealed class PDFDebugger
                 output.WriteLine(indent + node);
                 return;
         }
+    }
+
+    private static bool DumpCertificates(object? value, System.IO.TextWriter output, int depth)
+    {
+        string indent = new(' ', depth * 2);
+        if (value is PdfBox.Net.COS.COSString or PdfBox.Net.COS.COSStream)
+        {
+            output.WriteLine(indent + "Certificate View:");
+            using System.IO.StringReader lines = new(new CertificatePane((PdfBox.Net.COS.COSBase)value).GetText());
+            while (lines.ReadLine() is string line)
+            {
+                output.WriteLine(indent + "  " + line);
+            }
+            return true;
+        }
+        if (value is PdfBox.Net.COS.COSArray certificates)
+        {
+            // Certificate arrays in DSS dictionaries contain certificate streams.
+            for (int i = 0; i < certificates.Size(); i++)
+            {
+                if (certificates.GetObject(i) is not (PdfBox.Net.COS.COSString or PdfBox.Net.COS.COSStream))
+                {
+                    return false;
+                }
+            }
+            for (int i = 0; i < certificates.Size(); i++)
+            {
+                output.WriteLine(indent + $"[{i}]:");
+                DumpCertificates(certificates.GetObject(i), output, depth + 1);
+            }
+            return true;
+        }
+        return false;
     }
 }

@@ -1,1 +1,5 @@
 *.pdf binary
+
+# Preserve byte-identical upstream CMap data and font license text, including their whitespace.
+/src/PdfBox.Net.FontBox/FontBox/CMap/Resources/* whitespace=-blank-at-eol
+/src/PdfBox.Net/PDModel/Font/Resources/TTF/LICENSE.txt whitespace=-space-before-tab

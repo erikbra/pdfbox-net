@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-08-14T19:58:04Z
-Apache PDFBox source commit: `1187c45f9dcee38ed5ac12bc15df04913b348875`
-PdfBox.Net commit: `bab6b5669631c151e68389bf6d441204fd39ef2e`
+Generated (UTC): 2026-09-05T21:41:06Z
+Apache PDFBox source commit: `046747da99a870902217efabf1c41297de157059`
+PdfBox.Net commit: `761f23157e2ac8f2e552288236443fac34b9ec77`
 
 ## Scope
 
@@ -16,19 +16,19 @@ PdfBox.Net commit: `bab6b5669631c151e68389bf6d441204fd39ef2e`
 
 | Metric | Count |
 |---|---:|
-| Java public/protected types | 584 |
-| Matched public .NET types | 582 |
-| Same-name public .NET types | 576 |
+| Java public/protected types | 585 |
+| Matched public .NET types | 583 |
+| Same-name public .NET types | 577 |
 | Renamed public .NET replacements | 6 |
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
 | Java public/protected members | 6311 |
-| Matched members | 5404 |
+| Matched members | 5410 |
 | Arity-drift members | 44 |
-| Missing members | 863 |
-| Reflected .NET extra members on matched types | 1649 |
+| Missing members | 857 |
+| Reflected .NET extra members on matched types | 1652 |
 
-Member coverage by name/signature heuristic: **5448 / 6311 = 86.3%**.
+Member coverage by name/signature heuristic: **5454 / 6311 = 86.4%**.
 
 ## Review Disposition Backlog
 
@@ -36,17 +36,19 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 863 | 863 | 0 |
+| Missing members | 857 | 857 | 0 |
 | Arity-drift members | 44 | 44 | 0 |
 | Type-name/visibility gaps | 8 | 8 | 0 |
-| Total reviewable deltas | 915 | 915 | 0 |
+| Total reviewable deltas | 909 | 909 | 0 |
 
 | Disposition | Reviewed rows |
 |---|---:|
-| `behavior-covered` | 107 |
-| `intentional-dotnet-adaptation` | 707 |
+| `behavior-covered` | 105 |
+| `intentional-dotnet-adaptation` | 703 |
 | `internal-by-design` | 76 |
 | `not-applicable` | 25 |
+
+Unused disposition keys: **6**. See `review.unused_disposition_keys` in the JSON report.
 
 ## API Ratchet
 
@@ -62,7 +64,7 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 110 | 105 | 4 | 1 | 0 | 1028 | 1010 | 18 | 98.2% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 394 | 393 | 0 | 1 | 0 | 4210 | 3720 | 490 | 88.4% |
+| `pdfbox` | 395 | 394 | 0 | 1 | 0 | 4210 | 3726 | 484 | 88.5% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 592 | 350 | 62.8% |
 
 ## Highest Missing-Member Types
@@ -84,7 +86,6 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 | 18 | 22 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDExportFormatAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java` |
 | 14 | 40 | `xmpbox` | `org.apache.xmpbox.schema.TiffSchema` | `PdfBox.Net.XmpBox.Schema.TiffSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java` |
 | 14 | 22 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDType1CFont` | `PdfBox.Net.PDModel.Font.PDType1CFont` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java` |
-| 14 | 15 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDCIDFontType0` | `PdfBox.Net.PDModel.Font.PDCIDFontType0` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java` |
 | 13 | 46 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDType0Font` | `PdfBox.Net.PDModel.Font.PDType0Font` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java` |
 | 13 | 24 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDType1Font` | `PdfBox.Net.PDModel.Font.PDType1Font` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java` |
 | 12 | 16 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDListAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java` |
@@ -92,6 +93,7 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 | 10 | 32 | `pdfbox` | `org.apache.pdfbox.pdmodel.common.PDRectangle` | `PdfBox.Net.PDModel.Common.PDRectangle` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java` |
 | 9 | 18 | `pdfbox` | `org.apache.pdfbox.pdmodel.common.COSDictionaryMap` | `PdfBox.Net.PDModel.Common.COSDictionaryMap` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/COSDictionaryMap.java` |
 | 9 | 17 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDPrintFieldAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDPrintFieldAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDPrintFieldAttributeObject.java` |
+| 9 | 15 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDCIDFontType0` | `PdfBox.Net.PDModel.Font.PDCIDFontType0` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java` |
 | 8 | 11 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDFourColours` | `PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.PDFourColours` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java` |
 | 7 | 67 | `fontbox` | `org.apache.fontbox.cff.CharStringCommand` | `PdfBox.Net.FontBox.CFF.CharStringCommand` | `fontbox/src/main/java/org/apache/fontbox/cff/CharStringCommand.java` |
 | 7 | 49 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.StandardStructureTypes` | `PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.StandardStructureTypes` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java` |

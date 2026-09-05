@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java
  * PDFBOX_SOURCE_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 
@@ -48,6 +50,8 @@ namespace PdfBox.Net.Examples.Signature;
 /// </remarks>
 public class CreateEmbeddedTimeStamp
 {
+    private static ILogger<CreateEmbeddedTimeStamp> LOG => PdfBoxLogging.CreateLogger<CreateEmbeddedTimeStamp>();
+
     private readonly string _tsaUrl;
 
     /// <summary>Initialises the embedder with the TSA endpoint URL.</summary>
@@ -79,6 +83,13 @@ public class CreateEmbeddedTimeStamp
             throw new InvalidOperationException("No existing signature found in the document.");
         }
 
+        int[] byteRange = sig.GetByteRange();
+        LOG.LogInformation("/ByteRange: {ByteRange}", string.Join(", ", byteRange));
+        if (byteRange.Length != 4)
+        {
+            throw new IOException("/ByteRange should have length 4, but is [" + string.Join(", ", byteRange) + "]");
+        }
+
         // Retrieve the raw CMS bytes from /Contents.
         byte[] sigBlock = sig.GetContents(documentBytes);
 
@@ -89,9 +100,9 @@ public class CreateEmbeddedTimeStamp
         // The updated signature must fit in the reserved placeholder.
         // /Contents is hex-encoded inside the PDF, so the reserved size equals
         // byteRange[2] - byteRange[1] - 2 (the outer < > characters).
-        int[] byteRange = sig.GetByteRange();
         int maxSize = byteRange[2] - byteRange[1] - 2; // available hex characters
         string updatedHex = Convert.ToHexString(updatedSig);
+        LOG.LogInformation("New Signature has size: {SignatureSize} maxSize: {MaxSize}", updatedHex.Length, maxSize + 2);
         if (updatedHex.Length > maxSize)
         {
             throw new InvalidOperationException(
@@ -153,7 +164,8 @@ public class CreateEmbeddedTimeStamp
             outFile = Path.Combine(Path.GetDirectoryName(inFile) ?? ".", name + "_eTs.pdf");
         }
 
+        LOG.LogInformation("Input File: {InputFile}", inFile);
+        LOG.LogInformation("Output File: {OutputFile}", Path.GetFullPath(outFile));
         new CreateEmbeddedTimeStamp(tsaUrl).EmbedTimeStamp(inFile, outFile);
-        Console.WriteLine("Timestamped PDF written to: " + outFile);
     }
 }

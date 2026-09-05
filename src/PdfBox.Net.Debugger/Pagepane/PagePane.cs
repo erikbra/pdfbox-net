@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/PagePane.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*

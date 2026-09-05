@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1FontEmbedder.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -30,13 +30,13 @@ using PdfBox.Net.PDModel.Font.Encoding;
 namespace PdfBox.Net.PDModel.Font;
 
 /// <summary>
-/// Embedded PDType1Font builder. Helper class to populate a PDType1Font from a PFB and AFM.
+/// Compatibility holder for Type 1 font encoding and glyph-list information.
 /// </summary>
 /// <remarks>
 /// Author: Michael Niedermair
 /// <para>
-/// NOTE: This class is an adapted stub. Full implementation requires PfbParser,
-/// Type1Font integration, and PDFontDescriptor setters, deferred to a future port cycle.
+/// The working PFB embedding implementation is in PDType1Font.CreateEmbeddedType1FontData,
+/// which parses the PFB stream once and builds the Type 1 font from its segments.
 /// </para>
 /// </remarks>
 internal sealed class PDType1FontEmbedder
@@ -44,7 +44,7 @@ internal sealed class PDType1FontEmbedder
     private readonly PdfBox.Net.PDModel.Font.Encoding.Encoding _fontEncoding;
 
     /// <summary>
-    /// Creates a stub PDType1FontEmbedder with the given encoding.
+    /// Creates a compatibility encoding holder with the given encoding.
     /// </summary>
     public PDType1FontEmbedder(PdfBox.Net.PDModel.Font.Encoding.Encoding encoding)
     {

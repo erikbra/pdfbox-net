@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/pdmodel/ExtractEmbeddedFiles.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
  */
 
 /*
@@ -25,23 +25,21 @@
  * limitations under the License.
  */
 
-using System.IO;
-using PdfBox.Net;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.FileSpecification;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 
 namespace PdfBox.Net.Examples.PDModel;
 
-/// <summary>
-/// This is an example on how to extract all embedded files from a PDF document.
-/// </summary>
+/// <summary>This is an example on how to extract all embedded files from a PDF document.</summary>
 public class ExtractEmbeddedFiles
 {
     private ExtractEmbeddedFiles()
     {
     }
 
+    /// <summary>Extracts embedded files beside the input PDF.</summary>
     public static void Main(string[] args)
     {
         if (args.Length != 1)
@@ -50,42 +48,100 @@ public class ExtractEmbeddedFiles
             return;
         }
 
-        using (PDDocument document = Loader.LoadPDF(args[0]))
+        string directoryPath = CanonicalPath(Path.GetDirectoryName(Path.GetFullPath(args[0]))!);
+        using PDDocument document = Loader.LoadPDF(args[0]);
+        PDDocumentNameDictionary namesDictionary = new(document.GetDocumentCatalog());
+        PDEmbeddedFilesNameTreeNode? efTree = namesDictionary.GetEmbeddedFiles();
+        if (efTree is not null)
         {
-            PDDocumentNameDictionary namesDictionary = new PDDocumentNameDictionary(document.GetDocumentCatalog());
-            PDEmbeddedFilesNameTreeNode? efTree = namesDictionary.GetEmbeddedFiles();
-            if (efTree != null)
-            {
-                ExtractFilesFromTree(efTree);
-            }
+            ExtractFilesFromTree(efTree, directoryPath);
         }
-    }
 
-    private static void ExtractFilesFromTree(PDNameTreeNode<PDComplexFileSpecification> efTree)
-    {
-        IReadOnlyDictionary<string, PDComplexFileSpecification>? namesMap = efTree.GetNames();
-        if (namesMap != null)
+        foreach (PDPage page in document.GetPages())
         {
-            foreach (var entry in namesMap)
+            foreach (PDAnnotation annotation in page.GetAnnotations())
             {
-                string filename = entry.Key;
-                PDComplexFileSpecification fileSpec = entry.Value;
-                PDEmbeddedFile? embeddedFile = fileSpec.GetEmbeddedFile();
-                if (embeddedFile != null)
+                if (annotation is PDAnnotationFileAttachment attachment &&
+                    attachment.GetFile() is PDComplexFileSpecification fileSpec)
                 {
-                    File.WriteAllBytes(filename, embeddedFile.ToByteArray());
-                    Console.WriteLine("Extracted: " + filename);
+                    ExtractFile(fileSpec, directoryPath);
                 }
             }
         }
+    }
+
+    private static void ExtractFilesFromTree(PDNameTreeNode<PDComplexFileSpecification> efTree, string directoryPath)
+    {
+        IReadOnlyDictionary<string, PDComplexFileSpecification>? names = efTree.GetNames();
+        if (names is not null)
+        {
+            foreach (PDComplexFileSpecification fileSpec in names.Values)
+            {
+                ExtractFile(fileSpec, directoryPath);
+            }
+            return;
+        }
 
         IList<PDNameTreeNode<PDComplexFileSpecification>>? kids = efTree.GetKids();
-        if (kids != null)
+        if (kids is not null)
         {
-            foreach (var kid in kids)
+            foreach (PDNameTreeNode<PDComplexFileSpecification> kid in kids)
             {
-                ExtractFilesFromTree(kid);
+                ExtractFilesFromTree(kid, directoryPath);
             }
         }
     }
+
+    private static void ExtractFile(PDComplexFileSpecification fileSpec, string directoryPath)
+    {
+        PDEmbeddedFile? embeddedFile = fileSpec.GetEmbeddedFileUnicode()
+            ?? fileSpec.GetEmbeddedFileDos()
+            ?? fileSpec.GetEmbeddedFileMac()
+            ?? fileSpec.GetEmbeddedFileUnix()
+            ?? fileSpec.GetEmbeddedFile();
+        if (embeddedFile is null || fileSpec.GetFilename() is not string filename)
+        {
+            return;
+        }
+
+        string file = CanonicalPath(Path.Combine(directoryPath, filename));
+        string parent = Path.GetDirectoryName(file)!;
+        StringComparison comparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+        string directoryPrefix = Path.TrimEndingDirectorySeparator(directoryPath) + Path.DirectorySeparatorChar;
+        if (!parent.Equals(directoryPath, comparison) && !parent.StartsWith(directoryPrefix, comparison))
+        {
+            Console.Error.WriteLine("Ignoring " + filename + " (different directory)");
+            return;
+        }
+
+        if (!Directory.Exists(parent))
+        {
+            Console.WriteLine("Creating " + parent);
+            Directory.CreateDirectory(parent);
+        }
+        Console.WriteLine("Writing " + file);
+        File.WriteAllBytes(file, embeddedFile.ToByteArray());
+    }
+
+    // PORT-LOCAL-START: .NET equivalent of File.getCanonicalFile(), including a final file symlink.
+    private static string CanonicalPath(string path)
+    {
+        string fullPath = Path.GetFullPath(path);
+        string root = Path.GetPathRoot(fullPath)!;
+        string current = root;
+        foreach (string part in fullPath[root.Length..].Split(Path.DirectorySeparatorChar, StringSplitOptions.RemoveEmptyEntries))
+        {
+            current = Path.Combine(current, part);
+            FileSystemInfo entry = Directory.Exists(current) ? new DirectoryInfo(current) : new FileInfo(current);
+            if (entry.LinkTarget is not null)
+            {
+                current = entry.ResolveLinkTarget(returnFinalTarget: true)?.FullName
+                    ?? throw new IOException("Cannot resolve symbolic link: " + current);
+            }
+        }
+        return Path.GetFullPath(current);
+    }
+    // PORT-LOCAL-END
 }
