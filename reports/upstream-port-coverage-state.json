@@ -7,9 +7,9 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head_commit": "49cc687c0b76ab702de03a42bf14597e199ecd9b",
+  "upstream_head_commit": "19237f92d69b3a394d53def28b071fddf3da4dd2",
   "tracked_parity_baseline_commit": "046747da99a870902217efabf1c41297de157059",
-  "last_scan_utc": "2026-09-14T13:33:25.085Z",
+  "last_scan_utc": "2026-09-15T12:24:25.347Z",
   "upstream_java_files_total": 1075,
   "mapped_java_files_total": 1075,
   "missing_java_files_total": 0,
