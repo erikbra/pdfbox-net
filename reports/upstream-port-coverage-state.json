@@ -7,21 +7,23 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head_commit": "b10e543e49fe5f51021e931ec9092e4119567a1c",
+  "upstream_head_commit": "d7a6aa6f294e63fa275e1cb7bf2af799dc61f05a",
   "tracked_parity_baseline_commit": "046747da99a870902217efabf1c41297de157059",
-  "last_scan_utc": "2026-09-23T12:29:34.338Z",
-  "upstream_java_files_total": 1075,
+  "last_scan_utc": "2026-09-26T12:00:19.756Z",
+  "upstream_java_files_total": 1076,
   "mapped_java_files_total": 1075,
-  "missing_java_files_total": 0,
+  "missing_java_files_total": 1,
   "mapped_java_files_provenance_total": 1074,
   "mapped_java_files_traceability_total": 824,
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "missing_source_paths_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "missing_source_paths_sample": [],
+  "missing_source_paths_sha256": "9d66d7cbab381006d6e6e7fdd50cfbda6c5ba134a773b60dcd3f875fb8bd0a6a",
+  "missing_source_paths_sample": [
+    "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java"
+  ],
   "missing_source_paths_sample_truncated": false,
   "target_100_percent_parity": {
-    "mapped_equals_total": true,
-    "missing_equals_zero": true,
+    "mapped_equals_total": false,
+    "missing_equals_zero": false,
     "traceability_non_insync_rows": 0,
     "definition": "100% parity requires mapped==total, missing==0, and no scoped traceability rows with status partial/partially-in-sync."
   }
