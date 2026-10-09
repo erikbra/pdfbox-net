@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-08T14:18:42.379Z",
+  "generated_at_utc": "2026-10-09T14:03:35.665Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "excluded_upstream_modules": [
@@ -8,7 +8,7 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head": "8cb723fa52b579820f069c089f1ccbac6698143a",
+  "upstream_head": "319d0a4cc22f79f7ca1e41e6cce933b5e2a1a718",
   "tracked_parity_baseline_commit": "046747da99a870902217efabf1c41297de157059",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1076,
