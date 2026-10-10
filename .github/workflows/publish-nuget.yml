@@ -158,7 +158,7 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Download package artifacts
-        uses: actions/download-artifact@v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: nuget-packages-${{ inputs.version }}
           path: artifacts/packages
