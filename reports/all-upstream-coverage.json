@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-09T14:03:35.665Z",
+  "generated_at_utc": "2026-10-10T13:13:01.511Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "excluded_upstream_modules": [
@@ -8,12 +8,12 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head": "319d0a4cc22f79f7ca1e41e6cce933b5e2a1a718",
+  "upstream_head": "8227af7330e382a55271bdb969c30aaa09a3a05e",
   "tracked_parity_baseline_commit": "046747da99a870902217efabf1c41297de157059",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "total": 1076,
+  "total": 1091,
   "mapped": 1075,
-  "missing": 1,
+  "missing": 16,
   "modules": [
     {
       "module": "benchmark",
@@ -38,10 +38,10 @@
     },
     {
       "module": "fontbox",
-      "java_files": 143,
+      "java_files": 158,
       "mapped": 143,
-      "missing": 0,
-      "pct": 100.0
+      "missing": 15,
+      "pct": 90.5
     },
     {
       "module": "io",
@@ -145,10 +145,10 @@
     },
     {
       "family": "fontbox:ttf",
-      "java_files": 83,
+      "java_files": 98,
       "mapped": 83,
-      "missing": 0,
-      "pct": 100.0
+      "missing": 15,
+      "pct": 84.7
     },
     {
       "family": "fontbox:type1",
@@ -305,6 +305,23 @@
     "partial": 0
   },
   "top_missing_modules": {
+    "fontbox": [
+      "fontbox/src/main/java/org/apache/fontbox/ttf/BytecodeStream.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueProgramTable.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueTable.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionContext.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionTracer.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/Fixed.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/FontProgramTable.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/FunctionDef.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/GaspTable.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphHinter.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/GraphicsState.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/HintingException.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeInterpreter.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/UnitVector.java",
+      "fontbox/src/main/java/org/apache/fontbox/ttf/Zone.java"
+    ],
     "pdfbox": [
       "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java"
     ]
