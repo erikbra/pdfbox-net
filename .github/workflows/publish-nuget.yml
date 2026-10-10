@@ -121,7 +121,7 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload package artifacts
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: nuget-packages-${{ inputs.version }}
           path: artifacts/packages/*.nupkg
