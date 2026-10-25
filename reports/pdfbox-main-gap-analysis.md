@@ -1,9 +1,9 @@
 # PDFBox Upstream Java Gap Analysis (All Modules)
 
-Datetime (UTC): 2026-10-24T11:47:37.845Z
+Datetime (UTC): 2026-10-25T12:16:30.058Z
 Reference upstream Java repository: Apache PDFBox `trunk`
 Tracked parity baseline commit: `046747da99a870902217efabf1c41297de157059`
-Latest upstream head scanned: `a6d5c98aee0ae40d9dcb1384a260f7c45024ceef`
+Latest upstream head scanned: `aa5a0b797e5793e023a3b3c247465cb11b8a66b3`
 
 ## Scope and method
 
