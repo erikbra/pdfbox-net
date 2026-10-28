@@ -98,7 +98,7 @@ public class TestSigUtils
     {
         IOException exception = Assert.Throws<IOException>(() => SigUtils.OpenURL(url));
 
-        Assert.Equal($"URL '{url}' not in allowUrlSet", exception.Message);
+        Assert.Equal($"URL '{url}' not in ALLOW_URL_SET", exception.Message);
     }
 
     [Fact]
@@ -107,7 +107,7 @@ public class TestSigUtils
         IOException exception = Assert.Throws<IOException>(() =>
             PdfBox.Net.Examples.Signature.Cert.CRLVerifier.DownloadCrl("http://example.invalid/certificate.crl"));
 
-        Assert.Contains("not in allowUrlSet", exception.Message);
+        Assert.Contains("not in ALLOW_URL_SET", exception.Message);
     }
 
     [Fact]

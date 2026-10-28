@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: bd21bd44f5dd050fa716c9bb033adcf725b7ebd3
  */
 
 /*
@@ -68,7 +68,7 @@ public class Splitter
     public int StartPage
     {
         get => _startPage;
-        set => _startPage = value;
+        set => _startPage = value > 0 ? value : throw new ArgumentException("Start page is smaller than one");
     }
 
     /// <summary>
@@ -77,7 +77,7 @@ public class Splitter
     public int EndPage
     {
         get => _endPage;
-        set => _endPage = value;
+        set => _endPage = value > 0 ? value : throw new ArgumentException("End page is smaller than one");
     }
 
     /// <summary>
@@ -90,6 +90,10 @@ public class Splitter
     {
         ArgumentNullException.ThrowIfNull(document);
 
+        if (_endPage < _startPage)
+        {
+            throw new ArgumentException("End page is smaller than startPage");
+        }
         int numberOfPages = document.GetNumberOfPages();
         int effectiveStart = Math.Max(_startPage == int.MinValue ? 1 : _startPage, 1);
         int effectiveEnd = Math.Min(_endPage == int.MaxValue ? numberOfPages : _endPage, numberOfPages);
@@ -138,6 +142,7 @@ public class Splitter
                 destinations.Add(current);
                 current = null;
             }
+            FixNameDestinations(document, destinations, pageMap);
         }
         catch
         {
@@ -150,7 +155,6 @@ public class Splitter
             throw;
         }
 
-        FixNameDestinations(document, destinations, pageMap);
         return destinations;
     }
 
