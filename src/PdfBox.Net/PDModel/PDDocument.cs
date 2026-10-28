@@ -4,7 +4,7 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java
  * PDFBOX_SOURCE_COMMIT: a2ca944312187dd809c4b203001d4b782fd5b0b0
- * PORT_MODE: mechanical
+ * PORT_MODE: adapted
  * PORT_LAST_SYNC_COMMIT: a2ca944312187dd809c4b203001d4b782fd5b0b0
  */
 
@@ -574,8 +574,7 @@ public sealed partial class PDDocument : IDisposable
             else
             {
                 bool signatureContents = entry.Key.Equals(COSName.CONTENTS) && entry.Value is COSString &&
-                    dictionary.GetCOSName(COSName.TYPE) is COSName type &&
-                    (type.Equals(COSName.GetPDFName("Sig")) || type.GetName() == "DocTimeStamp");
+                    SignatureDictionary.IsSignature(dictionary);
                 WritePDFValue(output, entry.Value, securityHandler, contextKey, willEncrypt && !signatureContents, allowIndirectReference: true);
             }
         }

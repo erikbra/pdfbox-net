@@ -31,6 +31,7 @@ using Microsoft.Extensions.Logging;
 using PdfBox.Net.COS;
 using PdfBox.Net.Logging;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Interactive.DigitalSignature;
 using PdfBox.Net.PDModel.Encryption;
 
 namespace PdfBox.Net.PdfParser;
@@ -240,8 +241,7 @@ public sealed class PDFParser
 
     private void DecryptDictionaryItems(COSDictionary dictionary, long objNum, long genNum, HashSet<COSBase> visited)
     {
-        bool isSignature = dictionary.GetCOSName(COSName.TYPE) is COSName type &&
-            (type.Equals(COSName.GetPDFName("Sig")) || type.GetName() == "DocTimeStamp");
+        bool isSignature = SignatureDictionary.IsSignature(dictionary);
         foreach (COSName key in dictionary.KeySet().ToList())
         {
             // Signature Contents are excluded from document encryption (PDFBOX-6289).

@@ -281,8 +281,8 @@
       "conflict_type": "semantic-divergence",
       "local_region_count": 0,
       "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
-      "note": "New PDFBOX-6289 encrypted signing test converted using deterministic self-signed certificate and synthetic encrypted PDF; both internal/external paths check actual CMS signature, decrypted signer name and five zero padding bytes. Existing network TSA/LTV tests remain explicitly skipped.",
-      "sync_note": "New PDFBOX-6289 encrypted signing test converted using deterministic self-signed certificate and synthetic encrypted PDF; both internal/external paths check actual CMS signature, decrypted signer name and five zero padding bytes. Existing network TSA/LTV tests remain explicitly skipped.",
+      "note": "New PDFBOX-6289 encrypted signing test converted using deterministic self-signed certificate and synthetic encrypted PDF; both internal/external paths check actual CMS signature, decrypted signer name and five zero padding bytes. Existing network TSA/LTV tests remain explicitly skipped. Review expansion:8 internal/external \u00d7 type/noType \u00d7 RC4/AES signing cases and2 full-save noType roundtrips; AES key length explicitly128 and version4 asserted. Earlier PreferAes-only default40 fixture actually exercised RC4; revised matrix corrects the coverage statement.",
+      "sync_note": "New PDFBOX-6289 encrypted signing test converted using deterministic self-signed certificate and synthetic encrypted PDF; both internal/external paths check actual CMS signature, decrypted signer name and five zero padding bytes. Existing network TSA/LTV tests remain explicitly skipped. Review expansion:8 internal/external \u00d7 type/noType \u00d7 RC4/AES signing cases and2 full-save noType roundtrips; AES key length explicitly128 and version4 asserted. Earlier PreferAes-only default40 fixture actually exercised RC4; revised matrix corrects the coverage statement.",
       "upstream_test_parity": "new encrypted-signing regression converted; existing network TSA/LTV tests deferred"
     },
     {
@@ -753,7 +753,8 @@
       "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
       "target_paths": [
         "src/PdfBox.Net/PDModel/PDDocument.cs",
-        "src/PdfBox.Net/PdfParser/PDFParser.cs"
+        "src/PdfBox.Net/PdfParser/PDFParser.cs",
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SignatureDictionary.cs"
       ],
       "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
       "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
@@ -765,8 +766,8 @@
       "conflict_type": "semantic-divergence",
       "local_region_count": 0,
       "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
-      "note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes.",
-      "sync_note": "Encrypted incremental serializer and signature Contents prerequisite; supersedes earlier core note that serializer required no encryption change.",
+      "note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it.",
+      "sync_note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it.",
       "upstream_test_parity": "converted actual AES internal/external signing test"
     }
   ],
@@ -794,6 +795,24 @@
     {
       "command": "git diff --check",
       "result": "passed"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~TestCreateSignature.TestSignEncrypted|FullyQualifiedName~FullSaveLeavesOptionalTypeSignatureContentsUnencrypted",
+      "result": "10 passed,0 failed. Explicit RC4/AES, type/noType, internal/external andfullsave matrix.",
+      "log": "/private/tmp/957-optional-type-tests2.log"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false",
+      "result": "Final post-review suite:80 passed,0 failed,10 pre-existing skipped.",
+      "log": "/private/tmp/957-optional-type-examples-full.log"
+    }
+  ],
+  "review_repairs": [
+    {
+      "finding": "Valid signature dictionaries can omit Type; type-only exclusions corrupt encrypted Contents.",
+      "upstream_evidence": "apache/pdfbox SecurityHandler.java lines634\u2013638 at5206dee5bfe0f435609f6506e3fccccbc46a95cc; predicate also unchanged atbd21bd44f5dd050fa716c9bb033adcf725b7ebd3.",
+      "implementation": "Shared internal SignatureDictionary.IsSignature used by decryption and full/incremental writing.",
+      "test_evidence": "10 matrix cases passed; all8 signatures actually verify CMS, signer names decrypt, and padding stayszero.2 full-save cases assert raw unencrypted Contents bytes and encrypted ordinary signer name."
     }
   ]
 }
