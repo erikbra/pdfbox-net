@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/AbstractGlyphLayoutProcessor.java
  * PDFBOX_SOURCE_COMMIT: 29924536e079f20086049ade35adb5bfd6f29677
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -26,6 +26,8 @@
  */
 
 using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using Unicode.Bidi;
 
 namespace PdfBox.Net.PDModel;
@@ -35,6 +37,42 @@ namespace PdfBox.Net.PDModel;
 /// </summary>
 public abstract class AbstractGlyphLayoutProcessor : GlyphLayoutProcessorInterface
 {
+    private readonly bool _useActualText;
+
+    /// <summary>Options for glyph layout processing.</summary>
+    public class GlyphLayoutProcessorOptions
+    {
+        private bool _useActualText;
+
+        /// <summary>Turns on ActualText to improve extraction with non-Latin fonts, at a small file size cost.</summary>
+        public GlyphLayoutProcessorOptions UseActualText()
+        {
+            _useActualText = true;
+            return this;
+        }
+
+        /// <summary>Returns whether ActualText is used.</summary>
+        public bool GetUseActualText() => _useActualText;
+    }
+
+    protected AbstractGlyphLayoutProcessor(GlyphLayoutProcessorOptions options)
+    {
+        _useActualText = options.GetUseActualText();
+    }
+
+    protected AbstractGlyphLayoutProcessor() { }
+
+    /// <summary>Begins a marked content sequence for ActualText.</summary>
+    protected void BeginMarkedContentForActualText(ContentStreamForGlyphLayoutInterface contentStream, string text)
+    {
+        COSDictionary dictionary = new();
+        dictionary.SetItem(COSName.GetPDFName("ActualText"), new COSString(text));
+        contentStream.BeginMarkedContent(COSName.GetPDFName("Span"), PDPropertyList.Create(dictionary));
+    }
+
+    /// <summary>Ends a marked content sequence.</summary>
+    protected void EndMarkedContent(ContentStreamForGlyphLayoutInterface contentStream) => contentStream.EndMarkedContent();
+
     /// <summary>
     /// Class for text and Bidi-Level.
     /// </summary>
@@ -108,6 +146,7 @@ public abstract class AbstractGlyphLayoutProcessor : GlyphLayoutProcessorInterfa
         float fontSize,
         string text)
     {
+        if (_useActualText) BeginMarkedContentForActualText(contentStream, text);
         IReadOnlyList<TextAndBidiLevel> textAndBidiLevels = DoBidiSplittingAndReordering(text);
         foreach (TextAndBidiLevel textAndBidiLevel in textAndBidiLevels)
         {
@@ -118,6 +157,7 @@ public abstract class AbstractGlyphLayoutProcessor : GlyphLayoutProcessorInterfa
                 textAndBidiLevel.GetText(),
                 textAndBidiLevel.GetBidiLevel());
         }
+        if (_useActualText) EndMarkedContent(contentStream);
     }
 
     /// <summary>

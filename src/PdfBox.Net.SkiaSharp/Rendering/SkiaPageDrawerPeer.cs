@@ -6,7 +6,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -264,7 +264,16 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
         if (font is PDVectorFont vectorFont)
         {
-            GeneralPath path = GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
+            int ppem = 0;
+            if (_parameters.IsHintingEnabled())
+            {
+                Matrix glyphToUser = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
+                AffineTransform glyphToDevice = _xform.Clone();
+                glyphToDevice.Concatenate(glyphToUser.CreateAffineTransform());
+                ppem = PageDrawer.HintingPpem(glyphToDevice);
+            }
+            GeneralPath path = ppem > 0 ? GetGlyphCache(vectorFont).GetPathForCharacterCode(code, ppem)
+                : GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
             if (path.Segments.Count > 0)
             {
                 Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());

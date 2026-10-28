@@ -1,0 +1,36 @@
+{
+  "issue": 957,
+  "upstream_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+  "regression_fixture": {
+    "upstream_path": "pdfbox/src/test/resources/input/PDFBOX-5920-4MQTG6ZXOYSMTQ444KGQOVC6ZFQHWFNY-spaces-reduced.pdf",
+    "target_path": "tests/PdfBox.Net.Tests/Fixtures/Rendering/PDFBOX-5920-4MQTG6ZXOYSMTQ444KGQOVC6ZFQHWFNY-spaces-reduced.pdf",
+    "sha256": "5d817c599e1d0e12d2568b75598d34df4a376a694465f14e94bbd73304754d47"
+  },
+  "cause": "The ported PDType1CFont.GetStringWidth now consults the CFF charstring width. CFFParser.ReadType1Private preserves parsed DICT operands as List<float>, but CFFType1Font.TryNumber recognized only scalar int/float/double; nominalWidthX=650 was ignored. The space charstring delta -511 yielded negative width; PDFont.GetSpaceWidth then fell back to code32 width490 and text extraction dropped inferred word spaces.",
+  "fix": "Recognize exactly one numeric float operand in parsed CFF DICT lists when reading defaultWidthX and nominalWidthX; preserve public dictionary representation and existing scalar input handling.",
+  "java_evidence": {
+    "font": "PDType1CFont OXWYKR+FreightSans-Book",
+    "string_width_of_space": 139,
+    "space_width": 139,
+    "text": "Ce guide va vous permettre de découvrir\n"
+  },
+  "before_dotnet": {
+    "string_width_of_space": -511,
+    "space_width": 490,
+    "text": "Ceguide va vouspermettrededécouvrir\n"
+  },
+  "tests": {
+    "red_evidence": "Real PDF regression failed before fix in /private/tmp/957-spacing-red.log",
+    "green_evidence": "Core affected tests: 79 passed, 1 existing Type7 skip. Full FontBox suite: 341 passed, 5 existing external-font skips. Both projects build with 0 errors.",
+    "unit_cases": [
+      "defaultWidthX operand list500 -> width500",
+      "nominalWidthX operand list650 plus Type2 explicit width-511 -> width139"
+    ],
+    "runtime_ratchets_changed": false
+  },
+  "upstream_test_parity": "converted: exact original Apache corpus PDF plus deterministic CFF default/nominal width tests",
+  "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/CFFType1Font.java",
+  "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFType1Font.cs",
+  "report_row_gaps": "Parent owns the central traceability update; this unchanged-upstream prerequisite is recorded here with real red/green evidence.",
+  "source_similarity": "Native CFF parser stores DICT operands as float lists. The narrow adapter now reads a scalar operator's sole operand, matching Java Number-based width access."
+}

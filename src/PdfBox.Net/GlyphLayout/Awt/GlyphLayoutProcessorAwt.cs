@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutProcessorAwt.java
  * PDFBOX_SOURCE_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -44,12 +44,15 @@ namespace PdfBox.Net.GlyphLayout.Awt;
 /// </remarks>
 public class GlyphLayoutProcessorAwt : AbstractGlyphLayoutProcessor, GlyphLayoutProcessorInterface
 {
-    private readonly GlyphLayoutFontLoaderAwt _glyphLayoutFontLoaderAwt;
+    private readonly GlyphLayoutFontLoaderAwt _glyphLayoutFontLoaderAwt = new();
 
     public GlyphLayoutProcessorAwt()
     {
-        _glyphLayoutFontLoaderAwt = new GlyphLayoutFontLoaderAwt();
+
     }
+
+    /// <summary>Constructs a glyph layout processor with options.</summary>
+    public GlyphLayoutProcessorAwt(GlyphLayoutProcessorOptions options) : base(options) { }
 
     public static void CheckMissingGlyphs(string text, Font awtFont)
     {

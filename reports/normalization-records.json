@@ -117,24 +117,22 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/CFFType1Font.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java collections -> .NET collections"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Java Map/HashMap -> Dictionary; charstring access adapted."
+    "note": "The ported PDType1CFont.GetStringWidth now consults the CFF charstring width. CFFParser.ReadType1Private preserves parsed DICT operands as List<float>, but CFFType1Font.TryNumber recognized only scalar int/float/double; nominalWidthX=650 was ignored. The space charstring delta -511 yielded negative width; PDFont.GetSpaceWidth then fell back to code32 width490 and text extraction dropped inferred word spaces. Recognize exactly one numeric float operand in parsed CFF DICT lists when reading defaultWidthX and nominalWidthX; preserve public dictionary representation and existing scalar input handling. Exact regression and validation: reports/issue-957-spacing-regression-assessment.json."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
     "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type1CharString.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted charstring model delegated to parser pipeline"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Type1 charstring model keeps metadata/path-width accessors while execution parsing is delegated to Type1CharStringParser; regression tests cover parser behavior and model invariants."
+    "note": "Replaces the previous empty Type1 renderer with the upstream command interpreter, including the PDFBOX-6267 last-two-operands rmoveto fix; existing byte constructor, Bytes, and float GetWidth compatibility retained. Uses existing GeneralPath segments, a local mutable point proxy, BoundingBox bounds, per-glyph render lock, double Number storage with explicit float/int conversion, and parent-font SEAC/subroutine resolution. Type1Font integration is a prerequisite dependency change."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type2CharString.java",
@@ -313,11 +311,11 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TTFParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Centralized source lifetime and error cleanup for random access and embedded inputs, matching upstream shared parse helper; memory-backed font data remains owned by returned font. Upstream-test parity: converted: TTFParserTest successful/malformed input closure and header-vs-complete parsing."
+    "note": "Adds all four upstream hinting table tags to existing parser dispatch."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TTFTable.java",
@@ -335,12 +333,11 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeFont.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Adapted port \u2014 not full parity"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Font model with table dictionary. Java HashMap<String,TTFTable> -> Dictionary<string,TTFTable>. Typed accessors for unported tables not yet present. See issue #9."
+    "note": "Adds four lazy table getters and public nullable GetHintedPath(gid, ppem), with separately locked lazy hinter creation and per-font serialized glyph execution."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/DamagedFontException.java",
@@ -380,12 +377,11 @@
     "target_path": "src/PdfBox.Net.FontBox/FontBox/Type1/Type1Font.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Java concurrent -> .NET ConcurrentDictionary"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Java ConcurrentHashMap -> ConcurrentDictionary; Java HashMap -> Dictionary; Java InputStream -> byte[] (Stream.CopyTo)."
+    "note": "Route decoded charstring bytes and subroutines into the real renderer while preserving the public Bytes compatibility property."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/type1/Type1Lexer.java",
@@ -1003,11 +999,11 @@
     "target_path": "src/PdfBox.Net/COS/COSName.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Issue #954: Added canonical COSName.OPEN constant. Also fixed existing cache test lifetime race by asserting cache membership while the strong reference remains alive; release assertions are unchanged. Upstream-test parity: converted: COSPrimitivesTest and annotation OPEN tests."
+    "note": "Adds AN and SPAN names."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
@@ -1108,12 +1104,11 @@
     "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Recursive child propagation adapted to nullable C# COS references and IEnumerable iteration"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Preserved recursive origin/update propagation semantics while adapting Java collection traversal and nullability to existing COS container shapes."
+    "note": "Mechanically ports explicit LIFO stack traversal (PDFBOX-6200), skipping states already bound, preserving lazy dereference and update flags; mixed 150001-node cyclic graph and lazy dereference regressions pass."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/ICOSParser.java",
@@ -1199,12 +1194,11 @@
     "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Simplified port: structure-tree / annotation fixup omitted"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Iterator-based split retained. Structure tree and named destination cloning not yet in scope."
+    "note": "Ports named destination trees and legacy Root/Dests dictionaries, copying only destinations for pages included in each split and rebinding references to cloned pages. Existing direct page clone preserves named link strings. Pre-existing structure-tree split functionality remains absent; related upstream flattened-helper substitutions have no equivalent call site. Follow-up to current upstream: Moves cross-range validation to Split execution while each setter independently validates positive input. Split already uses per-invocation local state and groups from configured start; repeated-call regression verifies2/2/1 pages twice. Named-destination fixing now lies within exception cleanup scope; malformed name tree test proves all produced COSDocuments are closed. Existing port lacks upstream structure-tree copying, so source ParentTree cache/KCloner/orphan-map/RoleMap refactors have no equivalent path; this batch does not assert structure-tree clone parity. Existing public SplitAtPage property precludes same-named Java protected method; unchanged default grouping behavior remains exposed through that property."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
@@ -1224,22 +1218,22 @@
     "target_path": "src/PdfBox.Net/PdfParser/BruteForceParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+    "note": "Source-access forwarding refactor only; current wrapper already centralizes input ownership in PDFParser. Existing .NET parser has no upstream-equivalent malformed-trailer brute-force recovery; no new capability is claimed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Upstream null pool-object guard is covered by .NET PDFParser.GetOrCreateIndirectObject, which returns an existing non-null object or creates one for a non-null key. No nullable GetObjectFromPool call exists in the adapted parser. Upstream-test parity: converted: existing parser/indirect-reference tests; no new null path introduced."
+    "note": "Exposes default GetEOFLookupRange; actual trailer bootstrap moved to new TrailerParser and routed into PDFParser. Removed unused Java UTF8/Windows1252 decoder had no port equivalent. Existing token parser does not own upstream lazy-object logic."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
@@ -1268,12 +1262,11 @@
     "target_path": "src/PdfBox.Net/PdfParser/PDFDocumentParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Tail-range marker search adapted from PDFBox parser semantics to in-memory byte buffers",
-      "Strict `%PDF-` header/version token parsing implemented for deterministic bootstrap validation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Introduced parser scaffold class for header/startxref discovery prior to xref parsing."
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/PDFParser.java",
@@ -1315,11 +1308,11 @@
     "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #92 parity closeout mapping with conservative C# adaptation aligned to existing parser/contentstream/writer pipeline behavior."
+    "note": "Java source-access forwarding refactor only. The existing .NET wrapper delegates the complete parse to PDFParser; its centralized byte source requires no per-call source replacement."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
@@ -1338,11 +1331,11 @@
     "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Upstream incremental write removes final ByteArrayOutputStream.toByteArray allocation. Actual .NET PDDocument.SaveIncremental already resets MemoryStream.Position and CopyTo(output) without that final duplicate array. Upstream-test parity: converted: existing SaveIncrementalTests; unchanged allocation-equivalent path."
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/compress/COSObjectPool.java",
@@ -1416,12 +1409,11 @@
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Glyph-layout interface adapted",
-      "PDF glyph operands written through COS helpers"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added processor registration plus glyph-code, glyph-position, and text-rise content stream hooks."
+    "note": "Write the one-element ActualText dictionary inline, validate string type, and avoid resource allocation. PDPageContentStream and PDAppearanceContentStream receive the equivalent adaptation because .NET does not inherit them from this base."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
@@ -1495,12 +1487,11 @@
     "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Mechanical page-tree traversal retained with cycle detection, bad-PDF root repair, and inheritable attribute lookup.",
-      "Add/remove/get/index/count semantics maintained across nested Kids hierarchies."
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "PDPageTree closeout confirms parity-complete traversal/index/update semantics for nested page trees and inherited attributes."
+    "note": "Already equivalent: every Get call allocates a local visited set, so failed lookups cannot leak state to subsequent calls. New failed-then-valid lookup test and no-argument root test pass."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPatternContentStream.java",
@@ -1663,24 +1654,22 @@
     "target_path": "src/PdfBox.Net/PDModel/Common/PDNameTreeNode.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted generic name-tree node port with sorted dictionary and null-safe traversal semantics."
+    "note": "Ports recursive GetTreeAsMap with a mutable copy and all child maps; preserves Java traversal and duplicate key overwrite behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/PDNumberTreeNode.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted number-tree node port using Activator-based value construction in place of Java reflection."
+    "note": "Ports recursive GetTreeAsMap with a mutable copy and all child maps; preserves Java traversal and duplicate key overwrite behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDObjectStream.java",
@@ -1709,12 +1698,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Common/PDPageLabels.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted page label dictionary port with Roman/letter label generation and catalog integration."
+    "note": "Narrows concrete GetCOSObject return to COSDictionary; explicit COSObjectable bridge preserves interface contract."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
@@ -1733,11 +1721,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Common/PDRange.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Mechanical PDModel common range port."
+    "note": "Already equivalent: nonnumeric min/max entries return zero. Updated XML docs state fallback."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
@@ -1812,70 +1800,66 @@
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunction.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted abstract PDF function base with factory and range/domain helpers."
+    "note": "Missing domain/range returns zero ranges and zero input count; null backing dictionary now fails with NotSupportedException. Diagnostic ToString no longer calls type accessor. Retains existing public GetFunctionType compatibility API though removed upstream."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType0.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType0.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation",
-      "Primitive/collection/type alias fixes required by C# type system"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted sampled function port using a custom bit reader instead of Java ImageInputStream."
+    "note": "GetSize already returns an empty COSArray if absent. Existing GetFunctionType retained solely for source compatibility."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType2.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType2.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Mechanical exponential interpolation function port."
+    "note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType3.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType3.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Mechanical stitching function port."
+    "note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType4.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType4.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Mechanical PostScript calculator function port over the new type4 helper stack."
+    "note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionTypeIdentity.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      "Namespace/type qualification fixes needed for C# compilation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted identity function port with safe null-base handling."
+    "note": "Base dictionary absence now follows upstream NotSupportedException; existing GetFunctionType unsupported compatibility API retained; Eval and diagnostic string preserved."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/type4/ArithmeticOperators.java",
@@ -2084,11 +2068,11 @@
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDExportFormatAttributeObject.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Export-format attribute object owners and list-numbering accessors."
+    "note": "Ports missing GetHeaders/SetHeaders prerequisite using the corrected base string-array helpers; XML summary documents absent headers as null. Real production API exercised by header regression."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDFourColours.java",
@@ -2117,11 +2101,11 @@
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Standard tagged-PDF structure-type constants inventory."
+    "note": "Adds upstream FIGURE constant; retains prior Figure alias for source compatibility."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
@@ -2368,11 +2352,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Escapes XML10 file href and omits absent file names. Existing .NET model remains adapted. Upstream-test parity: converted: FDFUtilsTest dictionary-writer XML parse regression passed in initial core focused run."
+    "note": "Java checked IOException declaration/documentation removed; current .NET method already matches."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDocument.java",
@@ -2596,11 +2580,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added font factory dispatch based on PDF font subtype."
+    "note": "Upstream byte-array initializer simplification has no runtime change; current C# header bytes already equivalent."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
@@ -2673,11 +2657,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/Standard14Fonts.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added canonical mapping for standard 14 PDF fonts with expanded upstream alias matrix compatibility names."
+    "note": "Encoding.GetCode already exists and standard-font lookups use it through the shared simple-font path."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/DictionaryEncoding.java",
@@ -2695,11 +2679,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/Encoding/Encoding.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java PDFBox font model semantics adapted to existing .NET architecture and available dependencies"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added PDModel encoding base class."
+    "note": "Existing GetCode(string) already implements the new upstream reverse lookup with nullable missing result."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/encoding/MacRomanEncoding.java",
@@ -3421,11 +3405,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationWidget.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Interactive mapping normalized and validated during issue #68 closeout."
+    "note": "Only sets subtype when it differs, preserving clean update state for parsed widget dictionaries; upstream no-dirty regression converted."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAppearanceCharacteristicsDictionary.java",
@@ -4934,12 +4918,11 @@
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      ".NET XML/collection adaptations for parity behavior"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adapted PDF/A extension helper normalization to traverse XML DOM and update TypeMapping schema/property definitions in .NET."
+    "note": "Ports case-insensitive open/closed choice prefixes with ordinal comparison (avoids current-culture casing differences), preserving original type name/case after prefix removal. Six actual extension-packet parse regressions pass."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/XmpParsingException.java",
@@ -5004,36 +4987,33 @@
     "target_path": "src/PdfBox.Net/PDModel/PDPageContentStream.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Inherited Java behavior flattened onto sealed .NET writer",
-      "Glyph-layout routing adapted for tracked current PDFont"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added page content stream glyph-layout routing and direct glyph operand writers."
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAppearanceContentStream.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Inherited Java behavior flattened onto .NET writer",
-      "Resolved default appearance font tracked for glyph routing"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Added appearance content stream glyph-layout routing and direct glyph operand writers."
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java",
     "target_path": "src/PdfBox.Net/PDModel/ContentStreamForGlyphLayoutInterface.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax and naming adapted to C#",
-      "Upstream package/module mapped into PdfBox.Net namespace"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Ported the upstream glyph-layout content stream interface as the C# contract used by page and appearance streams."
+    "note": "Add BeginMarkedContent and EndMarkedContent contracts. Adapt all existing independent content-stream writers to the new contract."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/GlyphLayoutProcessorInterface.java",
@@ -5075,13 +5055,11 @@
     "target_path": "src/PdfBox.Net/GlyphLayout/Awt/GlyphLayoutProcessorAwt.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax and naming adapted to C#",
-      "Upstream package/module mapped into PdfBox.Net namespace",
-      "Java AWT dependency represented through existing .NET AWT proxy"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Inherited the shared abstract Bidi/width processor and normalized fallback width computation against the existing Identity-H glyph-code adapter."
+    "note": "Add options constructor forwarding to AbstractGlyphLayoutProcessor; preserve existing Java-shaped loader with optional backend shaping boundary."
   },
   {
     "source_path": "pdfbox-layout-awt/src/main/java/org/apache/pdfbox/glyphlayout/examples/GlyphLayoutHelloWorldAWT.java",
@@ -5127,26 +5105,22 @@
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/GouraudShadingContext.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Removed upstream-obsolete shared constructor parameters/state",
-      "JavaDoc mapped to XML documentation",
-      "Adapted concrete .NET context signatures preserved"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+    "note": "Upstream ternary inversion is equivalent; existing adapted mesh context remains unchanged."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PatchMeshesShadingContext.java",
     "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PatchMeshesShadingContext.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Removed upstream-obsolete shared constructor parameters/state",
-      "JavaDoc mapped to XML documentation",
-      "Adapted concrete .NET context signatures preserved"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "PDFBOX-5660 cleanup mapped onto the adapted rendering layer. The shared base no longer retains an unused Matrix; concrete public constructors and paint behavior remain stable."
+    "note": "Source ternary inversion is equivalent. Tensor-product patch raster generation remains a pre-existing deferred backend capability, explicitly covered by skipped exact fixture."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/RadialShadingContext.java",
@@ -5358,12 +5332,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java final descriptor field mapped to C# readonly field",
-      "Adapted PDFont inheritance handled by descriptor override"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Descriptor lookup, reuse, insertion, and stable instance return match PDFBOX-6175."
+    "note": "Add nullable hinted-outline virtual method with no-hint default. Existing width dictionary is already keyed directly by CID with O(1) lookup; source extra code-width cache adds no observable result to this adaptation."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
@@ -5381,12 +5354,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Nullable ResourceCache constructor propagation",
-      "Null-literal overload ambiguity avoided"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "The upstream three-argument cache path is public; the existing two-argument TrueTypeFont shape remains unambiguous for compatibility."
+    "note": "Port embedded TrueType hinting, nonembedded predefined Uni-CMap Unicode encoding and CFF-OpenType identity case. Restore actual substitute TTF loading and parent-aware Unicode-to-glyph lookup required to exercise the source fix. Keep existing one-argument CID-to-GID compatibility API. Uses FontBox hinted path through common normalization helper."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
@@ -5402,23 +5374,22 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Nullable ResourceCache overloads",
-      "Compatibility overload delegation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Factory and descendant-factory cache propagation normalized for the adapted font hierarchy."
+    "note": "Upstream byte-array initializer simplification has no runtime change; current C# header bytes already equivalent."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Supplemental upstream-sync dependency or regression"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
+    "note": "Port codepoint encoding/width caches, multibyte ReadCode width path and nullable descendant hinting dispatch. Encode follows exact CIDType2 branches: Identity cmap, predefined UCS2, reverse explicit ToUnicode fallback and nonembedded Uni raw UTF16BE. Supplementary-plane support remains native CmapLookup through Identity encoding."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfwriter/OperatorNameTest.java",
@@ -5460,13 +5431,11 @@
     "target_path": "src/PdfBox.Net/PDModel/AbstractGlyphLayoutProcessor.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax and naming adapted to C#",
-      "java.text.Bidi mapped behind Unicode.Bidi without leaking dependency types",
-      "Collections.unmodifiableList mapped to IReadOnlyList"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Visual-run order, Bidi levels, width aggregation, and unidirectional dispatch preserve upstream behavior."
+    "note": "Port options and marked-content wrapping of the original logical string across all visual Bidi runs. Both default and options constructors preserve upstream defaults. Exact Java-generated ActualText fixtures cover Bidi, DIN91379 (including flattened form), ligatures and SMP extraction."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/JPEGFactory.java",
@@ -5484,11 +5453,11 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Adds exact upstream URL allowlist and CheckAccess before certificate reads. .NET auto-redirect disabled; only one 301/302/303 exact HTTP-to-HTTPS upgrade followed. Intentional stricter adaptation versus Java implicit same-scheme redirects is documented; no arbitrary redirect chains. Upstream-test parity: converted native TestSigUtils exact allowlist rejections and fake-handler exact HTTPS upgrade, denied redirect and redirect-chain checks all passed; no live HTTP calls."
+    "note": "Adds RootCAIV CRL allowlist URL, 10s connect/20s request timeout, 307/308 exact HTTPS upgrade handling with existing one-hop redirect limit. Strict HTTP(S) scheme check already matched. Existing eager HttpClient response buffering and using scopes release failed/successful requests without a connection-owning returned stream. New Java BouncyCastle timestamp-certificate lookup helper has no corresponding .NET SigUtils API; established native TSAClient path retained, not asserted as API parity. Follow-up to current upstream: Ports DocMDP getter extraction/catalog reference semantics and invalid-value default2; rejects invalid certification permissions before mutation, retains approval-signature exclusion and timestamp exemption; latest signature type is validated/logged. ALLOW_URL_SET field/diagnostic spelling synchronized and existing URL tests updated. Existing .NET eager response buffering already releases failed get/body reads via using; no Java network connection escapes. Java BouncyCastle timestamp-store helper cleanups have no native SigUtils API counterpart and do not add TSA API parity."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java",
@@ -5553,11 +5522,11 @@
     "target_path": "src/PdfBox.Net.Debugger/PDFDebugger.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Added X.509 details for direct Cert strings and Cert/Certs arrays during COS tree inspection. Swing window centering, file dialogs, renderer-menu/tooltips and certificate tab widgets are accepted headless adaptations: apps/PdfBox.Net.Debugger.App calls InspectDocument; no desktop dispatcher or Swing event loop exists. Upstream-test parity: converted: Issue954DebuggerDataTest certificate string/stream and COS inspection; Swing-only interaction deferred to any future GUI."
+    "note": "The Java standalone command annotation changes to debug, and print menu forwards subsampling/hinting. Existing .NET debugger is a headless inspection/model product with no Java Swing command annotation or print menu; renderer options are exposed through supported tool entry points instead."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/certificatepane/CertificatePane.java",
@@ -5586,11 +5555,11 @@
     "target_path": "src/PdfBox.Net.Debugger/Pagepane/PagePane.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: The .NET PagePane is a page-selection data model with no hover windows, mouse handlers, Desktop.browse or link launching. Hover popup placement/lifetime, render-time rectangle-map rebuild, scheme confirmation and OS dispatcher guards are not applicable to the existing headless product. Existing PDAnnotation GetContents/GetTitlePopup expose reusable annotation text. Upstream-test parity: deferred: Swing event-loop and OS dispatcher tests outside headless product; no document link is dispatched by .NET debugger."
+    "note": "Java Swing image worker forwards ViewMenu hinting. The .NET PagePane only stores selected PDPage and has no image worker; current headless boundary remains. No dormant renderer/desktop interaction invented."
   },
   {
     "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/tooltip/FontToolTip.java",
@@ -5641,11 +5610,11 @@
     "target_path": "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Issue #954: Validates 4-element ByteRange before contents/TSA work; ports structured informational logging. Existing .NET TSA DER-splicing adapter retained. Upstream-test parity: converted native regression saves/loads malformed two-element ByteRange and asserts correct IOException before TSA/output; passed. Existing detached CMS signing/checking passed; online timestamp fixtures remain explicitly skipped."
+    "note": "Explicit DER normalization after timestamp addition, using shared narrow internal CmsEncoding adapter over BouncyCastle ASN.1; output-byte splicing and placeholder size checks retained."
   },
   {
     "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/cert/CRLVerifier.java",
@@ -5685,11 +5654,11 @@
     "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Changed online LTV invocation and new TSA-certificate test require live TSA/CRL/OCSP; existing .NET deterministic signing test retained without empty success placeholder. Upstream-test parity: deferred online TSA/LTV/visible paths remain explicit skips; both existing deterministic detached CMS and empty form tests passed."
+    "note": "New PDFBOX-6289 encrypted signing test converted using deterministic self-signed certificate and synthetic encrypted PDF; both internal/external paths check actual CMS signature, decrypted signer name and five zero padding bytes. Existing network TSA/LTV tests remain explicitly skipped. Review expansion:8 internal/external \u00d7 type/noType \u00d7 RC4/AES signing cases and2 full-save noType roundtrips; AES key length explicitly128 and version4 asserted. Earlier PreferAes-only default40 fixture actually exercised RC4; revised matrix corrects the coverage statement."
   },
   {
     "source_path": "fontbox/src/main/java/org/apache/fontbox/cmap/CMapParser.java",
@@ -5718,11 +5687,11 @@
     "target_path": "tests/PdfBox.Net.FontBox.Tests/TTFParserTest.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Ported header-vs-full-font comparison and source closure checks with repository-owned synthetic font. Exact LiberationSans kerning/IPA vertical-property corpus assertions are deferred; no corresponding production metric change exists in this batch. Upstream-test parity: partial: synthetic header contract converted; external IPA/font-specific values deferred."
+    "note": "The Java timezone identifier typo has no C# timezone identifier counterpart. Added deterministic UTC-offset checks on parsed Created/Modified timestamps; existing tests retain header parsing/lifetime coverage."
   },
   {
     "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/TrueTypeFontCollectionTest.java",
@@ -5740,11 +5709,11 @@
     "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Java available() call reduction only. .NET uses MemoryStream.Position/Length and computes code length from before/after position without virtual available() calls. Existing decoding semantics already match. Also restored isolated graphics state and pattern BBox clipping for tiling-pattern processing, required by the synchronized stencil masking path. Upstream-test parity: converted: existing ContentStreamEngineTest character code processing."
+    "note": "The existing form-stream path already snapshots the initial matrix after concatenating the form matrix. Added explicit null-TJ diagnostic; no recursive Type3-charproc execution exists in the .NET backend (Unicode fallback is a pre-existing limitation). Exact ActualText form fixture exposed stale TJ operators after ET: track Java nullable text-matrix state with a boolean while preserving the non-nullable .NET matrix API; ignore text outside BT/ET during page processing."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
@@ -5762,22 +5731,22 @@
     "target_path": "src/PdfBox.Net/Filter/FlateFilterDecoderStream.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Java removal of synchronized on unsupported mark/reset has no .NET equivalent: existing nonseekable Stream methods already use no locks. Upstream-test parity: converted: existing FlateFilterDecoderStream/FilterTest behavior."
+    "note": "Java synchronized mark/reset overrides have no .NET counterpart: CanSeek remains false and Seek throws NotSupportedException; no mutable mark/reset implementation exists to lock."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
     "target_path": "src/PdfBox.Net/MultiPdf/PDFMergerUtility.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Ported documentation requiring save before append when source contains subset fonts. Upstream-test parity: not-applicable: documentation-only delta."
+    "note": "Ports mandatory page-zero label entry and shifted label indexes, as well as Marked/Suspect/UserProperties OR merge. Flattened map helper APIs now belong to tree types. Existing port has no structure-tree merge; upstream structure-tree merge assertion expansions remain deferred."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDUserAttributeObject.java",
@@ -5872,11 +5841,11 @@
     "target_path": "src/PdfBox.Net/Rendering/PageDrawer.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954: Implemented stencil image painting for inline and XObject images using the current color/pattern and Decode direction. Skia layers preserve transparent paint gaps with DstIn and apply soft masks in page-device coordinates, avoiding the Java scratch-paint rescaling and alpha-dilation workaround. Fixed necessary baseline dependencies: a clean pattern graphics state/BBox clip, device-scale-independent tile height, full texture pattern matrix including signed reflections, and immutable PDColor retention across q/Q. The PageDrawer facade and Skia peer share the updated provenance marker; helper files retain their prior provenance because they were not comprehensively resynced. Existing transparency-group compositor/CMYK adaptations are preserved; broad pixel identity with Java is not claimed. Final runtime validation exposed antialiased fill residues at subpixel transparent-stencil edges. The DstIn mask now uses a Decal shader over the entire layer, clearing both fully transparent stencils and transparent outer borders without leaving bounded-image coverage fringes. Upstream-test parity: 145/145 focused tests passed (0 skipped), including 13 synthetic stencil/pattern/softmask/graphics-state tests, all three new real TestQuality fixtures, AdvancedRenderingIssue419Test, JPEGFactoryStreamingTest, ImageFactoryTest, CIDCharSetMatchTest, FileSystemFontMetadataTest, Issue954DebuggerDataTest and PDCIDFontType0SubstituteTest. The synthetic tests cover inline/XObject, inverse Decode, DPI 72/144, reflected patterns, q/Q state, transparent gaps, and alpha masks. Real tests run at 100 DPI; TestQuality also checks positive image/color payload to reject empty or black output. Final AA-fix gate: 108/108 tests passed, 0 skipped (StencilRenderingTest, Rendering.TestQuality, AdvancedRenderingIssue419Test, ImageFactoryTest). All four added 36-DPI transparent-stencil/transparent-border cases failed before the fix and passed after it, with nearest and interpolated sampling; painted-center assertions reject empty output. Synthetic stencil/state coverage is now 17 tests.."
+    "note": "Add rotation-invariant device-ppem derivation and wire grid-fitting into the Skia backend using device transform composed with text/font matrix; no ppem work when disabled. Save/reload pixel test proves enabled outline changes and disabled determinism."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/SoftMask.java",
@@ -5894,11 +5863,11 @@
     "target_path": "src/PdfBox.Net/Text/PDFTextStripper.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream update with documented .NET API/backend adaptation"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Issue #954: Always visit pages through ProcessPage so page selection can run before content checks, including empty-page processing. Upstream-test parity: converted: Issue954TextPageTraversalTest plus runtime text parity; ParserRecoveryIssue442Test now expects the configured page separator for the recovered blank page."
+    "note": "Port ActualText provenance flag, retain logical Unicode and skip visual/word normalization for substituted strings. Match source BDC/EMC stack handling. All five exact AWT ActualText fixture extractions match Java under the upstream tests' layout-whitespace normalization."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripperByArea.java",
@@ -6037,11 +6006,11 @@
     "target_path": "src/PdfBox.Net.SkiaSharp/Rendering/SkiaPageDrawerPeer.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Supplemental upstream-sync dependency or regression"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. The Java-shaped facade continues to dispatch to the synchronized Skia backend."
+    "note": "Add rotation-invariant device-ppem derivation and wire grid-fitting into the Skia backend using device transform composed with text/font matrix; no ppem work when disabled. Save/reload pixel test proves enabled outline changes and disabled determinism."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaint.java",
@@ -6059,11 +6028,11 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDType1Font.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Supplemental upstream-sync dependency or regression"
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #954 supplemental implementation dependency. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. No whole-file source re-sync is claimed for this unchanged upstream dependency; original provenance/sync markers are retained."
+    "note": "Shared concurrent codepoint cache and existing Encoding.GetCode represent source lookup/cache moves. ReadCode is already inherited from PDFont."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/PDGraphicsState.java",
@@ -6251,5 +6220,1743 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Issue #954 supplemental behavior-focused regression coverage. See reports/issue-954-upstream-sync-assessment.md for the owning production class, adapted mechanism and validation. Native .NET adaptation; no invented Java test provenance."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
+    "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds O(1) lookup of the stored key instance via .NET Dictionary alternate-key comparer. Public live Dictionary API and all mutation routes remain intact. Java null-key HashMap entries are unsupported by the existing .NET Dictionary surface."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Filter.java",
+    "target_path": "src/PdfBox.Net/Filter/Filter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ports capped 4x encoded-size chunk estimation (maximum 1 MiB) and predictor maximum-row property; existing Stream adapters retained."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
+    "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ports default 10000000-byte row limit with positive environment-property override; .NET checked long calculation also rejects multiplication overflow before allocating."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957LatestCoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ports named destination trees and legacy Root/Dests dictionaries, copying only destinations for pages included in each split and rebinding references to cloned pages. Existing direct page clone preserves named link strings. Pre-existing structure-tree split functionality remains absent; related upstream flattened-helper substitutions have no equivalent call site. Follow-up to current upstream: Moves cross-range validation to Split execution while each setter independently validates positive input. Split already uses per-invocation local state and groups from configured start; repeated-call regression verifies2/2/1 pages twice. Named-destination fixing now lies within exception cleanup scope; malformed name tree test proves all produced COSDocuments are closed. Existing port lacks upstream structure-tree copying, so source ParentTree cache/KCloner/orphan-map/RoleMap refactors have no equivalent path; this batch does not assert structure-tree clone parity. Existing public SplitAtPage property precludes same-named Java protected method; unchanged default grouping behavior remains exposed through that property."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/BaseParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds six protected source forwarding operations using the established Stream adapter. Escaped closing-parenthesis behavior already matches new PDFBOX-6167 semantics in COSParser and PDFParser; focused literal regression included."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java",
+    "target_path": "src/PdfBox.Net/PdfParser/TrailerParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "New real trailer owner handles EOF/startxref scan and delegates xref resolution to existing eager PDFParser engine. Public constructor and live xref getter are usable. Existing eager parser has no brute-force trailer rebuild and TrailerWasRebuild is false; malformed xrefs still raise. This is an explicit existing parser architecture adaptation, not new recovery parity."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PdfParser/PDFParser.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDictionary.java",
+    "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Upstream named destinations XML summary wording synchronized."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureNode.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureNode.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "XML documentation links CreateObject for possible typed children."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Reads COSString array values with GetString, logs malformed entries and retains null slots as upstream, replacing invalid COSName casts."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Current adapted IList getter already reads COSString values. Preserves its existing empty-list/malformed-element-skip contract rather than introducing unrelated public API change; return docs reflect that adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDEncryption.java",
+    "target_path": "src/PdfBox.Net/PDModel/Encryption/PDEncryption.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Checked Java throws IOException declarations and their JavaDoc removed upstream; .NET signatures already have no throws declarations and corresponding stale exception docs are absent."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Hex.java",
+    "target_path": "src/PdfBox.Net/Util/Hex.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Moves charIdx initialization outside loop as upstream; uneven-nibble regression converted."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDocumentTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted xref live-mutation/stored-key checks converted. Java null-key map fixture is unsupported by .NET Dictionary. View removal/clone cases adapt to .NET Remove/Clear/copy operations; no separate index exists."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSUpdateInfo.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Deep structure converted and expanded to 50000 mixed dictionary/array/dereferenced-object levels with cycle; lazy dereference regression checks unchanged flags."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PDFMergerUtilityTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Page-label zero-entry and both named-destination split cases converted as synthetic regressions. Expanded upstream structure-tree merge/split orphan checks and rendering fixture assertions deferred: established .NET merger/splitter lacks full upstream structure-tree copying. Follow-up to current upstream: Changed illegal-range assertion converted at execution boundary; added repeated-call and cleanup regressions. Upstream role-map counts for structure-tree split fixtures are explicitly deferred because pre-existing .NET Splitter does not copy structure trees."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PDFMergerUtilityTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957LatestCoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Page-label zero-entry and both named-destination split cases converted as synthetic regressions. Expanded upstream structure-tree merge/split orphan checks and rendering fixture assertions deferred: established .NET merger/splitter lacks full upstream structure-tree copying. Follow-up to current upstream: Changed illegal-range assertion converted at execution boundary; added repeated-call and cleanup regressions. Upstream role-map counts for structure-tree split fixtures are explicitly deferred because pre-existing .NET Splitter does not copy structure trees."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PageExtractorTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Upstream test-extraction/refactoring changes exercise pre-existing extractor fixtures. No new production PageExtractor change. Fixture-based upstream parity is deferred; existing .NET extractor tests included in full suite."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfparser/TestCOSParser.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Escaped closing parenthesis regression PDFBOX-6167 converted. PDFBOX-276 single-token parsing fixture is represented through existing .NET COS parsing tests; standalone token-prefix read differs from Parse whole-object API."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Failed-index then valid-index test and standalone page-tree root checks converted; existing per-call visited set needs no production change."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElementTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Synthetic header COSString/malformed array regression covers changed primitive. Full class-map/21 attribute revision traversal of new PDFBOX-6261 fixture deferred (existing adapted attribute/class-map APIs differ); no full fixture-equivalence claim."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationWidgetTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "No-dirty construction test converted for correctly typed parsed widget, plus wrong-subtype correction."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/util/TestHexUtil.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Uneven hex input test converted."
+  },
+  {
+    "source_path": "pdfbox/src/test/resources/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDFBOX-6261-085992.pdf",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "New PDFBOX-6261 binary fixture belongs to deferred full class-map traversal test; kept in upstream checkout only, no misleading port fixture/test claim."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/cmap/CMap.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/CMap/CMap.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Retains used CMaps instead of flattening CID maps; local cidchars/ranges and nearest parent win, deliberate CID 0 stops fallback and shortest-length probing. Existing Unicode mapping behavior retained."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/BytecodeStream.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/BytecodeStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueProgramTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueProgramTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionContext.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionContext.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionTracer.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionTracer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/Fixed.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/Fixed.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontProgramTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/FontProgramTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FunctionDef.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/FunctionDef.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GaspTable.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GaspTable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphHinter.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphHinter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Exact upstream per-font synchronized hinting, prep/font programs, best-effort per-glyph fallback, composite assembly, phantom points and full-control probing. MethodImpl Synchronized matches Java instance monitor semantics; new table getters, existing property-shaped glyph accessors, TextWriter tracing and structured MEL logs adapt platform APIs."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphRenderer.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphRenderer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adds upstream coordinate override constructor and uses optional grid-fitted X/Y arrays while preserving existing raw-outline constructor."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GraphicsState.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GraphicsState.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HintingException.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/HintingException.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeInterpreter.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeInterpreter.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Full 256-opcode dispatch, function/IDEF bodies and limits, stack/storage/twilight state, point interpolation/deltas, v40 compatibility and execution budgets; Java-style Abs handles signed minimum without .NET overflow exceptions. BigInteger low-64-bit cast preserves Java longValue truncation."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/UnitVector.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/UnitVector.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Exact fixed-point vectors with System.Numerics.BigInteger comparisons preserving Java arbitrary-precision normalization and sign/rounding."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/Zone.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/Zone.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Mechanically ports the full upstream TrueType hinting implementation; PascalCase methods, fixed-point integer arithmetic, C# delegates and bounds exceptions preserve the Java algorithm."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/cmap/CMapStringsTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/CMapStringsTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Upstream changes only Java array initializer shorthand; existing C# collection expressions and assertions already express the same test."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/cmap/TestCMapParser.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/CMapInheritanceTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports all 13 new upstream usecmap/zero-CID regression methods; baseline parser cases remain in CMapParserTest.cs. Java array shorthand changes need no further C# change."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/BackwardCompatibilityMoveTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/BackwardCompatibilityMoveTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/BytecodeStreamTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/BytecodeStreamTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/FixedTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/FixedTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/GlyphTraceTool.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionTracer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java-only developer CLI main; no corresponding .NET CLI product entrypoint is introduced. TextWriter execution tracing and exact C# golden tests cover the runtime pipeline; raw Python/C reference tools are retained under Fixtures/TTF/hinting."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/GoldenHintingTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/GoldenHintingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adapted xUnit harness compares every simple/composite X/Y coordinate exactly at 11/13/16/24ppem against the four unchanged upstream FreeType point dumps; composite instructions and zero failure count asserted."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/GraphicsStateTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/GraphicsStateTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/HintedPointsDumpTool.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionTracer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java-only developer CLI main; no corresponding .NET CLI product entrypoint is introduced. TextWriter execution tracing and exact C# golden tests cover the runtime pipeline; raw Python/C reference tools are retained under Fixtures/TTF/hinting."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/HintingConcurrencyTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/HintingConcurrencyTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Same eight threads, 150 iterations each, shared lazy font and four interleaved ppems; C# Task barrier compares all path segments against single-thread reference, with cancellation and a 120-second bound."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/HintingIntegrationTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/HintingIntegrationTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports all 16 upstream integration cases with the existing GeneralPath segment proxy, real fonts, prep mutation and synthetic geometry probes. Adds a composite half-rounding prerequisite regression."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/HintingSmokeTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/HintingSmokeTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "All eleven upstream font cases converted and executed. Six bundled fonts always run. Five Maven-downloaded fixtures explicitly skip if PDFBOX_FONTBOX_TEST_FONTS is unset; if configured, missing files fail. Complete environment-enabled run passes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/HintingTablesTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/HintingTablesTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/PointOpsTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/PointOpsTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/RoundStateTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/RoundStateTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/SystemFontHintingTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/SystemFontHintingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports conditional Arial system-font smoke and checksum-keyed exact Arial 2.82 point arrays. Explicit conditional skip if Arial absent. Arial installed on this machine; test executed and passed."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/TrueTypeInterpreterTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/TrueTypeInterpreterTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes. Added ABS int.MinValue and long.MinValue Java-overflow parity regression. Timeout assertions measure the bounded interpreter synchronously, while the surrounding test runner retains its global timeout."
+  },
+  {
+    "source_path": "fontbox/src/test/java/org/apache/fontbox/ttf/UnitVectorTest.java",
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/UnitVectorTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converted upstream JUnit cases to xUnit; preserves bytecode, operands, expected coordinates and outcomes."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutBidiTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Changed ActualText extraction cases converted using the exact Java-generated PDF fixture and Java extraction reference. Layout whitespace is normalized as in upstream tests. Synthetic options/writer tests exercise newly generated marked-content API; Java AWT pixel-golden generation remains a pre-existing backend adaptation (Skia shaping is independently tested)."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutDin91379FormTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Changed ActualText extraction cases converted using the exact Java-generated PDF fixture and Java extraction reference. Layout whitespace is normalized as in upstream tests. Synthetic options/writer tests exercise newly generated marked-content API; Java AWT pixel-golden generation remains a pre-existing backend adaptation (Skia shaping is independently tested)."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutDin91379Test.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Changed ActualText extraction cases converted using the exact Java-generated PDF fixture and Java extraction reference. Layout whitespace is normalized as in upstream tests. Synthetic options/writer tests exercise newly generated marked-content API; Java AWT pixel-golden generation remains a pre-existing backend adaptation (Skia shaping is independently tested)."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutLigaturesAndKerningTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Changed ActualText extraction cases converted using the exact Java-generated PDF fixture and Java extraction reference. Layout whitespace is normalized as in upstream tests. Synthetic options/writer tests exercise newly generated marked-content API; Java AWT pixel-golden generation remains a pre-existing backend adaptation (Skia shaping is independently tested)."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/GlyphLayoutSMPTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Changed ActualText extraction cases converted using the exact Java-generated PDF fixture and Java extraction reference. Layout whitespace is normalized as in upstream tests. Synthetic options/writer tests exercise newly generated marked-content API; Java AWT pixel-golden generation remains a pre-existing backend adaptation (Skia shaping is independently tested)."
+  },
+  {
+    "source_path": "pdfbox-layout-awt/src/test/java/org/apache/pdfbox/glyphlayout/awt/TestBase.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Changed ActualText extraction cases converted using the exact Java-generated PDF fixture and Java extraction reference. Layout whitespace is normalized as in upstream tests. Synthetic options/writer tests exercise newly generated marked-content API; Java AWT pixel-golden generation remains a pre-existing backend adaptation (Skia shaping is independently tested)."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/Concatenate.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/State/Concatenate.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Wrap ArgumentException from matrix concatenation in IOException as upstream."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/ShowTextLine.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextLine.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Existing NextLine processor invocation already receives an empty operand list; no null list is passed."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port embedded TrueType hinting, nonembedded predefined Uni-CMap Unicode encoding and CFF-OpenType identity case. Restore actual substitute TTF loading and parent-aware Unicode-to-glyph lookup required to exercise the source fix. Keep existing one-argument CID-to-GID compatibility API. Uses FontBox hinted path through common normalization helper."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port concurrent-compatible codepoint encoding/width caches, Unicode scalar iteration and common single-byte ReadCode. Add source-shaped protected GetToUnicodeCMap for custom embedded encoding fallback; review counterexample custom0001->GID36 is tested."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDDictionaryFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port concurrent-compatible codepoint encoding/width caches, Unicode scalar iteration and common single-byte ReadCode. Add source-shaped protected GetToUnicodeCMap for custom embedded encoding fallback; review counterexample custom0001->GID36 is tested."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDSimpleFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java checked-exception declaration removal requires no C# signature change. Shared simple-font encoding/width caches preserve the inherited Type1/TrueType/Type1C lookup path."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDTrueTypeFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port hinted outline/gasp dispatch normalized to 1000 units, no-hint for substitutes, shared encoding cache and contradictory Symbolic/NonSymbolic descriptor name resolution with recognized BaseEncoding. Exact PDFBOX-5960 fixture resolves code71 to GID90."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType1CFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port codepoint-based cached CFF glyph widths. Shared simple-font encoding cache replaces per-subclass cache; inherited ReadCode already reads a byte."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDType3Font.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Source removal of duplicate ReadCode is already represented by inherited byte reading."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDVectorFont.java",
+    "target_path": "src/PdfBox.Net/PDModel/Font/PDVectorFont.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Add default null GetHintedNormalizedPath contract and XML docs; preserve existing adapted abstract-class shape."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/PDXObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Set Type/Subtype only when the COS names differ, preserving update-state on already-correct form/image wrappers. Exact form-construction dirty-state test converted."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEDictionaryBasedColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCIEDictionaryBasedColorSpace.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port malformed-parameter-dictionary repair and Bradford adaptation cached per whitepoint. PORT-LOCAL adaptation targets D65 directly because the existing native XYZ-to-sRGB matrix consumes D65; Java targets D50 then delegates its ICC PCS conversion. This avoids introducing an AWT ICC dependency. Whitepoint neutrality/gamma and actual D50 image fixture pass."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalGray.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCalGray.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port gamma-calibrated XYZ based on every declared whitepoint, chromatic adaptation and cloned-value cache; no non-default-whitepoint gamma bypass. Upstream white/black/neutral/gamma regressions converted."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalRGB.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDCalRGB.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port tolerant D65-only bypass and full gamma/matrix XYZ calibration for all other whitepoints. Existing gamma-only metadata test updated because matrix values now affect pixels. Actual PDFBOX-5079 red-pixel regression passes."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpace.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Add virtual per-space Clamp(float[]) using unit bounds by default."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpaceFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Add virtual per-space Clamp(float[]) using unit bounds by default."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceN.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDDeviceN.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Port process/spot attribute conversion with cached decision; fall back to tint transform when an active spot colorant is not white at zero tint. Inspect zero via the raw tint function to avoid tint-cache aliasing. Preserve native Identity-function dictionary representation by writing COSName.IDENTITY."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDIndexed.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDIndexed.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Upstream cast-to-getInt change only hardens malformed hival. Existing C# constructor uses typed pattern/default handling without the failing cast."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDLab.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDLab.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Honor declared/default -100..100 a/b ranges in decoding/clamping and adapt whitepoint through shared CIE conversion; no longer apply unit bounds to Lab shading output."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Color/PDSeparation.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Add internal GetTintTransform accessor used by zero-tint DeviceN check. Preserve Identity-function setter representation as COSName.IDENTITY for the source-aligned PDFunction null-dictionary contract."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/LosslessFactory.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/LosslessFactory.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Upstream ternary condition inversions are algebraically equivalent; existing native encoding path unchanged."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Image/PDImageXObject.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java metadata-only eager JPX initialization has no counterpart: .NET dimensions use dictionary values and actual image decode is requested once through the optional codec. No extra full-resolution metadata decode is introduced. Wrapper type/subtype writes use the guarded PDXObject helper. New Java getJpxSMask/getOpaqueImage exact test remains deferred because the native public image surface differs."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDShading.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Delegate function-result clamping to the actual color space so Lab ranges are preserved. Existing synthetic tests now set the required ColorSpace dictionary entry; no default color is invented."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDTriangleBasedShadingType.java",
+    "target_path": "src/PdfBox.Net/PDModel/Graphics/Shading/PDTriangleBasedShadingType.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Source ternary inversion is equivalent to existing component-count dispatch."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPageable.java",
+    "target_path": "src/PdfBox.Net/Printing/PDFPageable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Add false-by-default hinting getter/setter and propagate value into PDFPrintable."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPrintable.java",
+    "target_path": "src/PdfBox.Net/Printing/PDFPrintable.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Add false-by-default hinting option and propagate it into PDFRenderer before drawing."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/GlyphCache.java",
+    "target_path": "src/PdfBox.Net/Rendering/GlyphCache.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Cache hinted paths by (code,ppem), catch IOException and cache fallback decisions per key; preserve unhinted code-keyed fast path when disabled."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PDFRenderer.java",
+    "target_path": "src/PdfBox.Net/Rendering/PDFRenderer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Add false-by-default hinting option; snapshot into PageDrawerParameters. Traverse nested form resources for non-Normal blend modes using visited dictionaries; skip image instantiation and tolerate broken XObjects as upstream."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawerParameters.java",
+    "target_path": "src/PdfBox.Net/Rendering/PageDrawerParameters.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Expose snapshotted hinting flag; preserve existing private constructor shape by copying the value from renderer at construction time."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/TextPosition.java",
+    "target_path": "src/PdfBox.Net/Text/TextPosition.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Add source-shaped IsFromActualText/SetFromActualText accessors and XML docs."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2SubstituteTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adapted deterministic regression uses the bundled Liberation font and UniGB UTF16-H raw U+0041 codes to prove encode/CID/Unicode/GID round-trip; original U+767E bank-form test requires an external CJK substitute font. Nonembedded hinting gate also asserted."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/PDFontTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Exact PDFBOX-5960-reduced1.pdf fixture converted; code71 resolves to glyph90 as upstream."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFontHintingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted hinted/unhinted difference, 1000-em normalization, 8ppem gasp exclusion,16ppem hinting and no-hint substitute cases using bundled Liberation font."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/PDType0FontHintingTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted embedded CIDType2 hinted normalized path and nonembedded no-hint behavior, using actual bundled font. Multibyte width and custom reverse-ToUnicode encoding coverage added."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/TestFontEncoding.java",
+    "target_path": "tests/PdfBox.Net.Tests/FontStubsReplacementTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Existing standard/difference encoding reverse lookup tests exercise Encoding.GetCode, which was already present in the port; source changes only accessor calls."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalGrayTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted white/black, nondefault whitepoint neutrality and gamma application assertions for all upstream whitepoints plus the reported cyan-whitepoint reproducer."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceNTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted attributes-white-at-zero and tint-transform fallback regressions through scalar color conversion; the native image pipeline consumes the same ToRGB conversion. Standalone Java WritableRaster API is a backend adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/graphics/color/PDLabTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted declared/default Lab clamp ranges and existing calibrated color conversion tests; .NET reads dictionary ranges directly rather than adding redundant per-pixel range-object allocations."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/graphics/form/PDFormXObjectTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Exact dirty-state construction regression converted using origin COSDocumentState and unchanged Type/Subtype names."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/rendering/HintingPpemTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted rounding, flips, anisotropy, rotation and composed DPI-scale assertions; cache-size separation and fallback tested."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/rendering/RenderHintingIntegrationTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted actual save/reload/render pixel-difference and disabled determinism test using embedded Type0/CIDType2 rather than Java simple-font load API; the same hint dispatch is exercised."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/rendering/TestPDFRendererBlendMode.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Converted page,form and nested-form ColorBurn pixel regressions. Visited-set cycle guard follows source; current drawing fixture does not execute a recursive form."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/rendering/TestQuality.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957RenderingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "PDFBOX-5079 exact calibrated-image fixture converted and passes. PDFBOX-5250 exact fixture retained with an explicitly skipped regression: existing .NET Type7 tensor-product patch raster generation is deferred, returns black instead of red. Synthetic group initial-matrix ordering passes. PDFBOX-5876 heap-constrained JVM metadata-read helper is not ported: .NET has no eager JPX metadata initialization stage; .NET memory-constrained equivalent remains deferred."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSIndexed.java",
+    "target_path": "src/PdfBox.Net.Debugger/Colorpane/CSIndexed.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ports array.GetInt(2) malformed/missing hival fallback zero and cap255, replacing prior default255. Shared PDIndexed remains behind data-model view."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModel.java",
+    "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexModel.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ports equivalent ternary expression inversion for total lines and element line numbers; no semantic change."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/Stream.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/Stream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "XML return documentation now describes null on decode failure; existing nullable Stream return and exception-to-null adapter already match."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPane.java",
+    "target_path": "src/PdfBox.Net.Debugger/Streampane/StreamPane.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "New Java null guard before building Swing StyledDocument is already represented by .NET Stream.GetDecodedText null guard. .NET StreamPane stores CurrentStream and has no Swing document pipeline."
+  },
+  {
+    "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ViewMenu.java",
+    "target_path": "src/PdfBox.Net.Debugger/Ui/ViewMenu.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds usable hinting selection state/IsHintingEnabled to existing headless view-model adapter; default false. No Swing menu checkbox/event dispatcher in this product."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignature.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/CreateSignature.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds upstream-shaped TSA URL/PDF password overload plus Stream password adapter; existing two/three-argument APIs forward. Real AES-encrypted PDFs now sign internally and externally, preserving readable signer name, valid CMS, and unencrypted zero padding. Serializer prerequisite is recorded separately below."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignature.java",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds upstream-shaped TSA URL/PDF password overload plus Stream password adapter; existing two/three-argument APIs forward. Real AES-encrypted PDFs now sign internally and externally, preserving readable signer name, valid CMS, and unencrypted zero padding. Serializer prerequisite is recorded separately below."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignatureBase.java",
+    "target_path": "src/PdfBox.Net.Examples/Signature/CreateSignatureBase.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Explicitly normalizes final CMS to DER behind internal adapter, including TSA-extended data. Native SignedCms signing retained; library types do not enter public APIs."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/Signature/Issue957UtilityTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adds RootCAIV CRL allowlist URL, 10s connect/20s request timeout, 307/308 exact HTTPS upgrade handling with existing one-hop redirect limit. Strict HTTP(S) scheme check already matched. Existing eager HttpClient response buffering and using scopes release failed/successful requests without a connection-owning returned stream. New Java BouncyCastle timestamp-certificate lookup helper has no corresponding .NET SigUtils API; established native TSAClient path retained, not asserted as API parity. Follow-up to current upstream: Ports DocMDP getter extraction/catalog reference semantics and invalid-value default2; rejects invalid certification permissions before mutation, retains approval-signature exclusion and timestamp exemption; latest signature type is validated/logged. ALLOW_URL_SET field/diagnostic spelling synchronized and existing URL tests updated. Existing .NET eager response buffering already releases failed get/body reads via using; no Java network connection escapes. Java BouncyCastle timestamp-store helper cleanups have no native SigUtils API counterpart and do not add TSA API parity."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/Signature/Issue957LatestSignatureTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds RootCAIV CRL allowlist URL, 10s connect/20s request timeout, 307/308 exact HTTPS upgrade handling with existing one-hop redirect limit. Strict HTTP(S) scheme check already matched. Existing eager HttpClient response buffering and using scopes release failed/successful requests without a connection-owning returned stream. New Java BouncyCastle timestamp-certificate lookup helper has no corresponding .NET SigUtils API; established native TSAClient path retained, not asserted as API parity. Follow-up to current upstream: Ports DocMDP getter extraction/catalog reference semantics and invalid-value default2; rejects invalid certification permissions before mutation, retains approval-signature exclusion and timestamp exemption; latest signature type is validated/logged. ALLOW_URL_SET field/diagnostic spelling synchronized and existing URL tests updated. Existing .NET eager response buffering already releases failed get/body reads via using; no Java network connection escapes. Java BouncyCastle timestamp-store helper cleanups have no native SigUtils API counterpart and do not add TSA API parity."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+    "target_path": "tests/PdfBox.Net.Examples.Tests/Signature/TestSigUtils.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds RootCAIV CRL allowlist URL, 10s connect/20s request timeout, 307/308 exact HTTPS upgrade handling with existing one-hop redirect limit. Strict HTTP(S) scheme check already matched. Existing eager HttpClient response buffering and using scopes release failed/successful requests without a connection-owning returned stream. New Java BouncyCastle timestamp-certificate lookup helper has no corresponding .NET SigUtils API; established native TSAClient path retained, not asserted as API parity. Follow-up to current upstream: Ports DocMDP getter extraction/catalog reference semantics and invalid-value default2; rejects invalid certification permissions before mutation, retains approval-signature exclusion and timestamp exemption; latest signature type is validated/logged. ALLOW_URL_SET field/diagnostic spelling synchronized and existing URL tests updated. Existing .NET eager response buffering already releases failed get/body reads via using; no Java network connection escapes. Java BouncyCastle timestamp-store helper cleanups have no native SigUtils API counterpart and do not add TSA API parity."
+  },
+  {
+    "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/ConnectedInputStream.java",
+    "target_path": "src/PdfBox.Net.Examples/Util/ConnectedInputStream.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds real single-stream plus disconnect-callback wrapper; Dispose releases connection in finally even when input close fails. Existing sequential-stream constructor retained for .NET compatibility, now owns/closes every supplied stream and respects zero-byte reads. Explicitly marked adapted."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/IOUtils.java",
+    "target_path": "src/PdfBox.Net.IO/IO/IOUtils.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java shutdown cleanup comment typo only; no new .NET runtime behavior."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
+    "target_path": "src/PdfBox.Net.IO/IO/RandomAccessReadBuffer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java constructor documentation gains definedChunkSize parameter; current .NET constructor already exposes it."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBufferedFile.java",
+    "target_path": "src/PdfBox.Net.IO/IO/RandomAccessReadBufferedFile.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java seek becomes final; .NET Seek is already a nonvirtual method. No behavior change."
+  },
+  {
+    "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
+    "target_path": "src/PdfBox.Net.IO/IO/RandomAccessReadWriteBuffer.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java redundant super constructor removed/inherit-doc; .NET constructors already equivalent."
+  },
+  {
+    "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFileTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadMemoryMappedFileTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java comment typo only; existing .NET memory-mapped behavior tests unchanged."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/DecompressObjectstreams.java",
+    "target_path": "src/PdfBox.Net/Tools/DecompressObjectstreams.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Ports command name decompress and adds its real central dispatcher route with -i/--input and optional -o/--output. No-output overwrites input after loading. Existing plain Save writes unpacked indirect objects; no new compression library needed."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/DecompressObjectstreams.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports command name decompress and adds its real central dispatcher route with -i/--input and optional -o/--output. No-output overwrites input after loading. Existing plain Save writes unpacked indirect objects; no new compression library needed."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExportFDF.java",
+    "target_path": "src/PdfBox.Net/Tools/ExportFDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to export:fdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExportXFDF.java",
+    "target_path": "src/PdfBox.Net/Tools/ExportXFDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to export:xfdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractImages.java",
+    "target_path": "src/PdfBox.Net/Tools/ExtractImages.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to export:images. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractText.java",
+    "target_path": "src/PdfBox.Net/Tools/ExtractText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to export:text. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractXMP.java",
+    "target_path": "src/PdfBox.Net/Tools/ExtractXMP.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to extract:xmp (registry export:xmp). Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImageToPDF.java",
+    "target_path": "src/PdfBox.Net/Tools/ImageToPDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to fromimage. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImportFDF.java",
+    "target_path": "src/PdfBox.Net/Tools/ImportFDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to import:fdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImportXFDF.java",
+    "target_path": "src/PdfBox.Net/Tools/ImportXFDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to import:xfdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/OverlayPDF.java",
+    "target_path": "src/PdfBox.Net/Tools/OverlayPDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to overlay. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFBox.java",
+    "target_path": "src/PdfBox.Net/Tools/PDFBox.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Adds decompress route and new upstream spellings for existing dispatched commands, keeping old spellings as compatibility aliases."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFBox.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Adds decompress route and new upstream spellings for existing dispatched commands, keeping old spellings as compatibility aliases."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFSplit.java",
+    "target_path": "src/PdfBox.Net/Tools/PDFSplit.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to split. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFToImage.java",
+    "target_path": "src/PdfBox.Net/Tools/PDFToImage.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Exposes and applies image subsampling/TrueType hinting through new RenderPng overload; existing overload preserves false defaults. Existing programmatic tool has no picocli annotation; Java command-name-only change otherwise has no standalone attribute counterpart."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PrintPDF.java",
+    "target_path": "src/PdfBox.Net/Tools/PrintPDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Accepts -hinting/-subsampling, configures renderer passed to print backend, and refreshes AcroForm appearances when NeedAppearances is true before printing. Existing three-argument Print API forwards to new option overload."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/TextToPDF.java",
+    "target_path": "src/PdfBox.Net/Tools/TextToPDF.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to fromtext. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "tools/src/main/java/org/apache/pdfbox/tools/WriteDecodedDoc.java",
+    "target_path": "src/PdfBox.Net/Tools/WriteDecodedDoc.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Java standalone command annotation renamed to decode. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Ports case-insensitive open/closed choice prefixes with ordinal comparison (avoids current-culture casing differences), preserving original type name/case after prefix removal. Six actual extension-packet parse regressions pass."
+  },
+  {
+    "source_path": "xmpbox/src/test/java/org/apache/xmpbox/xml/DomXmpParserTest.java",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Java comment typo only; no runtime delta. New native PDF/A choice prefix regressions extend existing XmpRegressionFixturesTest."
+  },
+  {
+    "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeComp.java",
+    "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeComp.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Prerequisite for hinted composite assembly: replace banker midpoint rounding with exact Java Math.round(float) half-up behavior and saturation, tested for positive/negative halves and a large odd integer."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/BeginText.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Text/BeginText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Unchanged upstream prerequisite restored while validating the new exact flattened-form ActualText fixture: Java null text matrix after ET is represented by explicit active-text-object state in the non-nullable .NET matrix API."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/EndText.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Text/EndText.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Unchanged upstream prerequisite restored while validating the new exact flattened-form ActualText fixture: Java null text matrix after ET is represented by explicit active-text-object state in the non-nullable .NET matrix API."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/ShowTextAdjusted.java",
+    "target_path": "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextAdjusted.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Unchanged upstream prerequisite restored while validating the new exact flattened-form ActualText fixture: Java null text matrix after ET is represented by explicit active-text-object state in the non-nullable .NET matrix API."
+  },
+  {
+    "source_path": null,
+    "target_path": "src/PdfBox.Net.Examples/Signature/Internal/CmsEncoding.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/TTF/Hinting/HintingTestSupport.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/Type1CharStringTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/Issue509GraphicsRenderingApiParityTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.Tests/PDShadingTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+    "target_path": "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SignatureDictionary.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it."
+  },
+  {
+    "source_path": null,
+    "target_path": "tests/PdfBox.Net.FontBox.Tests/CFFParserTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+  },
+  {
+    "source_path": "pdfbox/src/test/resources/input/PDFBOX-5920-4MQTG6ZXOYSMTQ444KGQOVC6ZFQHWFNY-spaces-reduced.pdf",
+    "target_path": "tests/PdfBox.Net.Tests/Issue957SpacingRegressionTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Upstream synchronization; C# syntax/type/runtime adaptations"
+    ],
+    "semantic_risk": "medium",
+    "compiles_after_change": true,
+    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
   }
 ]

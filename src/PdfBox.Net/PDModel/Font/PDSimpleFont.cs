@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDSimpleFont.java
  * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -139,20 +139,9 @@ public abstract partial class PDSimpleFont : PDVectorFont
         }
     }
 
-    public override float GetStringWidth(string text)
-    {
-        byte[] encoded = Encode(text);
-        float width = 0f;
-        foreach (byte code in encoded)
-        {
-            width += GetWidth(code);
-        }
-
-        return width;
-    }
-
     protected override byte[] Encode(int unicode)
     {
+        if (CodepointToEncodingMap.TryGetValue(unicode, out byte[]? cached)) return cached;
         string glyphName = _glyphList.CodePointToName(unicode);
         int? code = _encoding.GetCode(glyphName);
         if (glyphName == ".notdef" || code is null || code < byte.MinValue || code > byte.MaxValue)
@@ -162,7 +151,9 @@ public abstract partial class PDSimpleFont : PDVectorFont
                 nameof(unicode));
         }
 
-        return [(byte)code.Value];
+        byte[] encoded = [(byte)code.Value];
+        CodepointToEncodingMap[unicode] = encoded;
+        return encoded;
     }
 
     public override float GetWidthFromFont(int code)

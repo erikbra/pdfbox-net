@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java
  * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -44,12 +44,14 @@ public partial class PDTrueTypeFont : PDSimpleFont
     private static readonly COSName FontFile3Key = COSName.GetPDFName("FontFile3");
 
     private readonly TrueTypeFont _trueTypeFont;
+    private readonly bool _isEmbedded;
     private readonly CmapLookup? _unicodeCmap;
 
-    public PDTrueTypeFont(COSDictionary dictionary, TrueTypeFont trueTypeFont)
+    public PDTrueTypeFont(COSDictionary dictionary, TrueTypeFont? trueTypeFont)
         : base(dictionary)
     {
-        _trueTypeFont = trueTypeFont ?? throw new ArgumentNullException(nameof(trueTypeFont));
+        _isEmbedded = trueTypeFont is not null;
+        _trueTypeFont = trueTypeFont ?? FontMappers.Instance.GetCIDFont(GetName(), GetFontDescriptor(), null)?.GetFont() as TrueTypeFont ?? new TrueTypeFont();
         _unicodeCmap = _trueTypeFont.GetUnicodeCmapLookup(false);
     }
 
@@ -82,7 +84,7 @@ public partial class PDTrueTypeFont : PDSimpleFont
 
     public override FontBoxFont? GetFontBoxFont() => _trueTypeFont;
     public override bool IsStandard14() => false;
-    public override bool IsEmbedded() => true;
+    public override bool IsEmbedded() => _isEmbedded;
 
     public TrueTypeFont GetTrueTypeFont() => _trueTypeFont;
     public string GetBaseFont() => GetName();
@@ -118,6 +120,9 @@ public partial class PDTrueTypeFont : PDSimpleFont
             gid,
             drawGidZero: IsEmbedded() || IsStandard14());
     }
+
+    public override GeneralPath? GetHintedNormalizedPath(int code, int ppem) => IsEmbedded()
+        ? TrueTypePathNormalizer.GetHintedNormalizedPath(_trueTypeFont, CodeToGID(code), ppem) : null;
 
     public override GeneralPath GetPath(int code) => GetNormalizedPath(code);
 
@@ -176,8 +181,28 @@ public partial class PDTrueTypeFont : PDSimpleFont
         return null;
     }
 
+    // Resolve a PostScript glyph name through Unicode, Macintosh Roman, then the post table.
+    private int CodeToGIDByName(string name)
+    {
+        if (name == ".notdef") return 0;
+        string? unicode = GlyphList.GetAdobeGlyphList().ToUnicode(name);
+        int gid = unicode is null ? 0 : _unicodeCmap?.GetGlyphId(char.ConvertToUtf32(unicode, 0)) ?? 0;
+        if (gid == 0 && MacOSRomanEncoding.INSTANCE.GetCode(name) is int macCode)
+            gid = _trueTypeFont.GetCmap()?.GetSubtable(CmapTable.PlatformMacintosh, CmapTable.EncodingMacRoman)?.GetGlyphId(macCode) ?? 0;
+        return gid != 0 ? gid : _trueTypeFont.NameToGID(name);
+    }
+
     public int CodeToGID(int code)
     {
+        PDFontDescriptor? descriptor = GetFontDescriptor();
+        if (descriptor?.IsSymbolic() == true && descriptor.IsNonSymbolic() &&
+            FontEncoding is DictionaryEncoding dictionary &&
+            dictionary.GetBaseEncoding() is StandardEncoding or WinAnsiEncoding or MacRomanEncoding)
+        {
+            string name = dictionary.GetName(code);
+            int gid = CodeToGIDByName(name);
+            if (gid != 0) return gid;
+        }
         if (_unicodeCmap is null)
         {
             return _trueTypeFont.NameToGID(code.ToString(CultureInfo.InvariantCulture));

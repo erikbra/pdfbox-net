@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/text/TextPosition.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -56,6 +56,13 @@ public sealed partial class TextPosition
     private readonly float _pageWidth;
     private readonly float _widthOfSpace;
     private string _unicode;
+    private bool _fromActualText;
+
+    /// <summary>Returns whether this text was created from ActualText.</summary>
+    public bool IsFromActualText() => _fromActualText;
+
+    /// <summary>Sets whether this text was created from ActualText.</summary>
+    public void SetFromActualText(bool fromActualText) => _fromActualText = fromActualText;
     private readonly PDFont _font;
     private readonly float _fontSize;
     private readonly int _fontSizePt;

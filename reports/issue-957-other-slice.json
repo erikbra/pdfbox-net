@@ -1,0 +1,818 @@
+{
+  "issue": 957,
+  "scope": "other modules and encrypted-signing prerequisite",
+  "upstream_repository": "apache/pdfbox",
+  "previous_commit": "046747da99a870902217efabf1c41297de157059",
+  "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+  "rows": [
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/PDFDebugger.java",
+      "target_path": "src/PdfBox.Net.Debugger/PDFDebugger.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/PDFDebugger.cs"
+      ],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "The Java standalone command annotation changes to debug, and print menu forwards subsampling/hinting. Existing .NET debugger is a headless inspection/model product with no Java Swing command annotation or print menu; renderer options are exposed through supported tool entry points instead.",
+      "sync_note": "The Java standalone command annotation changes to debug, and print menu forwards subsampling/hinting. Existing .NET debugger is a headless inspection/model product with no Java Swing command annotation or print menu; renderer options are exposed through supported tool entry points instead.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/colorpane/CSIndexed.java",
+      "target_path": "src/PdfBox.Net.Debugger/Colorpane/CSIndexed.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Colorpane/CSIndexed.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Ports array.GetInt(2) malformed/missing hival fallback zero and cap255, replacing prior default255. Shared PDIndexed remains behind data-model view.",
+      "sync_note": "Ports array.GetInt(2) malformed/missing hival fallback zero and cap255, replacing prior default255. Shared PDIndexed remains behind data-model view.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModel.java",
+      "target_path": "src/PdfBox.Net.Debugger/Hexviewer/HexModel.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Hexviewer/HexModel.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Ports equivalent ternary expression inversion for total lines and element line numbers; no semantic change.",
+      "sync_note": "Ports equivalent ternary expression inversion for total lines and element line numbers; no semantic change.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/pagepane/PagePane.java",
+      "target_path": "src/PdfBox.Net.Debugger/Pagepane/PagePane.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Pagepane/PagePane.cs"
+      ],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java Swing image worker forwards ViewMenu hinting. The .NET PagePane only stores selected PDPage and has no image worker; current headless boundary remains. No dormant renderer/desktop interaction invented.",
+      "sync_note": "Java Swing image worker forwards ViewMenu hinting. The .NET PagePane only stores selected PDPage and has no image worker; current headless boundary remains. No dormant renderer/desktop interaction invented.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/Stream.java",
+      "target_path": "src/PdfBox.Net.Debugger/Streampane/Stream.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/Stream.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "XML return documentation now describes null on decode failure; existing nullable Stream return and exception-to-null adapter already match.",
+      "sync_note": "XML return documentation now describes null on decode failure; existing nullable Stream return and exception-to-null adapter already match.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/streampane/StreamPane.java",
+      "target_path": "src/PdfBox.Net.Debugger/Streampane/StreamPane.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Streampane/StreamPane.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "New Java null guard before building Swing StyledDocument is already represented by .NET Stream.GetDecodedText null guard. .NET StreamPane stores CurrentStream and has no Swing document pipeline.",
+      "sync_note": "New Java null guard before building Swing StyledDocument is already represented by .NET Stream.GetDecodedText null guard. .NET StreamPane stores CurrentStream and has no Swing document pipeline.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "debugger/src/main/java/org/apache/pdfbox/debugger/ui/ViewMenu.java",
+      "target_path": "src/PdfBox.Net.Debugger/Ui/ViewMenu.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Debugger/Ui/ViewMenu.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Adds usable hinting selection state/IsHintingEnabled to existing headless view-model adapter; default false. No Swing menu checkbox/event dispatcher in this product.",
+      "sync_note": "Adds usable hinting selection state/IsHintingEnabled to existing headless view-model adapter; default false. No Swing menu checkbox/event dispatcher in this product.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "examples/pom.xml",
+      "target_path": null,
+      "target_paths": [],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Maven dependency/test configuration changes do not apply to the existing .NET project dependencies.",
+      "sync_note": "Maven dependency/test configuration changes do not apply to the existing .NET project dependencies.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java",
+      "target_path": "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CreateEmbeddedTimeStamp.cs"
+      ],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Explicit DER normalization after timestamp addition, using shared narrow internal CmsEncoding adapter over BouncyCastle ASN.1; output-byte splicing and placeholder size checks retained.",
+      "sync_note": "Explicit DER normalization after timestamp addition, using shared narrow internal CmsEncoding adapter over BouncyCastle ASN.1; output-byte splicing and placeholder size checks retained.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignature.java",
+      "target_path": "src/PdfBox.Net.Examples/Signature/CreateSignature.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CreateSignature.cs",
+        "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Adds upstream-shaped TSA URL/PDF password overload plus Stream password adapter; existing two/three-argument APIs forward. Real AES-encrypted PDFs now sign internally and externally, preserving readable signer name, valid CMS, and unencrypted zero padding. Serializer prerequisite is recorded separately below.",
+      "sync_note": "Adds upstream-shaped TSA URL/PDF password overload plus Stream password adapter; existing two/three-argument APIs forward. Real AES-encrypted PDFs now sign internally and externally, preserving readable signer name, valid CMS, and unencrypted zero padding. Serializer prerequisite is recorded separately below.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignatureBase.java",
+      "target_path": "src/PdfBox.Net.Examples/Signature/CreateSignatureBase.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/CreateSignatureBase.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Explicitly normalizes final CMS to DER behind internal adapter, including TSA-extended data. Native SignedCms signing retained; library types do not enter public APIs.",
+      "sync_note": "Explicitly normalizes final CMS to DER behind internal adapter, including TSA-extended data. Native SignedCms signing retained; library types do not enter public APIs.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+      "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/Issue957UtilityTest.cs"
+      ],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Adds RootCAIV CRL allowlist URL, 10s connect/20s request timeout, 307/308 exact HTTPS upgrade handling with existing one-hop redirect limit. Strict HTTP(S) scheme check already matched. Existing eager HttpClient response buffering and using scopes release failed/successful requests without a connection-owning returned stream. New Java BouncyCastle timestamp-certificate lookup helper has no corresponding .NET SigUtils API; established native TSAClient path retained, not asserted as API parity.",
+      "sync_note": "Adds RootCAIV CRL allowlist URL, 10s connect/20s request timeout, 307/308 exact HTTPS upgrade handling with existing one-hop redirect limit. Strict HTTP(S) scheme check already matched. Existing eager HttpClient response buffering and using scopes release failed/successful requests without a connection-owning returned stream. New Java BouncyCastle timestamp-certificate lookup helper has no corresponding .NET SigUtils API; established native TSAClient path retained, not asserted as API parity.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/util/ConnectedInputStream.java",
+      "target_path": "src/PdfBox.Net.Examples/Util/ConnectedInputStream.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Util/ConnectedInputStream.cs"
+      ],
+      "previous_sync_commit": "eeb5d611e0cea8beac3d7025a4dbccbef51d5caf",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Adds real single-stream plus disconnect-callback wrapper; Dispose releases connection in finally even when input close fails. Existing sequential-stream constructor retained for .NET compatibility, now owns/closes every supplied stream and respects zero-byte reads. Explicitly marked adapted.",
+      "sync_note": "Adds real single-stream plus disconnect-callback wrapper; Dispose releases connection in finally even when input close fails. Existing sequential-stream constructor retained for .NET compatibility, now owns/closes every supplied stream and respects zero-byte reads. Explicitly marked adapted.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestCreateSignature.java",
+      "target_path": "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs"
+      ],
+      "previous_sync_commit": "ddef86fcb1a5407035fdd1c8587832c3d1c761b9",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "New PDFBOX-6289 encrypted signing test converted using deterministic self-signed certificate and synthetic encrypted PDF; both internal/external paths check actual CMS signature, decrypted signer name and five zero padding bytes. Existing network TSA/LTV tests remain explicitly skipped. Review expansion:8 internal/external \u00d7 type/noType \u00d7 RC4/AES signing cases and2 full-save noType roundtrips; AES key length explicitly128 and version4 asserted. Earlier PreferAes-only default40 fixture actually exercised RC4; revised matrix corrects the coverage statement.",
+      "sync_note": "New PDFBOX-6289 encrypted signing test converted using deterministic self-signed certificate and synthetic encrypted PDF; both internal/external paths check actual CMS signature, decrypted signer name and five zero padding bytes. Existing network TSA/LTV tests remain explicitly skipped. Review expansion:8 internal/external \u00d7 type/noType \u00d7 RC4/AES signing cases and2 full-save noType roundtrips; AES key length explicitly128 and version4 asserted. Earlier PreferAes-only default40 fixture actually exercised RC4; revised matrix corrects the coverage statement.",
+      "upstream_test_parity": "new encrypted-signing regression converted; existing network TSA/LTV tests deferred"
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/IOUtils.java",
+      "target_path": "src/PdfBox.Net.IO/IO/IOUtils.cs",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/IOUtils.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java shutdown cleanup comment typo only; no new .NET runtime behavior.",
+      "sync_note": "Java shutdown cleanup comment typo only; no new .NET runtime behavior.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBuffer.java",
+      "target_path": "src/PdfBox.Net.IO/IO/RandomAccessReadBuffer.cs",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadBuffer.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java constructor documentation gains definedChunkSize parameter; current .NET constructor already exposes it.",
+      "sync_note": "Java constructor documentation gains definedChunkSize parameter; current .NET constructor already exposes it.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadBufferedFile.java",
+      "target_path": "src/PdfBox.Net.IO/IO/RandomAccessReadBufferedFile.cs",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadBufferedFile.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java seek becomes final; .NET Seek is already a nonvirtual method. No behavior change.",
+      "sync_note": "Java seek becomes final; .NET Seek is already a nonvirtual method. No behavior change.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "io/src/main/java/org/apache/pdfbox/io/RandomAccessReadWriteBuffer.java",
+      "target_path": "src/PdfBox.Net.IO/IO/RandomAccessReadWriteBuffer.cs",
+      "target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadWriteBuffer.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java redundant super constructor removed/inherit-doc; .NET constructors already equivalent.",
+      "sync_note": "Java redundant super constructor removed/inherit-doc; .NET constructors already equivalent.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "io/src/test/java/org/apache/pdfbox/io/RandomAccessReadMemoryMappedFileTest.java",
+      "target_path": "tests/PdfBox.Net.Tests/RandomAccessReadMemoryMappedFileTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/RandomAccessReadMemoryMappedFileTest.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java comment typo only; existing .NET memory-mapped behavior tests unchanged.",
+      "sync_note": "Java comment typo only; existing .NET memory-mapped behavior tests unchanged.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/DecompressObjectstreams.java",
+      "target_path": "src/PdfBox.Net/Tools/DecompressObjectstreams.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/DecompressObjectstreams.cs",
+        "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Ports command name decompress and adds its real central dispatcher route with -i/--input and optional -o/--output. No-output overwrites input after loading. Existing plain Save writes unpacked indirect objects; no new compression library needed.",
+      "sync_note": "Ports command name decompress and adds its real central dispatcher route with -i/--input and optional -o/--output. No-output overwrites input after loading. Existing plain Save writes unpacked indirect objects; no new compression library needed.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExportFDF.java",
+      "target_path": "src/PdfBox.Net/Tools/ExportFDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExportFDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to export:fdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to export:fdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExportXFDF.java",
+      "target_path": "src/PdfBox.Net/Tools/ExportXFDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExportXFDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to export:xfdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to export:xfdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractImages.java",
+      "target_path": "src/PdfBox.Net/Tools/ExtractImages.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExtractImages.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to export:images. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to export:images. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractText.java",
+      "target_path": "src/PdfBox.Net/Tools/ExtractText.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExtractText.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to export:text. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to export:text. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractXMP.java",
+      "target_path": "src/PdfBox.Net/Tools/ExtractXMP.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ExtractXMP.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to extract:xmp (registry export:xmp). Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to extract:xmp (registry export:xmp). Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImageToPDF.java",
+      "target_path": "src/PdfBox.Net/Tools/ImageToPDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ImageToPDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to fromimage. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to fromimage. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImportFDF.java",
+      "target_path": "src/PdfBox.Net/Tools/ImportFDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ImportFDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to import:fdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to import:fdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImportXFDF.java",
+      "target_path": "src/PdfBox.Net/Tools/ImportXFDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/ImportXFDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to import:xfdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to import:xfdf. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/OverlayPDF.java",
+      "target_path": "src/PdfBox.Net/Tools/OverlayPDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/OverlayPDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to overlay. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to overlay. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFBox.java",
+      "target_path": "src/PdfBox.Net/Tools/PDFBox.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PDFBox.cs",
+        "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Adds decompress route and new upstream spellings for existing dispatched commands, keeping old spellings as compatibility aliases.",
+      "sync_note": "Adds decompress route and new upstream spellings for existing dispatched commands, keeping old spellings as compatibility aliases.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFSplit.java",
+      "target_path": "src/PdfBox.Net/Tools/PDFSplit.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PDFSplit.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to split. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to split. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFToImage.java",
+      "target_path": "src/PdfBox.Net/Tools/PDFToImage.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PDFToImage.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Exposes and applies image subsampling/TrueType hinting through new RenderPng overload; existing overload preserves false defaults. Existing programmatic tool has no picocli annotation; Java command-name-only change otherwise has no standalone attribute counterpart.",
+      "sync_note": "Exposes and applies image subsampling/TrueType hinting through new RenderPng overload; existing overload preserves false defaults. Existing programmatic tool has no picocli annotation; Java command-name-only change otherwise has no standalone attribute counterpart.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PrintPDF.java",
+      "target_path": "src/PdfBox.Net/Tools/PrintPDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PrintPDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Accepts -hinting/-subsampling, configures renderer passed to print backend, and refreshes AcroForm appearances when NeedAppearances is true before printing. Existing three-argument Print API forwards to new option overload.",
+      "sync_note": "Accepts -hinting/-subsampling, configures renderer passed to print backend, and refreshes AcroForm appearances when NeedAppearances is true before printing. Existing three-argument Print API forwards to new option overload.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/TextToPDF.java",
+      "target_path": "src/PdfBox.Net/Tools/TextToPDF.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/TextToPDF.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to fromtext. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to fromtext. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "tools/src/main/java/org/apache/pdfbox/tools/WriteDecodedDoc.java",
+      "target_path": "src/PdfBox.Net/Tools/WriteDecodedDoc.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Tools/WriteDecodedDoc.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java standalone command annotation renamed to decode. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "sync_note": "Java standalone command annotation renamed to decode. Existing .NET static programmatic API has no picocli metadata; for already-dispatched commands PDFBox now recognizes the upstream spelling plus legacy alias. Undispatched programmatic-only helpers retain their current API boundary.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs",
+        "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Ports case-insensitive open/closed choice prefixes with ordinal comparison (avoids current-culture casing differences), preserving original type name/case after prefix removal. Six actual extension-packet parse regressions pass.",
+      "sync_note": "Ports case-insensitive open/closed choice prefixes with ordinal comparison (avoids current-culture casing differences), preserving original type name/case after prefix removal. Six actual extension-packet parse regressions pass.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "xmpbox/src/test/java/org/apache/xmpbox/xml/DomXmpParserTest.java",
+      "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs"
+      ],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "Java comment typo only; no runtime delta. New native PDF/A choice prefix regressions extend existing XmpRegressionFixturesTest.",
+      "sync_note": "Java comment typo only; no runtime delta. New native PDF/A choice prefix regressions extend existing XmpRegressionFixturesTest.",
+      "upstream_test_parity": "existing suite or documentation/Java-platform-only delta"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+      "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocument.cs",
+        "src/PdfBox.Net/PdfParser/PDFParser.cs",
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SignatureDictionary.cs"
+      ],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:03:45.410894+00:00",
+      "note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it.",
+      "sync_note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it.",
+      "upstream_test_parity": "converted actual AES internal/external signing test"
+    }
+  ],
+  "qa": {
+    "source_similarity": "Small literal source changes with explicitly documented headless debugger, native CMS, eager HTTP, programmatic tool and IO adapters.",
+    "test_gaps": "No real printer/Swing window/TSA/LDAP/CRL/OCSP services exercised. Native tool entry points and supported backend adapter remain the observable scope; online validation tests stay explicitly skipped.",
+    "report_row_gaps": "Parent integrates shared conversion/normalization/traceability records; every residual upstream changed path is listed here."
+  },
+  "validation": [
+    {
+      "command": "dotnet test tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false",
+      "result": "61 passed,0 failed,10 pre-existing skipped. Both encrypted signing modes verify actual CMS and reload signer name/padding.",
+      "log": "/private/tmp/957-other-examples-full.log"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.XmpBox.Tests/PdfBox.Net.XmpBox.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false",
+      "result": "51 passed,0 failed,0 skipped; includes6 new case-insensitive extension packet tests.",
+      "log": "/private/tmp/957-other-xmp-full.log"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~Issue957ToolsTest|FullyQualifiedName~Issue957CoreTest",
+      "result": "23 passed,0 failed,0 skipped",
+      "log": "/private/tmp/957-other-tools-final.log"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~TestCreateSignature.TestSignEncrypted|FullyQualifiedName~FullSaveLeavesOptionalTypeSignatureContentsUnencrypted",
+      "result": "10 passed,0 failed. Explicit RC4/AES, type/noType, internal/external andfullsave matrix.",
+      "log": "/private/tmp/957-optional-type-tests2.log"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false",
+      "result": "Final post-review suite:80 passed,0 failed,10 pre-existing skipped.",
+      "log": "/private/tmp/957-optional-type-examples-full.log"
+    }
+  ],
+  "review_repairs": [
+    {
+      "finding": "Valid signature dictionaries can omit Type; type-only exclusions corrupt encrypted Contents.",
+      "upstream_evidence": "apache/pdfbox SecurityHandler.java lines634\u2013638 at5206dee5bfe0f435609f6506e3fccccbc46a95cc; predicate also unchanged atbd21bd44f5dd050fa716c9bb033adcf725b7ebd3.",
+      "implementation": "Shared internal SignatureDictionary.IsSignature used by decryption and full/incremental writing.",
+      "test_evidence": "10 matrix cases passed; all8 signatures actually verify CMS, signer names decrypt, and padding stayszero.2 full-save cases assert raw unencrypted Contents bytes and encrypted ordinary signer name."
+    }
+  ]
+}

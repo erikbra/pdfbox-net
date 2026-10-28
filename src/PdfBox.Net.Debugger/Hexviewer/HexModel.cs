@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: debugger/src/main/java/org/apache/pdfbox/debugger/hexviewer/HexModel.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -98,14 +98,14 @@ public sealed class HexModel : IHexChangeListener
     public int TotalLine()
     {
         int size = _data.Count;
-        return size % 16 != 0 ? size / 16 + 1 : size / 16;
+        return size % 16 == 0 ? size / 16 : size / 16 + 1;
     }
 
     /// <summary>Returns the 1-based line number that contains the given byte index.</summary>
     public static int LineNumber(int index)
     {
         int elementNo = index + 1;
-        return elementNo % 16 != 0 ? elementNo / 16 + 1 : elementNo / 16;
+        return elementNo % 16 == 0 ? elementNo / 16 : elementNo / 16 + 1;
     }
 
     /// <summary>Returns the position within its line (0–15) of the byte at the given index.</summary>

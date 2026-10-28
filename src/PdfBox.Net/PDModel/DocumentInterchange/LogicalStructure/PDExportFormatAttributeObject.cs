@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -62,5 +62,25 @@ public partial class PDExportFormatAttributeObject : PDLayoutAttributeObject
         GetCOSObject().SetName(ListNumberingName, listNumbering);
         PotentiallyNotifyChanged(old, GetCOSObject().GetItem(ListNumberingName));
     }
+    /// <summary>
+    /// Gets the Headers array of element-identifier byte strings for TH structure elements
+    /// associated with this cell, or null if there are none.
+    /// </summary>
+    public string[]? GetHeaders() => PDStandardAttributeObject.ReadStringArray(GetCOSObject(), "Headers");
+
+    /// <summary>Sets the Headers array of element identifiers associated with this cell.</summary>
+    public void SetHeaders(string[] headers)
+    {
+        COSName name = COSName.GetPDFName("Headers");
+        COSBase? old = GetCOSObject().GetDictionaryObject(name);
+        COSArray array = new();
+        foreach (string header in headers)
+        {
+            array.Add(new COSString(header));
+        }
+        GetCOSObject().SetItem(name, array);
+        PotentiallyNotifyChanged(old, array);
+    }
+
 }
 

@@ -5,6 +5,22 @@ namespace PdfBox.Net.FontBox.Tests;
 
 public class CFFParserTest
 {
+    [Theory]
+    [InlineData(false, 500)]
+    [InlineData(true, 139)]
+    public void Type1CffWidthUsesNumericPrivateDictionaryOperandLists(bool explicitWidth, int expected)
+    {
+        CFFType1Font font = Assert.IsType<CFFType1Font>(Assert.Single(new CFFParser().Parse(FontBoxTestFixtures.CreateMinimalOpenTypeCff())));
+        font.GetPrivateDict()["defaultWidthX"] = new List<float> { 500 };
+        font.GetPrivateDict()["nominalWidthX"] = new List<float> { 650 };
+        if (explicitWidth)
+        {
+            // Type2 charstring: -511 endchar; the width is relative to nominalWidthX.
+            font.GetCharStringBytes()[1] = [252, 147, 14];
+        }
+        Assert.Equal(expected, font.GetWidth("space"));
+    }
+
     [Fact]
     public void TestMinimalOpenTypeCffParses()
     {

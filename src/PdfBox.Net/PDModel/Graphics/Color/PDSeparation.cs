@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDSeparation.java
  * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -93,10 +93,13 @@ public sealed partial class PDSeparation : PDColorSpace
         ((COSArray)GetCOSObject()).Set(ColorSpaceNameIndex, COSName.GetPDFName(name));
     }
 
+    /// <summary>Returns the tint transform function.</summary>
+    internal PDFunction GetTintTransform() => _tintTransform;
+
     public void SetTintTransform(PDFunction? tint)
     {
         _tintTransform = tint ?? new PDFunctionTypeIdentity(COSName.IDENTITY);
-        ((COSArray)GetCOSObject()).Set(TintTransformIndex, tint?.GetCOSObject());
+        ((COSArray)GetCOSObject()).Set(TintTransformIndex, tint is PDFunctionTypeIdentity ? COSName.IDENTITY : tint?.GetCOSObject());
     }
 
     public override int GetNumberOfComponents() => 1;
@@ -121,7 +124,7 @@ public sealed partial class PDSeparation : PDColorSpace
         array.Add(Separation);
         array.Add(COSName.GetPDFName(name));
         array.Add(alternateCS.GetCOSObject());
-        array.Add(tintTransform.GetCOSObject());
+        array.Add(tintTransform is PDFunctionTypeIdentity ? COSName.IDENTITY : tintTransform.GetCOSObject());
         return array;
     }
 

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/Concatenate.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -55,6 +55,13 @@ public sealed class Concatenate : OperatorProcessor
         float d = ((COSNumber)operands[3]).FloatValue();
         float e = ((COSNumber)operands[4]).FloatValue();
         float f = ((COSNumber)operands[5]).FloatValue();
-        Context.ConcatenateMatrix(new Matrix(a, b, c, d, e, f));
+        try
+        {
+            Context.ConcatenateMatrix(new Matrix(a, b, c, d, e, f));
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException(ex.Message, ex);
+        }
     }
 }

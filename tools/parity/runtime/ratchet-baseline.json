@@ -2,10 +2,11 @@
   "schema": 1,
   "description": "Maximum accepted Java-vs-.NET runtime parity divergences for the current tracked corpus. Update this file intentionally when the known-failure ledger or corpus changes.",
   "source": {
-    "generatedFrom": "SkiaSharp 4 DCT image sampling parity follow-up",
-    "generatedAtUtc": "2026-06-30T12:33:03Z",
+    "generatedFrom": "Issue #957 verified improvements from glyph/foreground to stricter rendering categories",
+    "generatedAtUtc": "2026-10-28T06:36:56Z",
     "manifest": "tools/parity/runtime/corpus-manifest.txt",
-    "knownFailures": "tools/parity/runtime/known-failures.json"
+    "knownFailures": "tools/parity/runtime/known-failures.json",
+    "categoryRedistributionEvidence": "reports/issue-957-runtime-category-redistribution.json"
   },
   "maxStatus": {
     "known": 0,
@@ -15,10 +16,10 @@
     "merge-structural-match": 72,
     "render-form-widget-bbox-clipping-equivalence-match": 1,
     "render-form-widget-raster-equivalence-match": 3,
-    "render-foreground-shape-equivalence-match": 37,
+    "render-foreground-shape-equivalence-match": 38,
     "render-global-resource-text-raster-equivalence-match": 4,
     "render-glyph-layout-equivalence-match": 2,
-    "render-glyph-raster-equivalence-match": 5,
+    "render-glyph-raster-equivalence-match": 3,
     "render-image-mask-shape-equivalence-match": 2,
     "render-java-optional-jpx-reader-missing-match": 3,
     "render-jbig2-decoder-raster-equivalence-match": 1,
@@ -29,7 +30,7 @@
     "render-pattern-transparency-raster-equivalence-match": 1,
     "render-rotation-overlay-shape-equivalence-match": 9,
     "render-sparse-equivalence-match": 1,
-    "render-visual-equivalence-match": 72,
+    "render-visual-equivalence-match": 73,
     "save-structural-match": 148,
     "text-semantic-math-linewrap-match": 1,
     "text-semantic-punctuation-spacing-match": 1

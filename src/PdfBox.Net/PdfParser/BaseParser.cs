@@ -5,7 +5,24 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ */
+
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 using System.Text;
@@ -176,6 +193,32 @@ public abstract class BaseParser
 
         return buffer.ToString();
     }
+
+    /// <summary>Seeks to a position in the underlying data source.</summary>
+    protected void Seek(long position) => Source.Seek(position, SeekOrigin.Begin);
+
+    /// <summary>Reads a single byte of data, or -1 at end of input.</summary>
+    protected int Read() => Source.ReadByte();
+
+    /// <summary>Reads up to length bytes into the given buffer.</summary>
+    protected int Read(byte[] buffer, int offset, int length) => Source.Read(buffer, offset, length);
+
+    /// <summary>Returns the next byte without consuming it, or -1 at end of input.</summary>
+    protected int Peek()
+    {
+        int value = Source.ReadByte();
+        if (value >= 0)
+        {
+            Rewind(1);
+        }
+        return value;
+    }
+
+    /// <summary>Returns the total number of bytes in the data source.</summary>
+    protected long Length() => Source.Length;
+
+    /// <summary>Returns the offset of the next byte to read.</summary>
+    protected long GetPosition() => Source.Position;
 
     private void Rewind(long bytes)
     {

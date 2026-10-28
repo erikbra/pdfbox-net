@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java
  * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -93,6 +93,24 @@ public sealed class PDType1CFont : PDSimpleFont
     public override bool IsEmbedded() => true;
     public override bool IsDamaged() => false;
     public string GetBaseFont() => GetName();
+
+    public override float GetStringWidth(string text)
+    {
+        float width = 0;
+        foreach (System.Text.Rune rune in text.EnumerateRunes())
+        {
+            if (!CodepointToWidthMap.TryGetValue(rune.Value, out float codepointWidth))
+            {
+                string name = PdfBox.Net.PDModel.Font.Encoding.GlyphList.GetAdobeGlyphList().CodePointToName(rune.Value);
+                if (!_cffFont.HasGlyph(name)) throw new ArgumentException($"U+{rune.Value:X4} ('{name}') is not available in font {GetName()}");
+                codepointWidth = _cffFont.GetWidth(name);
+                CodepointToWidthMap[rune.Value] = codepointWidth;
+            }
+            width += codepointWidth;
+        }
+        return width;
+    }
+
     public override GeneralPath GetPath(int code) => base.GetPath(code);
     public override GeneralPath GetPath(string name) => base.GetPath(name);
 

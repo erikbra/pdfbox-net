@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalGray.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -29,17 +29,18 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-public sealed class PDCalGray : PDColorSpace
+public sealed class PDCalGray : PDCIEDictionaryBasedColorSpace
 {
     private static readonly COSName CalGray = COSName.GetPDFName("CalGray");
 
-    private readonly float _gamma;
+    private readonly Dictionary<float, float[]> _cache = [];
     private readonly PDColor _initialColor;
+
+    public PDCalGray() : this(new COSArray { CalGray }) { }
 
     public PDCalGray(COSArray array) : base(array)
     {
-        COSDictionary? dictionary = array.Size() > 1 ? array.GetObject(1) as COSDictionary : null;
-        _gamma = Math.Max(0f, dictionary?.GetFloat(COSName.GetPDFName("Gamma"), 1f) ?? 1f);
+
         _initialColor = new PDColor([0f], this);
     }
 
@@ -51,10 +52,16 @@ public sealed class PDCalGray : PDColorSpace
 
     public override PDColor GetInitialColor() => _initialColor;
 
+    public float GetGamma() => Dictionary.GetFloat(COSName.GetPDFName("Gamma"), 1f);
+    public void SetGamma(float gamma) => Dictionary.SetFloat(COSName.GetPDFName("Gamma"), gamma);
+
     public override float[] ToRGB(float[] value)
     {
-        float component = Clamp(value.Length > 0 ? value[0] : 0f);
-        float calibrated = MathF.Pow(component, _gamma);
-        return [calibrated, calibrated, calibrated];
+        float a = value[0];
+        if (_cache.TryGetValue(a, out float[]? cached)) return (float[])cached.Clone();
+        float calibrated = MathF.Pow(a, GetGamma());
+        float[] result = ConvXYZtoRGB(WpX * calibrated, WpY * calibrated, WpZ * calibrated);
+        _cache[a] = (float[])result.Clone();
+        return result;
     }
 }

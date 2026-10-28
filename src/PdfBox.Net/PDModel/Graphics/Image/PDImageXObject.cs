@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/image/PDImageXObject.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -48,8 +48,7 @@ public sealed partial class PDImageXObject : PDXObject
         COSStream? cos = GetCOSObject();
         if (cos is not null)
         {
-            cos.SetName(COSName.TYPE, "XObject");
-            cos.SetName(COSName.GetPDFName("Subtype"), "Image");
+            SetXObjectSubtype("Image");
         }
     }
 

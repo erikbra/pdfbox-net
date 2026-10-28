@@ -1,0 +1,186 @@
+{
+  "issue": 957,
+  "initial_gate_result": "Exit 1 solely because render-visual-equivalence-match 73 exceeded cap 72 despite all 691 rows matching.",
+  "review": "Read-only sub-agent recomputed PNG metrics and inspected existing classifier ordering; parent independently checked metrics, reference hashes and unchanged total budget.",
+  "comparison_rows": 691,
+  "actual_status_counts": {
+    "match": 691,
+    "known": 0,
+    "unexpected": 0
+  },
+  "tool_summary_counts": {
+    "match": 1027,
+    "known": 0,
+    "unexpected": 0
+  },
+  "summary_count_note": "Existing compare() also increments category counts into status totals, so category match double-counts 336 exact matches. No harness semantics changed in this task.",
+  "category_caps": {
+    "render-visual-equivalence-match": {
+      "before": 72,
+      "after": 73
+    },
+    "render-glyph-raster-equivalence-match": {
+      "before": 5,
+      "after": 3
+    },
+    "render-foreground-shape-equivalence-match": {
+      "before": 37,
+      "after": 38
+    }
+  },
+  "total_category_budget_before": 365,
+  "total_category_budget_after": 365,
+  "tolerances_changed": false,
+  "status_limits_changed": false,
+  "all_other_category_caps_changed": false,
+  "transitions": [
+    {
+      "file": "PDFBOX-3062-002207-p1.pdf",
+      "operation": "render",
+      "before_category": "render-glyph-raster-equivalence-match",
+      "after_category": "render-foreground-shape-equivalence-match",
+      "before_metrics": {
+        "totalPixels": 121176,
+        "moderateDiffRatio": 0.09071103188750247,
+        "largeDiffRatio": 0.023651548161352082,
+        "rms": 10.260403687885962,
+        "mean": 2.340426322043969
+      },
+      "after_metrics": {
+        "totalPixels": 121176,
+        "moderateDiffRatio": 0.036261305869149,
+        "largeDiffRatio": 0.0008582557602165445,
+        "rms": 3.59283275665188,
+        "mean": 0.6923153099623688
+      },
+      "image_hashes": {
+        "java": {
+          "before_sha256": "8857f3d57297b20f926493c78f5a0f3da8c4c3c0ef78a8bc4b44ab421e4ec8aa",
+          "after_sha256": "8857f3d57297b20f926493c78f5a0f3da8c4c3c0ef78a8bc4b44ab421e4ec8aa"
+        },
+        "dotnet": {
+          "before_sha256": "025f679be32aeb1d42ed98efe8b7432c1846946905922e6947bacaa8f7176064",
+          "after_sha256": "6c19b2828467733bca16d0bf1b053bf2205668cddc87796c0786e1d39d6894ae"
+        }
+      }
+    },
+    {
+      "file": "custom-render-demo.pdf",
+      "operation": "render",
+      "before_category": "render-foreground-shape-equivalence-match",
+      "after_category": "render-visual-equivalence-match",
+      "before_metrics": {
+        "totalPixels": 121176,
+        "moderateDiffRatio": 0.0142602495543672,
+        "largeDiffRatio": 0.007443718228031954,
+        "rms": 10.500859792455163,
+        "mean": 0.7556859444114347
+      },
+      "after_metrics": {
+        "totalPixels": 121176,
+        "moderateDiffRatio": 0.007501485442661914,
+        "largeDiffRatio": 0.0014276754472832905,
+        "rms": 2.7889754989119915,
+        "mean": 0.1782654981184393
+      },
+      "image_hashes": {
+        "java": {
+          "before_sha256": "1f1febbfb06caaa924a8caee371136cf2427d079437b88c031168d82122d17bb",
+          "after_sha256": "1f1febbfb06caaa924a8caee371136cf2427d079437b88c031168d82122d17bb"
+        },
+        "dotnet": {
+          "before_sha256": "504798bca15ac8e1cf222d8105f58a27e50625acf4ef6987c725cbeec3ff06f5",
+          "after_sha256": "4f65ba04d4f1b8c5615b5bbf1dcb3228063e9a8c8db4ec94420528b888a91491"
+        }
+      }
+    }
+  ],
+  "ubuntu_followup": {
+    "baseline_run": 33994980879,
+    "baseline_commit": "3e0b4495956ee904f4f1b564a72ccb21f341b23d",
+    "baseline_artifact_id": 9977841171,
+    "pr_run": 40643756339,
+    "pr_commit": "917384357a69970388080ddb02117ef013986e2b",
+    "pr_artifact_id": 12796402904,
+    "source_equivalence_to_task_base": "Only four generated reports differ between prior main CI and924878ec; source/tests/harness/workflow unchanged.",
+    "initial_gate_result": "All691 rows match; exit1 solely foreground38 exceeds37.",
+    "transitions": [
+      {
+        "file": "PDFBOX-3038-001033-p2.pdf",
+        "before_category": "render-glyph-raster-equivalence-match",
+        "after_category": "render-foreground-shape-equivalence-match",
+        "before_metrics": {
+          "totalPixels": 121176,
+          "moderateDiffRatio": 0.09463920248233974,
+          "largeDiffRatio": 0.01905492836865386,
+          "rms": 9.24207134159002,
+          "mean": 2.238491945599789
+        },
+        "after_metrics": {
+          "totalPixels": 121176,
+          "moderateDiffRatio": 0.041229286327325546,
+          "largeDiffRatio": 0.0002723311546840959,
+          "rms": 3.6221442356429447,
+          "mean": 0.7368579586716841
+        },
+        "java_png_sha256": "6015bf6f331e251b40aba5d1f5e6df047f377dfe82a124f24be074c2328c9ba1"
+      },
+      {
+        "file": "PDFBOX-3062-002207-p1.pdf",
+        "before_category": "render-glyph-raster-equivalence-match",
+        "after_category": "render-foreground-shape-equivalence-match",
+        "before_metrics": {
+          "totalPixels": 121176,
+          "moderateDiffRatio": 0.10369215026077772,
+          "largeDiffRatio": 0.053055060408001585,
+          "rms": 16.13349827340395,
+          "mean": 3.8471293820558525
+        },
+        "after_metrics": {
+          "totalPixels": 121176,
+          "moderateDiffRatio": 0.036286063246847564,
+          "largeDiffRatio": 0.0008582557602165445,
+          "rms": 3.5942821096760635,
+          "mean": 0.6926557239057239
+        },
+        "java_png_sha256": "8857f3d57297b20f926493c78f5a0f3da8c4c3c0ef78a8bc4b44ab421e4ec8aa"
+      },
+      {
+        "file": "custom-render-demo.pdf",
+        "before_category": "render-foreground-shape-equivalence-match",
+        "after_category": "render-visual-equivalence-match",
+        "before_metrics": {
+          "totalPixels": 121176,
+          "moderateDiffRatio": 0.013938403644285998,
+          "largeDiffRatio": 0.007229154287977818,
+          "rms": 9.917476241480497,
+          "mean": 0.7065446127946128
+        },
+        "after_metrics": {
+          "totalPixels": 121176,
+          "moderateDiffRatio": 0.007468475605730508,
+          "largeDiffRatio": 0.0014276754472832905,
+          "rms": 2.791701585436229,
+          "mean": 0.17822423582227503
+        },
+        "java_png_sha256": "1f1febbfb06caaa924a8caee371136cf2427d079437b88c031168d82122d17bb"
+      }
+    ],
+    "review": "Read-only agent using review-evidence independently recomputed PNG differences from both ZIP archives; parent verified identical transitioned-fixture references and improved metrics.",
+    "reference_scope_note": "References are byte-identical for all three transitioned fixtures. Across149 Java images,148 match bytes; unrelated PDFBOX-6049-ExpectedResult differs minutely without a category change."
+  },
+  "common_caps_validation": {
+    "macos": {
+      "comparison_rows": 691,
+      "all_rows_match": true,
+      "ratchet_failures": [],
+      "strict_gate_failures": []
+    },
+    "ubuntu": {
+      "comparison_rows": 691,
+      "all_rows_match": true,
+      "ratchet_failures": [],
+      "strict_gate_failures": []
+    }
+  }
+}

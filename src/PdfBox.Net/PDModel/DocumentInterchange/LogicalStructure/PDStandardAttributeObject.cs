@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -25,6 +25,8 @@
  * limitations under the License.
  */
 
+using Microsoft.Extensions.Logging;
+using PdfBox.Net.Logging;
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf;
 using PdfBox.Net.PDModel.Graphics.Color;
@@ -41,6 +43,8 @@ public abstract class PDStandardAttributeObject : PDAttributeObject
     /// An "unspecified" default float value.
     /// </summary>
     protected const float Unspecified = -1f;
+
+    private static ILogger<PDStandardAttributeObject> LOG => PdfBoxLogging.CreateLogger<PDStandardAttributeObject>();
 
     /// <summary>
     /// Default constructor.
@@ -85,15 +89,23 @@ public abstract class PDStandardAttributeObject : PDAttributeObject
     /// <summary>
     /// Gets an array of strings.
     /// </summary>
-    protected string[]? GetArrayOfString(string name)
+    protected string[]? GetArrayOfString(string name) => ReadStringArray(GetCOSObject(), name);
+
+    // The existing .NET layout adapter has a different inheritance chain; share the same
+    // upstream decoder without changing that public hierarchy.
+    internal static string[]? ReadStringArray(COSDictionary dictionary, string name)
     {
-        COSBase? v = GetCOSObject().GetDictionaryObject(COSName.GetPDFName(name));
+        COSBase? v = dictionary.GetDictionaryObject(COSName.GetPDFName(name));
         if (v is COSArray array)
         {
             var strings = new string[array.Size()];
             for (int i = 0; i < array.Size(); i++)
             {
-                strings[i] = ((COSName)array.GetObject(i)!).GetName();
+                strings[i] = array.GetString(i)!;
+                if (strings[i] is null)
+                {
+                    LOG.LogWarning("Element {Index} is {Value} but should be a string", i, array.GetObject(i));
+                }
             }
             return strings;
         }

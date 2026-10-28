@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java
  * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -275,6 +275,62 @@ public partial class PDType0Font : PDVectorFont
     public override float GetSpaceWidth() => _descendantFont?.GetSpaceWidth() ?? base.GetSpaceWidth();
     public override PDFontDescriptor? GetFontDescriptor() => base.GetFontDescriptor() ?? _descendantFont?.GetFontDescriptor();
 
+    public override float GetStringWidth(string text)
+    {
+        float width = 0;
+        foreach (System.Text.Rune rune in text.EnumerateRunes())
+        {
+            if (!CodepointToWidthMap.TryGetValue(rune.Value, out float codepointWidth))
+            {
+                codepointWidth = 0;
+                using MemoryStream input = new(Encode(rune.Value), writable: false);
+                while (input.Position < input.Length) codepointWidth += GetWidth(ReadCode(input));
+                CodepointToWidthMap[rune.Value] = codepointWidth;
+            }
+            width += codepointWidth;
+        }
+        return width;
+    }
+
+    protected override byte[] Encode(int unicode)
+    {
+        if (CodepointToEncodingMap.TryGetValue(unicode, out byte[]? cached)) return cached;
+        if (_descendantFont is not PDCIDFontType2 type2)
+            return base.Encode(unicode);
+        int cid = -1;
+        string? cmapName = _cMap?.Name;
+        if (type2.IsEmbedded())
+        {
+            if (cmapName?.StartsWith("Identity-", StringComparison.Ordinal) == true)
+            {
+                if (type2.GetTrueTypeFont().GetUnicodeCmapLookup(false) is CmapLookup cmap)
+                    cid = cmap.GetGlyphId(unicode);
+            }
+            else if (_cMapUcs2 is not null)
+            {
+                cid = _cMapUcs2.ToCID(unicode);
+            }
+            if (cid == -1)
+            {
+                byte[]? codes = GetToUnicodeCMap()?.GetCodesFromUnicode(((char)unicode).ToString());
+                if (codes is not null)
+                {
+                    CodepointToEncodingMap[unicode] = codes;
+                    return codes;
+                }
+                cid = 0;
+            }
+        }
+        else if (cmapName?.StartsWith("Uni", StringComparison.Ordinal) == true && _cMapUcs2 is not null)
+            cid = unicode; // Predefined Uni CMap codes are raw UTF-16BE Unicode values.
+        else
+            cid = type2.GetTrueTypeFont().GetUnicodeCmapLookup(false)?.GetGlyphId(unicode) ?? 0;
+        if (cid == 0) throw new ArgumentException($"No glyph for U+{unicode:X4} in font {GetName()}");
+        byte[] encoded = type2.EncodeGlyphId(cid);
+        CodepointToEncodingMap[unicode] = encoded;
+        return encoded;
+    }
+
     public override int ReadCode(Stream input)
     {
         return _cMap?.ReadCode(input) ?? base.ReadCode(input);
@@ -338,7 +394,7 @@ public partial class PDType0Font : PDVectorFont
         }
         if (_descendantFont is PDCIDFontType2 type2)
         {
-            int gid = type2.CodeToGID(CodeToCID(code));
+            int gid = type2.CodeToGID(code, this);
             return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid) != null;
         }
 
@@ -352,7 +408,7 @@ public partial class PDType0Font : PDVectorFont
             return type0.CodeToGID(code, this);
         }
         return _descendantFont is PDCIDFontType2 type2
-            ? type2.CodeToGID(CodeToCID(code))
+            ? type2.CodeToGID(code, this)
             : CodeToCID(code);
     }
 
@@ -364,7 +420,7 @@ public partial class PDType0Font : PDVectorFont
         }
         if (_descendantFont is PDCIDFontType2 type2)
         {
-            int gid = type2.CodeToGID(CodeToCID(code));
+            int gid = type2.CodeToGID(code, this);
             return TrueTypePathNormalizer.GetNormalizedPath(
                 type2.GetTrueTypeFont(),
                 gid,
@@ -373,6 +429,9 @@ public partial class PDType0Font : PDVectorFont
 
         return new GeneralPath();
     }
+
+    public override GeneralPath? GetHintedNormalizedPath(int code, int ppem) =>
+        _descendantFont?.GetHintedNormalizedPath(code, ppem, this);
 
     public override GeneralPath GetPath(int code) => GetNormalizedPath(code);
 

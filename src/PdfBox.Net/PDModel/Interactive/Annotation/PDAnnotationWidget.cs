@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationWidget.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -44,6 +44,10 @@ public sealed partial class PDAnnotationWidget : PDAnnotation
     public PDAnnotationWidget(COSDictionary dict)
         : base(dict)
     {
+        if (GetSubtype() != SUB_TYPE)
+        {
+            GetCOSDictionary().SetName(COSName.SUBTYPE, SUB_TYPE);
+        }
     }
 
     public string GetHighlightingMode()

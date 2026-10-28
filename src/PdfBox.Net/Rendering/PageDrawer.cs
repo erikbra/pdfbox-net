@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -239,6 +239,14 @@ public partial class PageDrawer : PDFGraphicsStreamEngine, IDisposable
     protected virtual void ShowType3Glyph(Matrix textRenderingMatrix, PDType3Font font, int code, Vector displacement)
     {
         base.ShowGlyph(textRenderingMatrix, font, code, displacement);
+    }
+
+    /// <summary>Derives pixels per em from the vertical basis vector of the glyph-to-device transform, including rotation.</summary>
+    internal static int HintingPpem(AffineTransform at)
+    {
+        double scale = Math.Sqrt(at.ShearX * at.ShearX + at.ScaleY * at.ScaleY);
+        int ppem = (int)Math.Floor(1000 * scale + 0.5);
+        return ppem > 0 ? ppem : 0;
     }
 
     public void Dispose()

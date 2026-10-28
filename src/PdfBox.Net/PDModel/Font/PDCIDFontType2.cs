@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java
  * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -62,9 +62,14 @@ public partial class PDCIDFontType2 : PDCIDFont
         COSDictionary dictionary,
         TrueTypeFont? trueTypeFont,
         ResourceCache? resourceCache)
+        : this(dictionary, trueTypeFont, resourceCache, trueTypeFont is not null)
+    {
+    }
+
+    internal PDCIDFontType2(COSDictionary dictionary, TrueTypeFont? trueTypeFont, ResourceCache? resourceCache, bool isEmbedded)
         : base(dictionary, resourceCache)
     {
-        _isEmbedded = trueTypeFont is not null;
+        _isEmbedded = isEmbedded;
         _trueTypeFont = trueTypeFont ?? new TrueTypeFont();
         _unicodeCmap = _trueTypeFont.GetUnicodeCmapLookup(false);
         _cidToGid = ReadCidToGidMap(dictionary);
@@ -92,7 +97,11 @@ public partial class PDCIDFontType2 : PDCIDFont
             // Keep non-throwing CID font construction behavior.
         }
 
-        return new PDCIDFontType2(dictionary, ttf, resourceCache);
+        if (ttf is not null) return new PDCIDFontType2(dictionary, ttf, resourceCache);
+        PDCIDFontType2 placeholder = new(dictionary, null, resourceCache);
+        CIDFontMapping? mapping = FontMappers.Instance.GetCIDFont(placeholder.GetName(), placeholder.GetFontDescriptor(), placeholder.GetCIDSystemInfo());
+        TrueTypeFont? substitute = mapping?.GetFont() as TrueTypeFont;
+        return substitute is null ? placeholder : new PDCIDFontType2(dictionary, substitute, resourceCache, isEmbedded: false);
     }
 
     private static TrueTypeFont? TryParseEmbeddedFont(COSDictionary descriptor, COSName key, bool preferOpenType)
@@ -195,6 +204,19 @@ public partial class PDCIDFontType2 : PDCIDFont
     /// Maps a CID to a glyph ID (GID) using the CIDToGIDMap entry.
     /// When the CIDToGIDMap is "Identity" or absent, returns the CID as the GID.
     /// </summary>
+    internal int CodeToGID(int code, PDType0Font parent)
+    {
+        int cid = parent.CodeToCID(code);
+        if (_isEmbedded || _cidToGid is not null) return CodeToGID(cid);
+        string? unicode = parent.ToUnicode(code);
+        if (!string.IsNullOrEmpty(unicode) && _unicodeCmap is not null)
+        {
+            if (_trueTypeFont is OpenTypeFont otf && otf.IsPostScript) return cid;
+            return _unicodeCmap.GetGlyphId(char.ConvertToUtf32(unicode, 0));
+        }
+        return 0;
+    }
+
     public int CodeToGID(int cid)
     {
         if (_cidToGid != null)
@@ -267,6 +289,9 @@ public partial class PDCIDFontType2 : PDCIDFont
         int gid = CodeToGID(code);
         return TrueTypePathNormalizer.GetNormalizedPath(_trueTypeFont, gid, drawGidZero: IsEmbedded());
     }
+
+    public override GeneralPath? GetHintedNormalizedPath(int code, int ppem, PDType0Font parent) => IsEmbedded()
+        ? TrueTypePathNormalizer.GetHintedNormalizedPath(_trueTypeFont, CodeToGID(code, parent), ppem) : null;
 
     public GeneralPath GetPath(int code) => GetNormalizedPath(code);
 

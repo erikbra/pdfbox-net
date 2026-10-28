@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "generated_at_utc": "2026-09-05T21:41:06Z",
-  "upstream_root": "/private/tmp/apache-pdfbox-954",
-  "upstream_commit": "046747da99a870902217efabf1c41297de157059",
-  "pdfbox_net_commit": "761f23157e2ac8f2e552288236443fac34b9ec77",
+  "generated_at_utc": "2026-10-28T06:17:46Z",
+  "upstream_root": "/private/tmp/pdfbox-upstream-957-latest",
+  "upstream_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+  "pdfbox_net_commit": "c3fa6ebfc840f86ca8b00c6ba0848341370dc110",
   "scope": {
     "modules": [
       "io",
@@ -16,28 +16,28 @@
     "matching": "case-normalized method matching, JavaBean accessor-to-property matching, arity drift tracked separately"
   },
   "totals": {
-    "java_types": 585,
-    "matched_types": 583,
-    "same_name_matched_types": 577,
-    "java_members": 6311,
-    "matched_members": 5410,
-    "arity_drift_members": 44,
-    "missing_members": 857,
-    "csharp_extra_members": 1652,
+    "java_types": 590,
+    "matched_types": 588,
+    "same_name_matched_types": 582,
+    "java_members": 6340,
+    "matched_members": 5453,
+    "arity_drift_members": 43,
+    "missing_members": 844,
+    "csharp_extra_members": 1659,
     "nonpublic_or_replacement_types": 2,
     "renamed_public_types": 6,
     "missing_types": 0
   },
   "by_module": {
     "fontbox": {
-      "java_types": 110,
-      "same_name_matched_types": 105,
-      "matched_types": 109,
-      "java_members": 1028,
-      "matched_members": 1006,
-      "arity_drift_members": 4,
-      "missing_members": 18,
-      "csharp_extra_members": 304,
+      "java_types": 114,
+      "same_name_matched_types": 109,
+      "matched_types": 113,
+      "java_members": 1050,
+      "matched_members": 1034,
+      "arity_drift_members": 3,
+      "missing_members": 13,
+      "csharp_extra_members": 305,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 4,
       "missing_types": 0
@@ -56,14 +56,14 @@
       "missing_types": 0
     },
     "pdfbox": {
-      "java_types": 395,
-      "same_name_matched_types": 394,
-      "matched_types": 394,
-      "java_members": 4210,
-      "matched_members": 3690,
+      "java_types": 396,
+      "same_name_matched_types": 395,
+      "matched_types": 395,
+      "java_members": 4217,
+      "matched_members": 3705,
       "arity_drift_members": 36,
-      "missing_members": 484,
-      "csharp_extra_members": 1174,
+      "missing_members": 476,
+      "csharp_extra_members": 1180,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
       "missing_types": 0
@@ -114,10 +114,10 @@
       "same_name_matched_types": 14,
       "matched_types": 14,
       "java_members": 148,
-      "matched_members": 132,
-      "arity_drift_members": 4,
-      "missing_members": 12,
-      "csharp_extra_members": 18,
+      "matched_members": 138,
+      "arity_drift_members": 3,
+      "missing_members": 7,
+      "csharp_extra_members": 19,
       "renamed_public_types": 0,
       "nonpublic_or_replacement_types": 0,
       "missing_types": 0
@@ -162,11 +162,11 @@
       "missing_types": 0
     },
     "fontbox:ttf": {
-      "java_types": 69,
-      "same_name_matched_types": 64,
-      "matched_types": 68,
-      "java_members": 609,
-      "matched_members": 604,
+      "java_types": 73,
+      "same_name_matched_types": 68,
+      "matched_types": 72,
+      "java_members": 631,
+      "matched_members": 626,
       "arity_drift_members": 0,
       "missing_members": 5,
       "csharp_extra_members": 217,
@@ -243,8 +243,8 @@
       "java_types": 12,
       "same_name_matched_types": 12,
       "matched_types": 12,
-      "java_members": 244,
-      "matched_members": 244,
+      "java_members": 245,
+      "matched_members": 245,
       "arity_drift_members": 0,
       "missing_members": 0,
       "csharp_extra_members": 50,
@@ -279,11 +279,11 @@
       "missing_types": 0
     },
     "pdfbox:pdfparser": {
-      "java_types": 15,
-      "same_name_matched_types": 15,
-      "matched_types": 15,
-      "java_members": 114,
-      "matched_members": 57,
+      "java_types": 16,
+      "same_name_matched_types": 16,
+      "matched_types": 16,
+      "java_members": 119,
+      "matched_members": 62,
       "arity_drift_members": 9,
       "missing_members": 48,
       "csharp_extra_members": 28,
@@ -308,11 +308,11 @@
       "java_types": 284,
       "same_name_matched_types": 283,
       "matched_types": 283,
-      "java_members": 3311,
-      "matched_members": 2900,
+      "java_members": 3310,
+      "matched_members": 2907,
       "arity_drift_members": 21,
-      "missing_members": 390,
-      "csharp_extra_members": 965,
+      "missing_members": 382,
+      "csharp_extra_members": 971,
       "nonpublic_or_replacement_types": 1,
       "renamed_public_types": 0,
       "missing_types": 0
@@ -334,8 +334,8 @@
       "java_types": 4,
       "same_name_matched_types": 4,
       "matched_types": 4,
-      "java_members": 65,
-      "matched_members": 64,
+      "java_members": 67,
+      "matched_members": 66,
       "arity_drift_members": 0,
       "missing_members": 1,
       "csharp_extra_members": 11,
@@ -4078,20 +4078,27 @@
       "java_type": "org.apache.fontbox.cff.Type1CharString",
       "java_type_name": "Type1CharString",
       "type_name_status": "same-name",
-      "status": "same-name-type/partial-member-match",
+      "status": "same-name-type/full-member-match",
       "java_member_count": 10,
-      "missing_member_count": 5,
-      "matched_member_count": 4,
-      "arity_drift_count": 1,
+      "missing_member_count": 0,
+      "matched_member_count": 10,
+      "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.CFF.Type1CharString",
-      "csharp_member_count": 7,
-      "csharp_extra_member_count": 3,
+      "csharp_member_count": 14,
+      "csharp_extra_member_count": 4,
       "csharp_targets": [
         {
           "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
           "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type1CharString.cs",
           "namespace": "PdfBox.Net.FontBox.CFF",
           "name": "Type1CharString",
+          "kind": "class"
+        },
+        {
+          "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
+          "target_path": "src/PdfBox.Net.FontBox/FontBox/CFF/Type1CharString.cs",
+          "namespace": "PdfBox.Net.FontBox.CFF",
+          "name": "Type1Point",
           "kind": "class"
         }
       ],
@@ -4101,18 +4108,9 @@
           "java_name": "Type1CharString",
           "java_arity": 4,
           "java_visibility": "public",
-          "status": "arity-drift",
+          "status": "matched",
           "matched_via": "constructor",
-          "signature": "public Type1CharString(Type1CharStringReader font, String fontName, String glyphName, List<Object> sequence)",
-          "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|constructor|Type1CharString|4|arity-drift",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Java Type1CharString diagnostic/constructor shape is adapted to the simplified .NET byte/GeneralPath model.",
-            "issue": 503,
-            "reviewed_at_utc": "2026-06-26T23:22:00Z",
-            "reviewed_by": "Codex"
-          }
+          "signature": "public Type1CharString(Type1CharStringReader font, String fontName, String glyphName, List<Object> sequence)"
         },
         {
           "java_kind": "constructor",
@@ -4137,18 +4135,9 @@
           "java_name": "getBounds",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public Rectangle2D getBounds()",
-          "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getBounds|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Java AWT Rectangle2D bounds API is not exposed by the FontBox-only geometry layer; callers use rendered GeneralPath data.",
-            "issue": 503,
-            "reviewed_at_utc": "2026-06-26T23:22:00Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public Rectangle2D getBounds()"
         },
         {
           "java_kind": "method",
@@ -4173,72 +4162,36 @@
           "java_name": "addCommand",
           "java_arity": 2,
           "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected void addCommand(List<Number> numbers, CharStringCommand command)",
-          "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|addCommand|2|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
-            "issue": 503,
-            "reviewed_at_utc": "2026-06-26T23:22:00Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "protected void addCommand(List<Number> numbers, CharStringCommand command)"
         },
         {
           "java_kind": "method",
           "java_name": "isSequenceEmpty",
           "java_arity": 0,
           "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected boolean isSequenceEmpty()",
-          "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|isSequenceEmpty|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
-            "issue": 503,
-            "reviewed_at_utc": "2026-06-26T23:22:00Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "protected boolean isSequenceEmpty()"
         },
         {
           "java_kind": "method",
           "java_name": "getLastSequenceEntry",
           "java_arity": 0,
           "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected Object getLastSequenceEntry()",
-          "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getLastSequenceEntry|0|missing",
-            "state": "reviewed",
-            "disposition": "internal-by-design",
-            "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
-            "issue": 503,
-            "reviewed_at_utc": "2026-06-26T23:22:00Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "protected Object getLastSequenceEntry()"
         },
         {
           "java_kind": "method",
           "java_name": "toString",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public String toString()",
-          "api_review": {
-            "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|toString|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Java Type1CharString diagnostic/constructor shape is adapted to the simplified .NET byte/GeneralPath model.",
-            "issue": 503,
-            "reviewed_at_utc": "2026-06-26T23:22:00Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public String toString()"
         }
       ]
     },
@@ -5486,6 +5439,105 @@
       ]
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueProgramTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "java_type": "org.apache.fontbox.ttf.ControlValueProgramTable",
+      "java_type_name": "ControlValueProgramTable",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 2,
+      "missing_member_count": 0,
+      "matched_member_count": 2,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.FontBox.TTF.ControlValueProgramTable",
+      "csharp_member_count": 2,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueProgramTable.java",
+          "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueProgramTable.cs",
+          "namespace": "PdfBox.Net.FontBox.TTF",
+          "name": "ControlValueProgramTable",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "field",
+          "java_name": "TAG",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String TAG ="
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getProgram",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public byte[] getProgram()"
+        }
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "java_type": "org.apache.fontbox.ttf.ControlValueTable",
+      "java_type_name": "ControlValueTable",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 3,
+      "missing_member_count": 0,
+      "matched_member_count": 3,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.FontBox.TTF.ControlValueTable",
+      "csharp_member_count": 3,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueTable.java",
+          "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueTable.cs",
+          "namespace": "PdfBox.Net.FontBox.TTF",
+          "name": "ControlValueTable",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "field",
+          "java_name": "TAG",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String TAG ="
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getValues",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int[] getValues()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getValueCount",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int getValueCount()"
+        }
+      ]
+    },
+    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/DigitalSignatureTable.java",
       "module": "fontbox",
       "family": "ttf",
@@ -5518,6 +5570,168 @@
           "status": "matched",
           "matched_via": "field",
           "signature": "public static final String TAG ="
+        }
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontProgramTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "java_type": "org.apache.fontbox.ttf.FontProgramTable",
+      "java_type_name": "FontProgramTable",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 2,
+      "missing_member_count": 0,
+      "matched_member_count": 2,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.FontBox.TTF.FontProgramTable",
+      "csharp_member_count": 2,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontProgramTable.java",
+          "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/FontProgramTable.cs",
+          "namespace": "PdfBox.Net.FontBox.TTF",
+          "name": "FontProgramTable",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "field",
+          "java_name": "TAG",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String TAG ="
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getProgram",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public byte[] getProgram()"
+        }
+      ]
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GaspTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "java_type": "org.apache.fontbox.ttf.GaspTable",
+      "java_type_name": "GaspTable",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 10,
+      "missing_member_count": 0,
+      "matched_member_count": 10,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.FontBox.TTF.GaspTable",
+      "csharp_member_count": 10,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GaspTable.java",
+          "target_path": "src/PdfBox.Net.FontBox/FontBox/TTF/GaspTable.cs",
+          "namespace": "PdfBox.Net.FontBox.TTF",
+          "name": "GaspTable",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "field",
+          "java_name": "TAG",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final String TAG ="
+        },
+        {
+          "java_kind": "field",
+          "java_name": "GASP_GRIDFIT",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final int GASP_GRIDFIT = 0x0001"
+        },
+        {
+          "java_kind": "field",
+          "java_name": "GASP_DOGRAY",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final int GASP_DOGRAY = 0x0002"
+        },
+        {
+          "java_kind": "field",
+          "java_name": "GASP_SYMMETRIC_GRIDFIT",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final int GASP_SYMMETRIC_GRIDFIT = 0x0004"
+        },
+        {
+          "java_kind": "field",
+          "java_name": "GASP_SYMMETRIC_SMOOTHING",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "field",
+          "signature": "public static final int GASP_SYMMETRIC_SMOOTHING = 0x0008"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getVersion",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int getVersion()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getRangeMaxPPEM",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int[] getRangeMaxPPEM()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getRangeFlags",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int[] getRangeFlags()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getFlags",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int getFlags(int ppem)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "isGridFit",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public boolean isGridFit(int ppem)"
         }
       ]
     },
@@ -9647,12 +9861,12 @@
       "java_type_name": "TrueTypeFont",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 44,
+      "java_member_count": 49,
       "missing_member_count": 0,
-      "matched_member_count": 44,
+      "matched_member_count": 49,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.FontBox.TTF.TrueTypeFont",
-      "csharp_member_count": 51,
+      "csharp_member_count": 56,
       "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
@@ -9882,6 +10096,42 @@
         },
         {
           "java_kind": "method",
+          "java_name": "getControlValues",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public ControlValueTable getControlValues() throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getFontProgram",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public FontProgramTable getFontProgram() throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getControlValueProgram",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public ControlValueProgramTable getControlValueProgram() throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getGasp",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public GaspTable getGasp() throws IOException"
+        },
+        {
+          "java_kind": "method",
           "java_name": "getOriginalData",
           "java_arity": 0,
           "java_visibility": "public",
@@ -9996,6 +10246,15 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public float getWidth(String name) throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getHintedPath",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public GeneralPath getHintedPath(int gid, int ppem)"
         },
         {
           "java_kind": "method",
@@ -13915,7 +14174,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public void seek( final long position ) throws IOException"
+          "signature": "public final void seek( final long position ) throws IOException"
         },
         {
           "java_kind": "method",
@@ -19268,12 +19527,12 @@
       "java_type_name": "COSDocument",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 35,
+      "java_member_count": 36,
       "missing_member_count": 0,
-      "matched_member_count": 35,
+      "matched_member_count": 36,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.COS.COSDocument",
-      "csharp_member_count": 41,
+      "csharp_member_count": 42,
       "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
@@ -19281,6 +19540,13 @@
           "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
           "namespace": "PdfBox.Net.COS",
           "name": "COSDocument",
+          "kind": "class"
+        },
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
+          "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
+          "namespace": "PdfBox.Net.COS",
+          "name": "XrefKeyComparer",
           "kind": "class"
         }
       ],
@@ -19536,6 +19802,15 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public Map<COSObjectKey, Long> getXrefTable()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getXrefKey",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public COSObjectKey getXrefKey(long num, int gen)"
         },
         {
           "java_kind": "method",
@@ -21731,7 +22006,7 @@
           "java_visibility": "public",
           "status": "arity-drift",
           "matched_via": "constructor",
-          "signature": "public BruteForceParser(COSDocument cosDocument, COSParser cosParser) throws IOException",
+          "signature": "public BruteForceParser(COSDocument cosDocument, COSParser cosParser)",
           "api_review": {
             "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java|org.apache.pdfbox.pdfparser.BruteForceParser|constructor|BruteForceParser|2|arity-drift",
             "state": "reviewed",
@@ -21842,12 +22117,12 @@
       "java_type_name": "COSParser",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 34,
+      "java_member_count": 35,
       "missing_member_count": 31,
-      "matched_member_count": 1,
+      "matched_member_count": 2,
       "arity_drift_count": 2,
       "csharp_type": "PdfBox.Net.PdfParser.COSParser",
-      "csharp_member_count": 18,
+      "csharp_member_count": 19,
       "csharp_extra_member_count": 17,
       "csharp_targets": [
         {
@@ -21975,6 +22250,15 @@
             "reviewed_at_utc": "2026-06-26T23:49:03Z",
             "reviewed_by": "Codex"
           }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getEOFLookupRange",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public int getEOFLookupRange()"
         },
         {
           "java_kind": "method",
@@ -22163,7 +22447,7 @@
           "java_visibility": "protected",
           "status": "missing",
           "matched_via": null,
-          "signature": "protected BruteForceParser getBruteForceParser() throws IOException",
+          "signature": "protected BruteForceParser getBruteForceParser()",
           "api_review": {
             "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getBruteForceParser|0|missing",
             "state": "reviewed",
@@ -23043,6 +23327,69 @@
             "reviewed_at_utc": "2026-06-26T23:49:03Z",
             "reviewed_by": "Codex"
           }
+        }
+      ]
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "java_type": "org.apache.pdfbox.pdfparser.TrailerParser",
+      "java_type_name": "TrailerParser",
+      "type_name_status": "same-name",
+      "status": "same-name-type/full-member-match",
+      "java_member_count": 4,
+      "missing_member_count": 0,
+      "matched_member_count": 4,
+      "arity_drift_count": 0,
+      "csharp_type": "PdfBox.Net.PdfParser.TrailerParser",
+      "csharp_member_count": 4,
+      "csharp_extra_member_count": 0,
+      "csharp_targets": [
+        {
+          "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java",
+          "target_path": "src/PdfBox.Net/PdfParser/TrailerParser.cs",
+          "namespace": "PdfBox.Net.PdfParser",
+          "name": "TrailerParser",
+          "kind": "class"
+        }
+      ],
+      "members": [
+        {
+          "java_kind": "constructor",
+          "java_name": "TrailerParser",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "constructor",
+          "signature": "public TrailerParser(COSDocument cosDocument, COSParser cosParser) throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "trailerWasRebuild",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public boolean trailerWasRebuild()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getXrefTable",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public Map<COSObjectKey, Long> getXrefTable()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "retrieveTrailer",
+          "java_arity": 0,
+          "java_visibility": "protected",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "protected COSDictionary retrieveTrailer() throws IOException"
         }
       ]
     },
@@ -25075,12 +25422,12 @@
       "java_type_name": "ContentStreamForGlyphLayoutInterface",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 3,
+      "java_member_count": 5,
       "missing_member_count": 0,
-      "matched_member_count": 3,
+      "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.ContentStreamForGlyphLayoutInterface",
-      "csharp_member_count": 3,
+      "csharp_member_count": 5,
       "csharp_extra_member_count": 0,
       "csharp_targets": [
         {
@@ -25118,6 +25465,24 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "void setTextRise(float rise) throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "beginMarkedContent",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "void beginMarkedContent(COSName tag, PDPropertyList propertyList) throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "endMarkedContent",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "void endMarkedContent() throws IOException"
         }
       ]
     },
@@ -29430,12 +29795,12 @@
       "java_type_name": "PDNumberTreeNode",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 12,
+      "java_member_count": 13,
       "missing_member_count": 0,
-      "matched_member_count": 12,
+      "matched_member_count": 13,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.PDNumberTreeNode",
-      "csharp_member_count": 13,
+      "csharp_member_count": 14,
       "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
@@ -29554,6 +29919,15 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public Integer getLowerLimit()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getTreeAsMap",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public Map<Integer,COSObjectable> getTreeAsMap() throws IOException"
         }
       ]
     },
@@ -29911,7 +30285,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public COSBase getCOSObject()"
+          "signature": "public COSDictionary getCOSObject()"
         },
         {
           "java_kind": "method",
@@ -31325,13 +31699,13 @@
       "java_type_name": "PDFunctionType0",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 11,
+      "java_member_count": 10,
       "missing_member_count": 0,
-      "matched_member_count": 11,
+      "matched_member_count": 10,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.Function.PDFunctionType0",
       "csharp_member_count": 12,
-      "csharp_extra_member_count": 1,
+      "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType0.java",
@@ -31364,15 +31738,6 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDFunctionType0(COSBase function)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getFunctionType",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public int getFunctionType()"
         },
         {
           "java_kind": "method",
@@ -31465,13 +31830,13 @@
       "java_type_name": "PDFunctionType2",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 7,
+      "java_member_count": 6,
       "missing_member_count": 0,
-      "matched_member_count": 7,
+      "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.Function.PDFunctionType2",
       "csharp_member_count": 7,
-      "csharp_extra_member_count": 0,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType2.java",
@@ -31490,15 +31855,6 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDFunctionType2(COSBase function)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getFunctionType",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public int getFunctionType()"
         },
         {
           "java_kind": "method",
@@ -31555,13 +31911,13 @@
       "java_type_name": "PDFunctionType3",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 6,
+      "java_member_count": 5,
       "missing_member_count": 0,
-      "matched_member_count": 6,
+      "matched_member_count": 5,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.Function.PDFunctionType3",
       "csharp_member_count": 6,
-      "csharp_extra_member_count": 0,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType3.java",
@@ -31580,15 +31936,6 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDFunctionType3(COSBase functionStream)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getFunctionType",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public int getFunctionType()"
         },
         {
           "java_kind": "method",
@@ -31636,13 +31983,13 @@
       "java_type_name": "PDFunctionType4",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 3,
+      "java_member_count": 2,
       "missing_member_count": 0,
-      "matched_member_count": 3,
+      "matched_member_count": 2,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.Function.PDFunctionType4",
       "csharp_member_count": 3,
-      "csharp_extra_member_count": 0,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType4.java",
@@ -31664,15 +32011,6 @@
         },
         {
           "java_kind": "method",
-          "java_name": "getFunctionType",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public int getFunctionType()"
-        },
-        {
-          "java_kind": "method",
           "java_name": "eval",
           "java_arity": 1,
           "java_visibility": "public",
@@ -31690,13 +32028,13 @@
       "java_type_name": "PDFunctionTypeIdentity",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 5,
+      "java_member_count": 4,
       "missing_member_count": 0,
-      "matched_member_count": 5,
+      "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Common.Function.PDFunctionTypeIdentity",
       "csharp_member_count": 5,
-      "csharp_extra_member_count": 0,
+      "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
@@ -31715,15 +32053,6 @@
           "status": "matched",
           "matched_via": "constructor",
           "signature": "public PDFunctionTypeIdentity(COSBase function)"
-        },
-        {
-          "java_kind": "method",
-          "java_name": "getFunctionType",
-          "java_arity": 0,
-          "java_visibility": "public",
-          "status": "matched",
-          "matched_via": "method",
-          "signature": "public int getFunctionType()"
         },
         {
           "java_kind": "method",
@@ -33901,11 +34230,11 @@
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
       "java_member_count": 22,
-      "missing_member_count": 18,
-      "matched_member_count": 4,
+      "missing_member_count": 16,
+      "matched_member_count": 6,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDExportFormatAttributeObject",
-      "csharp_member_count": 12,
+      "csharp_member_count": 14,
       "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
@@ -34156,36 +34485,18 @@
           "java_name": "getHeaders",
           "java_arity": 0,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public String[] getHeaders()",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getHeaders|0|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public String[] getHeaders()"
         },
         {
           "java_kind": "method",
           "java_name": "setHeaders",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public void setHeaders(String[] headers)",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setHeaders|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
-            "issue": 511,
-            "reviewed_at_utc": "2026-06-27T03:47:07Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setHeaders(String[] headers)"
         },
         {
           "java_kind": "method",
@@ -37658,8 +37969,8 @@
       "matched_member_count": 42,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.TaggedPdf.StandardStructureTypes",
-      "csharp_member_count": 50,
-      "csharp_extra_member_count": 8,
+      "csharp_member_count": 51,
+      "csharp_extra_member_count": 9,
       "csharp_targets": [
         {
           "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
@@ -38149,12 +38460,12 @@
         },
         {
           "java_kind": "field",
-          "java_name": "Figure",
+          "java_name": "FIGURE",
           "java_arity": 0,
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "field",
-          "signature": "public static final String Figure ="
+          "signature": "public static final String FIGURE ="
         },
         {
           "java_kind": "field",
@@ -38828,7 +39139,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public void setOwnerKey(byte[] o) throws IOException"
+          "signature": "public void setOwnerKey(byte[] o)"
         },
         {
           "java_kind": "method",
@@ -38837,7 +39148,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public byte[] getOwnerKey() throws IOException"
+          "signature": "public byte[] getOwnerKey()"
         },
         {
           "java_kind": "method",
@@ -38846,7 +39157,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public void setUserKey(byte[] u) throws IOException"
+          "signature": "public void setUserKey(byte[] u)"
         },
         {
           "java_kind": "method",
@@ -38855,7 +39166,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public byte[] getUserKey() throws IOException"
+          "signature": "public byte[] getUserKey()"
         },
         {
           "java_kind": "method",
@@ -38864,7 +39175,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public void setOwnerEncryptionKey(byte[] oe) throws IOException"
+          "signature": "public void setOwnerEncryptionKey(byte[] oe)"
         },
         {
           "java_kind": "method",
@@ -38873,7 +39184,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public byte[] getOwnerEncryptionKey() throws IOException"
+          "signature": "public byte[] getOwnerEncryptionKey()"
         },
         {
           "java_kind": "method",
@@ -38882,7 +39193,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public void setUserEncryptionKey(byte[] ue) throws IOException"
+          "signature": "public void setUserEncryptionKey(byte[] ue)"
         },
         {
           "java_kind": "method",
@@ -38891,7 +39202,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public byte[] getUserEncryptionKey() throws IOException"
+          "signature": "public byte[] getUserEncryptionKey()"
         },
         {
           "java_kind": "method",
@@ -38927,7 +39238,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public void setRecipients(byte[][] recipients) throws IOException"
+          "signature": "public void setRecipients(byte[][] recipients)"
         },
         {
           "java_kind": "method",
@@ -39044,7 +39355,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public void setPerms(byte[] perms) throws IOException"
+          "signature": "public void setPerms(byte[] perms)"
         },
         {
           "java_kind": "method",
@@ -39053,7 +39364,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public byte[] getPerms() throws IOException"
+          "signature": "public byte[] getPerms()"
         },
         {
           "java_kind": "method",
@@ -41285,7 +41596,7 @@
           "java_visibility": "public",
           "status": "matched",
           "matched_via": "method",
-          "signature": "public List<FDFAnnotation> getAnnotations() throws IOException"
+          "signature": "public List<FDFAnnotation> getAnnotations()"
         },
         {
           "java_kind": "method",
@@ -43374,12 +43685,12 @@
       "java_type_name": "PDCIDFontType2",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 14,
+      "java_member_count": 15,
       "missing_member_count": 4,
-      "matched_member_count": 4,
+      "matched_member_count": 5,
       "arity_drift_count": 6,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDCIDFontType2",
-      "csharp_member_count": 15,
+      "csharp_member_count": 16,
       "csharp_extra_member_count": 5,
       "csharp_targets": [
         {
@@ -43577,6 +43888,15 @@
             "reviewed_at_utc": "2026-08-01T11:22:52Z",
             "reviewed_by": "Codex"
           }
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getHintedNormalizedPath",
+          "java_arity": 3,
+          "java_visibility": "protected",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "protected GeneralPath getHintedNormalizedPath(int code, int ppem, PDType0Font parent) throws IOException"
         },
         {
           "java_kind": "method",
@@ -44012,11 +44332,11 @@
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
       "java_member_count": 24,
-      "missing_member_count": 11,
-      "matched_member_count": 13,
+      "missing_member_count": 10,
+      "matched_member_count": 14,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDTrueTypeFont",
-      "csharp_member_count": 18,
+      "csharp_member_count": 19,
       "csharp_extra_member_count": 7,
       "csharp_targets": [
         {
@@ -44131,24 +44451,6 @@
             "state": "reviewed",
             "disposition": "internal-by-design",
             "note": "Java protected TrueType encoding internals are not public .NET API; current glyph lookup behavior is exposed through CodeToGID/GetPath and covered by #508 tests.",
-            "issue": 508,
-            "reviewed_at_utc": "2026-06-27T02:17:45Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "readCode",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public int readCode(InputStream in) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|readCode|1|missing",
-            "state": "reviewed",
-            "disposition": "behavior-covered",
-            "note": "PDTrueTypeFont inherits this public PDFont/PDSimpleFont behavior; #508 tests cover the callable font-like contract while the report counts declared concrete members only.",
             "issue": 508,
             "reviewed_at_utc": "2026-06-27T02:17:45Z",
             "reviewed_by": "Codex"
@@ -44309,6 +44611,15 @@
         },
         {
           "java_kind": "method",
+          "java_name": "getHintedNormalizedPath",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public GeneralPath getHintedNormalizedPath(int code, int ppem) throws IOException"
+        },
+        {
+          "java_kind": "method",
           "java_name": "hasGlyph",
           "java_arity": 1,
           "java_visibility": "public",
@@ -44353,12 +44664,12 @@
       "java_type_name": "PDType0Font",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 46,
-      "missing_member_count": 13,
-      "matched_member_count": 32,
+      "java_member_count": 48,
+      "missing_member_count": 12,
+      "matched_member_count": 35,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType0Font",
-      "csharp_member_count": 33,
+      "csharp_member_count": 36,
       "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
@@ -44654,18 +44965,9 @@
           "java_name": "encode",
           "java_arity": 1,
           "java_visibility": "protected",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "protected byte[] encode(int unicode) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|encode|1|missing",
-            "state": "reviewed",
-            "disposition": "intentional-dotnet-adaptation",
-            "note": "This row depends on Java Type0 font-program internals such as protected encoding, GSUB data, cmap lookup, or descendant EncodeGlyphId delegation; the port only exposes implemented glyph/path behavior.",
-            "issue": 508,
-            "reviewed_at_utc": "2026-06-27T02:17:45Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "protected byte[] encode(int unicode) throws IOException"
         },
         {
           "java_kind": "method",
@@ -44777,6 +45079,15 @@
         },
         {
           "java_kind": "method",
+          "java_name": "getStringWidth",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public float getStringWidth(String text) throws IOException"
+        },
+        {
+          "java_kind": "method",
           "java_name": "readCode",
           "java_arity": 1,
           "java_visibility": "public",
@@ -44846,6 +45157,15 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public GeneralPath getNormalizedPath(int code) throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getHintedNormalizedPath",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public GeneralPath getHintedNormalizedPath(int code, int ppem) throws IOException"
         },
         {
           "java_kind": "method",
@@ -44920,12 +45240,12 @@
       "java_type_name": "PDType1CFont",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 22,
-      "missing_member_count": 14,
-      "matched_member_count": 8,
+      "java_member_count": 21,
+      "missing_member_count": 12,
+      "matched_member_count": 9,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1CFont",
-      "csharp_member_count": 9,
+      "csharp_member_count": 10,
       "csharp_extra_member_count": 2,
       "csharp_targets": [
         {
@@ -45110,24 +45430,6 @@
         },
         {
           "java_kind": "method",
-          "java_name": "readCode",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public int readCode(InputStream in) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|readCode|1|missing",
-            "state": "reviewed",
-            "disposition": "behavior-covered",
-            "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
-            "issue": 508,
-            "reviewed_at_utc": "2026-06-27T02:17:45Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
           "java_name": "getFontMatrix",
           "java_arity": 0,
           "java_visibility": "public",
@@ -45221,18 +45523,9 @@
           "java_name": "getStringWidth",
           "java_arity": 1,
           "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public float getStringWidth(String string) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getStringWidth|1|missing",
-            "state": "reviewed",
-            "disposition": "behavior-covered",
-            "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
-            "issue": 508,
-            "reviewed_at_utc": "2026-06-27T02:17:45Z",
-            "reviewed_by": "Codex"
-          }
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public float getStringWidth(String string) throws IOException"
         },
         {
           "java_kind": "method",
@@ -45271,8 +45564,8 @@
       "java_type_name": "PDType1Font",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 24,
-      "missing_member_count": 13,
+      "java_member_count": 23,
+      "missing_member_count": 12,
       "matched_member_count": 11,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1Font",
@@ -45420,24 +45713,6 @@
           "signature": "public float getAverageFontWidth()",
           "api_review": {
             "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|getAverageFontWidth|0|missing",
-            "state": "reviewed",
-            "disposition": "behavior-covered",
-            "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
-            "issue": 508,
-            "reviewed_at_utc": "2026-06-27T02:17:45Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
-          "java_name": "readCode",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public int readCode(InputStream in) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|readCode|1|missing",
             "state": "reviewed",
             "disposition": "behavior-covered",
             "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
@@ -45645,8 +45920,8 @@
       "java_type_name": "PDType3Font",
       "type_name_status": "same-name",
       "status": "same-name-type/partial-member-match",
-      "java_member_count": 24,
-      "missing_member_count": 6,
+      "java_member_count": 23,
+      "missing_member_count": 5,
       "matched_member_count": 17,
       "arity_drift_count": 1,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType3Font",
@@ -45853,24 +46128,6 @@
         },
         {
           "java_kind": "method",
-          "java_name": "readCode",
-          "java_arity": 1,
-          "java_visibility": "public",
-          "status": "missing",
-          "matched_via": null,
-          "signature": "public int readCode(InputStream in) throws IOException",
-          "api_review": {
-            "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|readCode|1|missing",
-            "state": "reviewed",
-            "disposition": "behavior-covered",
-            "note": "PDType3Font inherits this public PDFont behavior; existing Type3 tests cover width/metrics while the report counts declared concrete members only.",
-            "issue": 508,
-            "reviewed_at_utc": "2026-06-27T02:17:45Z",
-            "reviewed_by": "Codex"
-          }
-        },
-        {
-          "java_kind": "method",
           "java_name": "getFontMatrix",
           "java_arity": 0,
           "java_visibility": "public",
@@ -45951,12 +46208,12 @@
       "java_type_name": "PDVectorFont",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 3,
+      "java_member_count": 4,
       "missing_member_count": 0,
-      "matched_member_count": 3,
+      "matched_member_count": 4,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.PDModel.Font.PDVectorFont",
-      "csharp_member_count": 4,
+      "csharp_member_count": 5,
       "csharp_extra_member_count": 1,
       "csharp_targets": [
         {
@@ -45985,6 +46242,15 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "GeneralPath getNormalizedPath(int code) throws IOException"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "getHintedNormalizedPath",
+          "java_arity": 2,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "default GeneralPath getHintedNormalizedPath(int code, int ppem) throws IOException"
         },
         {
           "java_kind": "method",
@@ -66601,12 +66867,12 @@
       "java_type_name": "PDFRenderer",
       "type_name_status": "same-name",
       "status": "same-name-type/full-member-match",
-      "java_member_count": 24,
+      "java_member_count": 26,
       "missing_member_count": 0,
-      "matched_member_count": 24,
+      "matched_member_count": 26,
       "arity_drift_count": 0,
       "csharp_type": "PdfBox.Net.Rendering.PDFRenderer",
-      "csharp_member_count": 27,
+      "csharp_member_count": 29,
       "csharp_extra_member_count": 3,
       "csharp_targets": [
         {
@@ -66671,6 +66937,24 @@
           "status": "matched",
           "matched_via": "method",
           "signature": "public void setSubsamplingAllowed(boolean subsamplingAllowed)"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "isHintingEnabled",
+          "java_arity": 0,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public boolean isHintingEnabled()"
+        },
+        {
+          "java_kind": "method",
+          "java_name": "setHintingEnabled",
+          "java_arity": 1,
+          "java_visibility": "public",
+          "status": "matched",
+          "matched_via": "method",
+          "signature": "public void setHintingEnabled(boolean hintingEnabled)"
         },
         {
           "java_kind": "method",
@@ -81841,9 +82125,9 @@
       "family": "pdfparser",
       "java_type": "org.apache.pdfbox.pdfparser.COSParser",
       "csharp_type": "PdfBox.Net.PdfParser.COSParser",
-      "java_member_count": 34,
+      "java_member_count": 35,
       "missing_member_count": 31,
-      "matched_member_count": 1,
+      "matched_member_count": 2,
       "arity_drift_count": 2
     },
     {
@@ -81897,8 +82181,8 @@
       "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject",
       "csharp_type": "PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDExportFormatAttributeObject",
       "java_member_count": 22,
-      "missing_member_count": 18,
-      "matched_member_count": 4,
+      "missing_member_count": 16,
+      "matched_member_count": 6,
       "arity_drift_count": 0
     },
     {
@@ -81913,25 +82197,14 @@
       "arity_drift_count": 0
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDType1CFont",
-      "csharp_type": "PdfBox.Net.PDModel.Font.PDType1CFont",
-      "java_member_count": 22,
-      "missing_member_count": 14,
-      "matched_member_count": 8,
-      "arity_drift_count": 0
-    },
-    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
       "module": "pdfbox",
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType0Font",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType0Font",
-      "java_member_count": 46,
-      "missing_member_count": 13,
-      "matched_member_count": 32,
+      "java_member_count": 48,
+      "missing_member_count": 12,
+      "matched_member_count": 35,
       "arity_drift_count": 1
     },
     {
@@ -81940,9 +82213,20 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType1Font",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDType1Font",
-      "java_member_count": 24,
-      "missing_member_count": 13,
+      "java_member_count": 23,
+      "missing_member_count": 12,
       "matched_member_count": 11,
+      "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.font.PDType1CFont",
+      "csharp_type": "PdfBox.Net.PDModel.Font.PDType1CFont",
+      "java_member_count": 21,
+      "missing_member_count": 12,
+      "matched_member_count": 9,
       "arity_drift_count": 0
     },
     {
@@ -81957,17 +82241,6 @@
       "arity_drift_count": 0
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont",
-      "csharp_type": "PdfBox.Net.PDModel.Font.PDTrueTypeFont",
-      "java_member_count": 24,
-      "missing_member_count": 11,
-      "matched_member_count": 13,
-      "arity_drift_count": 0
-    },
-    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRectangle.java",
       "module": "pdfbox",
       "family": "pdmodel",
@@ -81976,6 +82249,17 @@
       "java_member_count": 32,
       "missing_member_count": 10,
       "matched_member_count": 22,
+      "arity_drift_count": 0
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont",
+      "csharp_type": "PdfBox.Net.PDModel.Font.PDTrueTypeFont",
+      "java_member_count": 24,
+      "missing_member_count": 10,
+      "matched_member_count": 14,
       "arity_drift_count": 0
     },
     {
@@ -82067,17 +82351,6 @@
       "arity_drift_count": 0
     },
     {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDType3Font",
-      "csharp_type": "PdfBox.Net.PDModel.Font.PDType3Font",
-      "java_member_count": 24,
-      "missing_member_count": 6,
-      "matched_member_count": 17,
-      "arity_drift_count": 1
-    },
-    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java",
       "module": "pdfbox",
       "family": "pdmodel",
@@ -82144,6 +82417,17 @@
       "arity_drift_count": 0
     },
     {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
+      "module": "pdfbox",
+      "family": "pdmodel",
+      "java_type": "org.apache.pdfbox.pdmodel.font.PDType3Font",
+      "csharp_type": "PdfBox.Net.PDModel.Font.PDType3Font",
+      "java_member_count": 23,
+      "missing_member_count": 5,
+      "matched_member_count": 17,
+      "arity_drift_count": 1
+    },
+    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/state/RenderingMode.java",
       "module": "pdfbox",
       "family": "pdmodel",
@@ -82153,17 +82437,6 @@
       "missing_member_count": 5,
       "matched_member_count": 8,
       "arity_drift_count": 0
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.Type1CharString",
-      "csharp_type": "PdfBox.Net.FontBox.CFF.Type1CharString",
-      "java_member_count": 10,
-      "missing_member_count": 5,
-      "matched_member_count": 4,
-      "arity_drift_count": 1
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
@@ -82204,9 +82477,9 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDCIDFontType2",
       "csharp_type": "PdfBox.Net.PDModel.Font.PDCIDFontType2",
-      "java_member_count": 14,
+      "java_member_count": 15,
       "missing_member_count": 4,
-      "matched_member_count": 4,
+      "matched_member_count": 5,
       "arity_drift_count": 6
     },
     {
@@ -82306,6 +82579,17 @@
       "java_member_count": 19,
       "missing_member_count": 2,
       "matched_member_count": 17,
+      "arity_drift_count": 0
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/VersionType.java",
+      "module": "xmpbox",
+      "family": "type",
+      "java_type": "org.apache.xmpbox.type.VersionType",
+      "csharp_type": "PdfBox.Net.XmpBox.Type.VersionType",
+      "java_member_count": 16,
+      "missing_member_count": 2,
+      "matched_member_count": 14,
       "arity_drift_count": 0
     }
   ],
@@ -82459,116 +82743,6 @@
         "state": "reviewed",
         "disposition": "behavior-covered",
         "note": "CharStringCommand helper behavior is exposed through C# extension methods; extension methods are not reflected as members on the enum type.",
-        "issue": 503,
-        "reviewed_at_utc": "2026-06-26T23:22:00Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.Type1CharString",
-      "java_kind": "method",
-      "java_name": "addCommand",
-      "java_arity": 2,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected void addCommand(List<Number> numbers, CharStringCommand command)",
-      "api_review": {
-        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|addCommand|2|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
-        "issue": 503,
-        "reviewed_at_utc": "2026-06-26T23:22:00Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.Type1CharString",
-      "java_kind": "method",
-      "java_name": "getBounds",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public Rectangle2D getBounds()",
-      "api_review": {
-        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getBounds|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "Java AWT Rectangle2D bounds API is not exposed by the FontBox-only geometry layer; callers use rendered GeneralPath data.",
-        "issue": 503,
-        "reviewed_at_utc": "2026-06-26T23:22:00Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.Type1CharString",
-      "java_kind": "method",
-      "java_name": "getLastSequenceEntry",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected Object getLastSequenceEntry()",
-      "api_review": {
-        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getLastSequenceEntry|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
-        "issue": 503,
-        "reviewed_at_utc": "2026-06-26T23:22:00Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.Type1CharString",
-      "java_kind": "method",
-      "java_name": "isSequenceEmpty",
-      "java_arity": 0,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected boolean isSequenceEmpty()",
-      "api_review": {
-        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|isSequenceEmpty|0|missing",
-        "state": "reviewed",
-        "disposition": "internal-by-design",
-        "note": "Java protected charstring interpreter hooks are internal to the .NET renderer implementation.",
-        "issue": 503,
-        "reviewed_at_utc": "2026-06-26T23:22:00Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java",
-      "module": "fontbox",
-      "family": "cff",
-      "java_type": "org.apache.fontbox.cff.Type1CharString",
-      "java_kind": "method",
-      "java_name": "toString",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public String toString()",
-      "api_review": {
-        "key": "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|toString|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "Java Type1CharString diagnostic/constructor shape is adapted to the simplified .NET byte/GeneralPath model.",
         "issue": 503,
         "reviewed_at_utc": "2026-06-26T23:22:00Z",
         "reviewed_by": "Codex"
@@ -83267,7 +83441,7 @@
       "java_visibility": "protected",
       "status": "missing",
       "matched_via": null,
-      "signature": "protected BruteForceParser getBruteForceParser() throws IOException",
+      "signature": "protected BruteForceParser getBruteForceParser()",
       "api_review": {
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java|org.apache.pdfbox.pdfparser.COSParser|method|getBruteForceParser|0|missing",
         "state": "reviewed",
@@ -86210,28 +86384,6 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject",
       "java_kind": "method",
-      "java_name": "getHeaders",
-      "java_arity": 0,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public String[] getHeaders()",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getHeaders|0|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject",
-      "java_kind": "method",
       "java_name": "getRowSpan",
       "java_arity": 0,
       "java_visibility": "public",
@@ -86306,28 +86458,6 @@
       "signature": "public void setColSpan(int colSpan)",
       "api_review": {
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setColSpan|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
-        "issue": 511,
-        "reviewed_at_utc": "2026-06-27T03:47:07Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject",
-      "java_kind": "method",
-      "java_name": "setHeaders",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public void setHeaders(String[] headers)",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setHeaders|1|missing",
         "state": "reviewed",
         "disposition": "intentional-dotnet-adaptation",
         "note": "Export-format attributes keep .NET PascalCase owner constants and list-numbering helpers; Java table/layout convenience helpers remain available through raw attribute access or the dedicated layout/table attribute types.",
@@ -90280,28 +90410,6 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont",
       "java_kind": "method",
-      "java_name": "readCode",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public int readCode(InputStream in) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|readCode|1|missing",
-        "state": "reviewed",
-        "disposition": "behavior-covered",
-        "note": "PDTrueTypeFont inherits this public PDFont/PDSimpleFont behavior; #508 tests cover the callable font-like contract while the report counts declared concrete members only.",
-        "issue": 508,
-        "reviewed_at_utc": "2026-06-27T02:17:45Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDTrueTypeFont",
-      "java_kind": "method",
       "java_name": "readEncodingFromFont",
       "java_arity": 0,
       "java_visibility": "protected",
@@ -90357,28 +90465,6 @@
         "state": "reviewed",
         "disposition": "intentional-dotnet-adaptation",
         "note": "Type0 subsetting is intentionally not exposed until the embedder can subset and rewrite the PDF font program consistently.",
-        "issue": 508,
-        "reviewed_at_utc": "2026-06-27T02:17:45Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDType0Font",
-      "java_kind": "method",
-      "java_name": "encode",
-      "java_arity": 1,
-      "java_visibility": "protected",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "protected byte[] encode(int unicode) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|encode|1|missing",
-        "state": "reviewed",
-        "disposition": "intentional-dotnet-adaptation",
-        "note": "This row depends on Java Type0 font-program internals such as protected encoding, GSUB data, cmap lookup, or descendant EncodeGlyphId delegation; the port only exposes implemented glyph/path behavior.",
         "issue": 508,
         "reviewed_at_utc": "2026-06-27T02:17:45Z",
         "reviewed_by": "Codex"
@@ -90786,28 +90872,6 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType1CFont",
       "java_kind": "method",
-      "java_name": "getStringWidth",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public float getStringWidth(String string) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getStringWidth|1|missing",
-        "state": "reviewed",
-        "disposition": "behavior-covered",
-        "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
-        "issue": 508,
-        "reviewed_at_utc": "2026-06-27T02:17:45Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDType1CFont",
-      "java_kind": "method",
       "java_name": "getWidthFromFont",
       "java_arity": 1,
       "java_visibility": "public",
@@ -90860,28 +90924,6 @@
       "signature": "public boolean hasGlyph(String name) throws IOException",
       "api_review": {
         "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|hasGlyph|1|missing",
-        "state": "reviewed",
-        "disposition": "behavior-covered",
-        "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
-        "issue": 508,
-        "reviewed_at_utc": "2026-06-27T02:17:45Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDType1CFont",
-      "java_kind": "method",
-      "java_name": "readCode",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public int readCode(InputStream in) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|readCode|1|missing",
         "state": "reviewed",
         "disposition": "behavior-covered",
         "note": "PDType1CFont gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
@@ -91160,28 +91202,6 @@
       "family": "pdmodel",
       "java_type": "org.apache.pdfbox.pdmodel.font.PDType1Font",
       "java_kind": "method",
-      "java_name": "readCode",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public int readCode(InputStream in) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|readCode|1|missing",
-        "state": "reviewed",
-        "disposition": "behavior-covered",
-        "note": "PDType1Font gets this public simple-font behavior through PDSimpleFont/PDFont; #508 tests cover the callable font-like and glyph-name helpers while the report counts declared members only.",
-        "issue": 508,
-        "reviewed_at_utc": "2026-06-27T02:17:45Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDType1Font",
-      "java_kind": "method",
       "java_name": "readEncodingFromFont",
       "java_arity": 0,
       "java_visibility": "protected",
@@ -91259,28 +91279,6 @@
         "state": "reviewed",
         "disposition": "internal-by-design",
         "note": "Java protected Type3 encoding and symbolic-state helpers are internal implementation details in the current .NET Type3 font surface.",
-        "issue": 508,
-        "reviewed_at_utc": "2026-06-27T02:17:45Z",
-        "reviewed_by": "Codex"
-      }
-    },
-    {
-      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java",
-      "module": "pdfbox",
-      "family": "pdmodel",
-      "java_type": "org.apache.pdfbox.pdmodel.font.PDType3Font",
-      "java_kind": "method",
-      "java_name": "readCode",
-      "java_arity": 1,
-      "java_visibility": "public",
-      "status": "missing",
-      "matched_via": null,
-      "signature": "public int readCode(InputStream in) throws IOException",
-      "api_review": {
-        "key": "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|readCode|1|missing",
-        "state": "reviewed",
-        "disposition": "behavior-covered",
-        "note": "PDType3Font inherits this public PDFont behavior; existing Type3 tests cover width/metrics while the report counts declared concrete members only.",
         "issue": 508,
         "reviewed_at_utc": "2026-06-27T02:17:45Z",
         "reviewed_by": "Codex"
@@ -101089,16 +101087,16 @@
       "not-applicable"
     ],
     "raw": {
-      "missing_members": 857,
-      "arity_drift_members": 44,
+      "missing_members": 844,
+      "arity_drift_members": 43,
       "type_name_or_visibility_gaps": 8,
-      "total": 909
+      "total": 895
     },
     "reviewed": {
-      "missing_members": 857,
-      "arity_drift_members": 44,
+      "missing_members": 844,
+      "arity_drift_members": 43,
       "type_name_or_visibility_gaps": 8,
-      "total": 909
+      "total": 895
     },
     "unreviewed": {
       "missing_members": 0,
@@ -101107,19 +101105,33 @@
       "total": 0
     },
     "disposition_counts": {
-      "behavior-covered": 105,
-      "intentional-dotnet-adaptation": 703,
-      "internal-by-design": 76,
+      "behavior-covered": 100,
+      "intentional-dotnet-adaptation": 697,
+      "internal-by-design": 73,
       "not-applicable": 25
     },
     "invalid_entries": [],
     "unused_disposition_keys": [
+      "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|constructor|Type1CharString|4|arity-drift",
+      "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|addCommand|2|missing",
+      "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getBounds|0|missing",
+      "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|getLastSequenceEntry|0|missing",
+      "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|isSequenceEmpty|0|missing",
+      "member|fontbox/src/main/java/org/apache/fontbox/cff/Type1CharString.java|org.apache.fontbox.cff.Type1CharString|method|toString|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|getHeaders|0|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java|org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject|method|setHeaders|1|missing",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/FontMapper.java|org.apache.pdfbox.pdmodel.font.FontMapper|method|getCIDFont|3|missing",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getBoundingBox|0|missing",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getCFFFont|0|missing",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getFontBoxFont|0|missing",
       "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getFontMatrix|0|missing",
-      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getType2CharString|1|missing"
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java|org.apache.pdfbox.pdmodel.font.PDCIDFontType0|method|getType2CharString|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDTrueTypeFont.java|org.apache.pdfbox.pdmodel.font.PDTrueTypeFont|method|readCode|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java|org.apache.pdfbox.pdmodel.font.PDType0Font|method|encode|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|getStringWidth|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java|org.apache.pdfbox.pdmodel.font.PDType1CFont|method|readCode|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java|org.apache.pdfbox.pdmodel.font.PDType1Font|method|readCode|1|missing",
+      "member|pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType3Font.java|org.apache.pdfbox.pdmodel.font.PDType3Font|method|readCode|1|missing"
     ]
   }
 }

@@ -1,0 +1,94 @@
+{
+  "issue": 957,
+  "scope": "current upstream followup",
+  "upstream_repository": "apache/pdfbox",
+  "previous_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+  "source_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+  "upstream_commits_reviewed": 20,
+  "rows": [
+    {
+      "source_path": "examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java",
+      "target_path": "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+      "target_paths": [
+        "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/Issue957LatestSignatureTest.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/TestSigUtils.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "source_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "sync_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:06:34.236293+00:00",
+      "note": "Ports DocMDP getter extraction/catalog reference semantics and invalid-value default2; rejects invalid certification permissions before mutation, retains approval-signature exclusion and timestamp exemption; latest signature type is validated/logged. ALLOW_URL_SET field/diagnostic spelling synchronized and existing URL tests updated. Existing .NET eager response buffering already releases failed get/body reads via using; no Java network connection escapes. Java BouncyCastle timestamp-store helper cleanups have no native SigUtils API counterpart and do not add TSA API parity.",
+      "sync_note": "Ports DocMDP getter extraction/catalog reference semantics and invalid-value default2; rejects invalid certification permissions before mutation, retains approval-signature exclusion and timestamp exemption; latest signature type is validated/logged. ALLOW_URL_SET field/diagnostic spelling synchronized and existing URL tests updated. Existing .NET eager response buffering already releases failed get/body reads via using; no Java network connection escapes. Java BouncyCastle timestamp-store helper cleanups have no native SigUtils API counterpart and do not add TSA API parity.",
+      "upstream_test_parity": "converted focused synthetic regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+      "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/Splitter.cs",
+        "tests/PdfBox.Net.Tests/Issue957LatestCoreTest.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "source_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "sync_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:06:34.236293+00:00",
+      "note": "Moves cross-range validation to Split execution while each setter independently validates positive input. Split already uses per-invocation local state and groups from configured start; repeated-call regression verifies2/2/1 pages twice. Named-destination fixing now lies within exception cleanup scope; malformed name tree test proves all produced COSDocuments are closed. Existing port lacks upstream structure-tree copying, so source ParentTree cache/KCloner/orphan-map/RoleMap refactors have no equivalent path; this batch does not assert structure-tree clone parity. Existing public SplitAtPage property precludes same-named Java protected method; unchanged default grouping behavior remains exposed through that property.",
+      "sync_note": "Moves cross-range validation to Split execution while each setter independently validates positive input. Split already uses per-invocation local state and groups from configured start; repeated-call regression verifies2/2/1 pages twice. Named-destination fixing now lies within exception cleanup scope; malformed name tree test proves all produced COSDocuments are closed. Existing port lacks upstream structure-tree copying, so source ParentTree cache/KCloner/orphan-map/RoleMap refactors have no equivalent path; this batch does not assert structure-tree clone parity. Existing public SplitAtPage property precludes same-named Java protected method; unchanged default grouping behavior remains exposed through that property.",
+      "upstream_test_parity": "converted focused synthetic regressions"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PDFMergerUtilityTest.java",
+      "target_path": "tests/PdfBox.Net.Tests/Issue957LatestCoreTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957LatestCoreTest.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "source_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "needs-manual-sync",
+      "result_status": "needs-manual-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T06:06:34.236293+00:00",
+      "note": "Changed illegal-range assertion converted at execution boundary; added repeated-call and cleanup regressions. Upstream role-map counts for structure-tree split fixtures are explicitly deferred because pre-existing .NET Splitter does not copy structure trees.",
+      "sync_note": "Changed illegal-range assertion converted at execution boundary; added repeated-call and cleanup regressions. Upstream role-map counts for structure-tree split fixtures are explicitly deferred because pre-existing .NET Splitter does not copy structure trees.",
+      "upstream_test_parity": "converted focused synthetic tests; explicit deferred structure-copy fixture assertions"
+    }
+  ],
+  "qa": {
+    "source_similarity": "Small behavior changes/refactors ported through existing native .NET adapters; no duplicate upstream-source snapshot is claimed.",
+    "report_row_gaps": "Shared reports integrated by parent; all3 changed upstream paths in20-commit followup listed.",
+    "test_gaps": "Upstream structure-tree split ParentTree/RoleMap fixture assertions remain deferred; current source has no corresponding KCloner/structure copying path."
+  },
+  "validation": [
+    {
+      "command": "dotnet test tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~Issue957LatestCoreTest",
+      "result": "3 passed,0 failed",
+      "log": "/private/tmp/957-latest-core-tests.log"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Examples.Tests/PdfBox.Net.Examples.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~Issue957LatestSignatureTest|FullyQualifiedName~TestSigUtils",
+      "result": "24 passed,0 failed",
+      "log": "/private/tmp/957-latest-signature-tests.log"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ]
+}

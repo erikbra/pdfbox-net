@@ -75,6 +75,22 @@ public class XmpRegressionFixturesTest
         return Encoding.UTF8.GetBytes(xml);
     }
 
+    [Theory]
+    [InlineData("closed choice of Text")]
+    [InlineData("CLOSED CHOICE OF Text")]
+    [InlineData("Closed Choice of Text")]
+    [InlineData("open choice of Text")]
+    [InlineData("OPEN CHOICE OF Text")]
+    [InlineData("Open Choice of Text")]
+    public void ExtensionChoicePrefixIsCaseInsensitive(string valueType)
+    {
+        string xml = Encoding.UTF8.GetString(BuildPdfaExtensionFixture())
+            .Replace("<pdfaProperty:valueType>Text</pdfaProperty:valueType>",
+                $"<pdfaProperty:valueType>{valueType}</pdfaProperty:valueType>", StringComparison.Ordinal);
+        XMPMetadata metadata = new DomXmpParser().Parse(Encoding.UTF8.GetBytes(xml));
+        Assert.NotNull(metadata);
+    }
+
     // -------------------------------------------------------------------------
     // Roundtrip determinism — one theory entry per fixture file
     // -------------------------------------------------------------------------

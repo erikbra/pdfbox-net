@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -84,7 +84,9 @@ public sealed class StandardStructureTypes
     public const string Warichu = "Warichu";
     public const string WT = "WT";
     public const string WP = "WP";
-    public const string Figure = "Figure";
+    public const string FIGURE = "Figure";
+    // Retained for source compatibility with the previously ported constant.
+    public const string Figure = FIGURE;
     public const string Formula = "Formula";
     public const string Form = "Form";
 

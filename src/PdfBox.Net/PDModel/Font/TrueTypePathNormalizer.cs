@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java
  * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -44,6 +44,15 @@ internal static class TrueTypePathNormalizer
         GeneralPath path = trueTypeFont.GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
         int unitsPerEm = Math.Max(1, trueTypeFont.GetUnitsPerEm());
         return unitsPerEm == 1000 ? path : Scale(path, 1000f / unitsPerEm);
+    }
+
+    internal static GeneralPath? GetHintedNormalizedPath(TrueTypeFont font, int gid, int ppem)
+    {
+        if (gid == 0 || font is OpenTypeFont otf && otf.IsPostScript) return null;
+        GeneralPath? path = font.GetHintedPath(gid, ppem);
+        if (path is null) return null;
+        int units = font.GetUnitsPerEm();
+        return units == 1000 ? path : Scale(path, 1000f / units);
     }
 
     private static GeneralPath Scale(GeneralPath path, float scale)

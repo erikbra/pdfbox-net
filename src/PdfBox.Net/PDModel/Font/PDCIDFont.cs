@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java
  * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Util.Geometry;
 using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Font;
@@ -87,6 +88,9 @@ public abstract partial class PDCIDFont : PDFont
         }
         _fontDescriptor = fontDescriptor;
     }
+
+    /// <summary>Returns a hinted normalized outline, or null for descendants without embedded TrueType outlines.</summary>
+    public virtual GeneralPath? GetHintedNormalizedPath(int code, int ppem, PDType0Font parent) => null;
 
     public override PDFontDescriptor? GetFontDescriptor() => _fontDescriptor;
 

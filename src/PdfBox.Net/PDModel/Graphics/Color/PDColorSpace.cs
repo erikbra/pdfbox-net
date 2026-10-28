@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColorSpace.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -49,6 +49,12 @@ public abstract class PDColorSpace : COSObjectable
     protected PDColorSpace(COSBase cosObject)
     {
         _cosObject = cosObject;
+    }
+
+    /// <summary>Clamps color components to their allowed ranges, normally zero to one.</summary>
+    public virtual void Clamp(float[] values)
+    {
+        for (int i = 0; i < values.Length; i++) values[i] = Math.Clamp(values[i], 0, 1);
     }
 
     public static PDColorSpace Create(COSBase? colorSpace)

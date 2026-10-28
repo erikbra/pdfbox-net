@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/CreateEmbeddedTimeStamp.java
  * PDFBOX_SOURCE_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -95,7 +95,7 @@ public class CreateEmbeddedTimeStamp
 
         // Embed the timestamp attribute via DER splicing.
         TSAClient tsaClient = new(_tsaUrl);
-        byte[] updatedSig = tsaClient.AddTimestamp(sigBlock);
+        byte[] updatedSig = Internal.CmsEncoding.EncodeDer(tsaClient.AddTimestamp(sigBlock));
 
         // The updated signature must fit in the reserved placeholder.
         // /Contents is hex-encoded inside the PDF, so the reserved size equals

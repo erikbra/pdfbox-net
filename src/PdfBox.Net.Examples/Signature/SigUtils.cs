@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java
  * PDFBOX_SOURCE_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: bd21bd44f5dd050fa716c9bb033adcf725b7ebd3
  */
 
 /*
@@ -41,20 +41,22 @@ namespace PdfBox.Net.Examples.Signature;
 public sealed class SigUtils
 {
     private static ILogger<SigUtils> LOG => PdfBoxLogging.CreateLogger<SigUtils>();
-    private static readonly HttpClient HttpClient = new(new HttpClientHandler
+    private static readonly HttpClient HttpClient = new(new SocketsHttpHandler
     {
-        AllowAutoRedirect = false
-    });
+        AllowAutoRedirect = false,
+        ConnectTimeout = TimeSpan.FromMilliseconds(10_000)
+    }) { Timeout = TimeSpan.FromMilliseconds(20_000) };
 
     // Certificates / CRLs / LDAP needed for the upstream unit tests; add yours
     // or create your own logic in CheckAccess().
-    private static readonly HashSet<string> AllowUrlSet = new(StringComparer.Ordinal)
+    private static readonly HashSet<string> ALLOW_URL_SET = new(StringComparer.Ordinal)
     {
         "http://www.pki.admin.ch/aia/RegularCA01.crt",
         "http://www.pki.admin.ch/aia/RootCAII.crt",
         "http://www.pki.admin.ch/aia/RootCAIV.crt",
         "http://www.pki.admin.ch/crl/RegularCA01.crl",
         "http://www.pki.admin.ch/crl/RootCAII.crl",
+        "http://www.pki.admin.ch/crl/RootCAIV.crl",
         "http://www.pki.admin.ch/aia/RegulatedCA02.crt",
         "http://www.pki.admin.ch/aia/ocsp",
         "http://www.pki.admin.ch/crl/RegulatedCA02.crl",
@@ -91,38 +93,34 @@ public sealed class SigUtils
     public static int GetMDPPermission(PDDocument doc)
     {
         ArgumentNullException.ThrowIfNull(doc);
-        foreach (PDSignature sig in doc.GetSignatureDictionaries())
+        COSDictionary catalog = (COSDictionary)doc.GetDocumentCatalog().GetCOSObject();
+        COSDictionary? signature = catalog.GetCOSDictionary(COSName.GetPDFName("Perms"))
+            ?.GetCOSDictionary(COSName.GetPDFName("DocMDP"));
+        COSArray? references = signature?.GetCOSArray(COSName.GetPDFName("Reference"));
+        if (references is null)
         {
-            COSBase? cosObj = ((COSDictionary)sig.GetCOSObject())
-                .GetDictionaryObject(COSName.GetPDFName("Reference"));
-            if (cosObj is not COSArray refArray || refArray.IsEmpty())
+            return 0;
+        }
+        foreach (COSBase? entry in references)
+        {
+            if (GetDocMdpTransformParams(entry) is COSDictionary parameters)
             {
-                continue;
-            }
-
-            for (int i = 0; i < refArray.Size(); i++)
-            {
-                if (refArray.GetObject(i) is not COSDictionary transformDict)
-                {
-                    continue;
-                }
-
-                string? transformMethod = transformDict.GetNameAsString(
-                    COSName.GetPDFName("TransformMethod"));
-                if ("DocMDP".Equals(transformMethod, StringComparison.Ordinal))
-                {
-                    COSDictionary? transformParams = transformDict.GetCOSDictionary(
-                        COSName.GetPDFName("TransformParams"));
-                    if (transformParams != null)
-                    {
-                        int p = transformParams.GetInt(COSName.GetPDFName("P"), 2);
-                        return p;
-                    }
-                }
+                int permission = parameters.GetInt(COSName.P, 2);
+                return permission < 1 || permission > 3 ? 2 : permission;
             }
         }
-
         return 0;
+    }
+
+    /// <summary>Returns transform parameters only for a DocMDP signature reference entry.</summary>
+    private static COSDictionary? GetDocMdpTransformParams(COSBase? entry)
+    {
+        if (entry is not COSDictionary reference ||
+            reference.GetNameAsString(COSName.GetPDFName("TransformMethod")) != "DocMDP")
+        {
+            return null;
+        }
+        return reference.GetCOSDictionary(COSName.GetPDFName("TransformParams"));
     }
 
     /// <summary>
@@ -136,6 +134,22 @@ public sealed class SigUtils
     {
         ArgumentNullException.ThrowIfNull(doc);
         ArgumentNullException.ThrowIfNull(signature);
+        if (accessPermissions is not (1 or 2 or 3))
+        {
+            throw new ArgumentException("The permissions value must be 1, 2 or 3");
+        }
+        foreach (PDSignature existing in doc.GetSignatureDictionaries())
+        {
+            COSDictionary dictionary = (COSDictionary)existing.GetCOSObject();
+            if (dictionary.GetNameAsString(COSName.TYPE) == "DocTimeStamp")
+            {
+                continue;
+            }
+            if (dictionary.ContainsKey(COSName.CONTENTS))
+            {
+                throw new IOException("DocMDP transform method not allowed if an approval signature exists");
+            }
+        }
 
         // Build the TransformParams dictionary.
         COSDictionary transformParams = new();
@@ -227,8 +241,8 @@ public sealed class SigUtils
     }
 
     /// <summary>
-    /// Returns the most recently applied, document-level signature from <paramref name="doc"/>
-    /// that covers the entire original file (i.e., ByteRange starts at 0).
+    /// Returns the signature at the highest byte-range offset when its type is absent, Sig,
+    /// or DocTimeStamp. Unknown types are logged and ignored.
     /// </summary>
     public static PDSignature? GetLastRelevantSignature(PDDocument doc)
     {
@@ -239,14 +253,23 @@ public sealed class SigUtils
         foreach (PDSignature sig in doc.GetSignatureDictionaries())
         {
             int[] range = sig.GetByteRange();
-            if (range.Length >= 2 && range[0] == 0 && range[1] > lastByteRange1)
+            if (range.Length >= 2 && range[1] > lastByteRange1)
             {
                 lastByteRange1 = range[1];
                 last = sig;
             }
         }
 
-        return last;
+        if (last is not null)
+        {
+            COSBase? type = ((COSDictionary)last.GetCOSObject()).GetItem(COSName.TYPE);
+            if (type is null || type.Equals(COSName.GetPDFName("Sig")) || type.Equals(COSName.GetPDFName("DocTimeStamp")))
+            {
+                return last;
+            }
+            LOG.LogWarning("Signature with unknown type ignored: {Type}", type);
+        }
+        return null;
     }
 
     /// <summary>
@@ -257,9 +280,9 @@ public sealed class SigUtils
     public static void CheckAccess(Uri uri)
     {
         ArgumentNullException.ThrowIfNull(uri);
-        if (!AllowUrlSet.Contains(uri.OriginalString))
+        if (!ALLOW_URL_SET.Contains(uri.OriginalString))
         {
-            throw new IOException($"URL '{uri.OriginalString}' not in allowUrlSet");
+            throw new IOException($"URL '{uri.OriginalString}' not in ALLOW_URL_SET");
         }
     }
 
@@ -293,7 +316,8 @@ public sealed class SigUtils
             using HttpResponseMessage response = client.GetAsync(url).GetAwaiter().GetResult();
             LOG.LogInformation("{StatusCode} {ReasonPhrase}", (int)response.StatusCode, response.ReasonPhrase);
             if (response.StatusCode is System.Net.HttpStatusCode.MovedPermanently or
-                System.Net.HttpStatusCode.Found or System.Net.HttpStatusCode.SeeOther &&
+                System.Net.HttpStatusCode.Found or System.Net.HttpStatusCode.SeeOther or
+                System.Net.HttpStatusCode.TemporaryRedirect or System.Net.HttpStatusCode.PermanentRedirect &&
                 response.Headers.Location is Uri location &&
                 urlString.StartsWith("http://", StringComparison.Ordinal) &&
                 location.OriginalString.StartsWith("https://", StringComparison.Ordinal) &&

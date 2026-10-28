@@ -4,8 +4,8 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/util/ConnectedInputStream.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -28,16 +28,27 @@
 namespace PdfBox.Net.Examples.Util;
 
 /// <summary>
-/// A <see cref="Stream"/> that sequentially reads from multiple input streams.
+/// A stream wrapper that closes its connection when closed. The sequential-input constructor is retained as a .NET compatibility adapter.
 /// </summary>
 public class ConnectedInputStream : Stream
 {
     private readonly Queue<Stream> _streams;
+    private readonly List<Stream> _ownedStreams;
     private Stream? _current;
+    private readonly Action? _disconnect;
+    private bool _disposed;
+
+    /// <summary>Wraps an input stream and releases its connection when closed, even if closing fails.</summary>
+    public ConnectedInputStream(Stream input, Action disconnect)
+        : this([input])
+    {
+        _disconnect = disconnect ?? throw new ArgumentNullException(nameof(disconnect));
+    }
 
     public ConnectedInputStream(IEnumerable<Stream> streams)
     {
-        _streams = new Queue<Stream>(streams);
+        _ownedStreams = streams.ToList();
+        _streams = new Queue<Stream>(_ownedStreams);
         AdvanceStream();
     }
 
@@ -58,6 +69,8 @@ public class ConnectedInputStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+        if (count == 0) return 0;
         while (_current != null)
         {
             int read = _current.Read(buffer, offset, count);
@@ -65,6 +78,26 @@ public class ConnectedInputStream : Stream
             AdvanceStream();
         }
         return 0;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing && !_disposed)
+        {
+            _disposed = true;
+            try
+            {
+                foreach (Stream stream in _ownedStreams)
+                {
+                    stream.Dispose();
+                }
+            }
+            finally
+            {
+                _disconnect?.Invoke();
+                base.Dispose(disposing);
+            }
+        }
     }
 
     public override void Flush() { }

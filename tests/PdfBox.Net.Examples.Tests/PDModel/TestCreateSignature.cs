@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Adapted from Apache PDFBox Java tests with AI assistance.
+ */
+
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestCreateSignature.java
 // PDFBOX_SOURCE_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
-// PORT_MODE: mechanical
-// PORT_LAST_SYNC_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
+// PORT_MODE: adapted
+// PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -20,6 +25,7 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
 using System.Security.Cryptography;
 using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
@@ -59,6 +65,104 @@ public class TestCreateSignature
         SignedCms cms = new(new ContentInfo(signature.GetSignedContent(signedPdfBytes)), detached: true);
         cms.Decode(signature.GetContents(signedPdfBytes));
         cms.CheckSignature(verifySignatureOnly: true);
+    }
+
+    [Theory]
+    [InlineData(false, false, false)]
+    [InlineData(true, false, false)]
+    [InlineData(false, true, false)]
+    [InlineData(true, true, false)]
+    [InlineData(false, false, true)]
+    [InlineData(true, false, true)]
+    [InlineData(false, true, true)]
+    [InlineData(true, true, true)]
+    public void TestSignEncrypted(bool external, bool omitType, bool aes)
+    {
+        byte[] inputPdf = CreateInputPdf();
+        using MemoryStream encrypted = new();
+        using (PDDocument document = PDDocument.Load(new MemoryStream(inputPdf)))
+        {
+            var policy = new PdfBox.Net.PDModel.Encryption.StandardProtectionPolicy("owner", "12345", new());
+            policy.SetEncryptionKeyLength(aes ? 128 : 40);
+            policy.SetPreferAes(aes);
+            document.Protect(policy);
+            document.Save(encrypted);
+        }
+        byte[] keyStore = CreateKeyStore("password");
+        CreateSignature signer = new(keyStore, "password") { IsExternalSigning = external };
+        using MemoryStream signed = new();
+        encrypted.Position = 0;
+        if (!omitType)
+        {
+            signer.SignDetached(encrypted, signed, tsaClient: null, password: "12345");
+        }
+        else
+        {
+            using PDDocument document = PDDocument.Load(encrypted, "12345");
+            PDSignature pending = new();
+            pending.SetFilter(PDSignature.FILTER_ADOBE_PPKLITE);
+            pending.SetSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED);
+            pending.SetName(signer.GetCertificate()!.GetNameInfo(X509NameType.SimpleName, false));
+            SignatureOptions options = new();
+            if (external)
+            {
+                document.AddSignature(pending, options);
+                ((COSDictionary)pending.GetCOSObject()).RemoveItem(COSName.TYPE);
+                ExternalSigningSupport support = document.SaveIncrementalForExternalSigning(signed);
+                support.SetSignature(signer.Sign(support.GetContent()));
+            }
+            else
+            {
+                document.AddSignature(pending, signer, options);
+                ((COSDictionary)pending.GetCOSObject()).RemoveItem(COSName.TYPE);
+                document.SaveIncremental(signed);
+            }
+        }
+        byte[] bytes = signed.ToArray();
+        using PDDocument result = PDDocument.Load(new MemoryStream(bytes), "12345");
+        Assert.True(result.IsEncrypted());
+        Assert.Equal(aes ? 4 : 1, result.GetEncryption()!.GetVersion());
+        PDSignature signature = Assert.Single(result.GetSignatureDictionaries());
+        Assert.Equal(omitType, ((COSDictionary)signature.GetCOSObject()).GetCOSName(COSName.TYPE) is null);
+        SignedCms cms = new(new ContentInfo(signature.GetSignedContent(bytes)), detached: true);
+        cms.Decode(signature.GetContents(bytes));
+        cms.CheckSignature(verifySignatureOnly: true);
+        Assert.Equal(signer.GetCertificate()!.GetNameInfo(X509NameType.SimpleName, false), signature.GetName());
+        byte[] contents = signature.GetContents();
+        Assert.All(contents.TakeLast(5), value => Assert.Equal((byte)0, value));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void FullSaveLeavesOptionalTypeSignatureContentsUnencrypted(bool aes)
+    {
+        using PDDocument document = new();
+        document.AddPage(new());
+        PDAcroForm form = new(document);
+        PDSignatureField field = new(form);
+        PDSignature signature = new();
+        signature.SetName("signature-owner");
+        signature.SetByteRange([0, 1, 2, 3]);
+        signature.SetContents([0x30, 3, 2, 1, 1, 0, 0]);
+        ((COSDictionary)signature.GetCOSObject()).RemoveItem(COSName.TYPE);
+        field.SetValue(signature);
+        form.SetFields([field]);
+        document.GetDocumentCatalog().SetAcroForm(form);
+        var policy = new PdfBox.Net.PDModel.Encryption.StandardProtectionPolicy("owner", "user", new());
+        policy.SetEncryptionKeyLength(aes ? 128 : 40);
+        policy.SetPreferAes(aes);
+        document.Protect(policy);
+        using MemoryStream output = new();
+        document.Save(output);
+        byte[] bytes = output.ToArray();
+        string raw = System.Text.Encoding.Latin1.GetString(bytes);
+        Assert.Contains("<30030201010000>", raw);
+        Assert.DoesNotContain("signature-owner", raw);
+        using PDDocument loaded = PDDocument.Load(new MemoryStream(bytes), "user");
+        PDSignature reloaded = Assert.Single(loaded.GetSignatureDictionaries());
+        Assert.Equal([0x30, 3, 2, 1, 1, 0, 0], reloaded.GetContents());
+        Assert.Equal("signature-owner", reloaded.GetName());
     }
 
     [Fact(Skip = "Requires an external TSA endpoint.")]

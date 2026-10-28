@@ -129,7 +129,13 @@ public class GlyfCompositeComp
         Scale10 = scale10;
     }
 
-    public int ScaleX(int x, int y) => (int)MathF.Round((float)(x * XScale + y * Scale10));
+    public int ScaleX(int x, int y) => JavaRound((float)(x * XScale + y * Scale10));
 
-    public int ScaleY(int x, int y) => (int)MathF.Round((float)(x * Scale01 + y * YScale));
+    public int ScaleY(int x, int y) => JavaRound((float)(x * Scale01 + y * YScale));
+    // Math.round(float) rounds halves toward positive infinity and saturates on overflow.
+    private static int JavaRound(float value) => float.IsNaN(value) ? 0
+        : value >= int.MaxValue ? int.MaxValue
+        : value <= int.MinValue ? int.MinValue
+        : (int)Math.Floor((double)value + 0.5);
+
 }

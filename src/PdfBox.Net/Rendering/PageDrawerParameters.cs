@@ -4,8 +4,8 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawerParameters.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -40,6 +40,7 @@ public sealed class PageDrawerParameters
     private readonly PDFRenderer _renderer;
     private readonly PDPage _page;
     private readonly bool _subsamplingAllowed;
+    private readonly bool _hintingEnabled;
     private readonly RenderDestination _destination;
     private readonly RenderingHints? _renderingHints;
     private readonly float _imageDownscalingOptimizationThreshold;
@@ -65,6 +66,7 @@ public sealed class PageDrawerParameters
         _renderer = renderer ?? throw new ArgumentNullException(nameof(renderer));
         _page = page ?? throw new ArgumentNullException(nameof(page));
         _subsamplingAllowed = subsamplingAllowed;
+        _hintingEnabled = renderer.IsHintingEnabled();
         _destination = destination;
         _renderingHints = renderingHints;
         _imageDownscalingOptimizationThreshold = imageDownscalingOptimizationThreshold;
@@ -99,6 +101,9 @@ public sealed class PageDrawerParameters
     /// Returns whether to allow subsampling of images.
     /// </summary>
     /// <returns><see langword="true"/> if subsampling of images is allowed.</returns>
+    /// <summary>Returns whether TrueType grid-fitting is enabled.</summary>
+    public bool IsHintingEnabled() => _hintingEnabled;
+
     public bool IsSubsamplingAllowed()
     {
         return _subsamplingAllowed;

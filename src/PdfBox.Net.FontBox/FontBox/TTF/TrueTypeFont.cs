@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeFont.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -51,6 +51,8 @@ public class TrueTypeFont : FontBoxFont, IDisposable
     private volatile Dictionary<string, int>? _postScriptNames;
     private readonly object _lockReadtable = new();
     private readonly object _lockPSNames = new();
+    private readonly object _lockHinter = new();
+    private GlyphHinter? _hinter;
     private readonly List<string> _enabledGsubFeatures = [];
 
     public TrueTypeFont() : this(new MemoryTTFDataStream(Array.Empty<byte>()))
@@ -131,6 +133,34 @@ public class TrueTypeFont : FontBoxFont, IDisposable
     public VerticalOriginTable? GetVerticalOrigin() => GetTable(VerticalOriginTable.TAG) as VerticalOriginTable;
     public KerningTable? GetKerning() => GetTable(KerningTable.TAG) as KerningTable;
     public GlyphSubstitutionTable? GetGsub() => GetTable(GlyphSubstitutionTable.TAG) as GlyphSubstitutionTable;
+    /// <summary>Get the "cvt " (Control Value) table, or null if it does not exist.</summary>
+    public ControlValueTable? GetControlValues() => GetTable(ControlValueTable.TAG) as ControlValueTable;
+    /// <summary>Get the "fpgm" (Font Program) table, or null if it does not exist.</summary>
+    public FontProgramTable? GetFontProgram() => GetTable(FontProgramTable.TAG) as FontProgramTable;
+    /// <summary>Get the "prep" (Control Value Program) table, or null if it does not exist.</summary>
+    public ControlValueProgramTable? GetControlValueProgram() => GetTable(ControlValueProgramTable.TAG) as ControlValueProgramTable;
+    /// <summary>Get the "gasp" (Grid-fitting And Scan-conversion Procedure) table, or null.</summary>
+    public GaspTable? GetGasp() => GetTable(GaspTable.TAG) as GaspTable;
+
+    /// <summary>
+    /// Returns the grid-fitted path of the glyph at the given pixels-per-em, in font units,
+    /// or null if hinting does not apply or fails. Composite glyphs are hinted.
+    /// The caller decides whether to hint and should fall back to the raw outline on null.
+    /// </summary>
+    /// <param name="gid">The glyph id.</param>
+    /// <param name="ppem">The pixels-per-em to grid-fit to.</param>
+    /// <returns>The hinted path in font units, or null.</returns>
+    public GeneralPath? GetHintedPath(int gid, int ppem)
+    {
+        GlyphHinter glyphHinter;
+        lock (_lockHinter)
+        {
+            _hinter ??= new GlyphHinter(this);
+            glyphHinter = _hinter;
+        }
+        return glyphHinter.GetPath(gid, ppem);
+    }
+
     public Stream GetOriginalData() => _data.GetOriginalData();
     public long GetOriginalDataSize() => _data.GetOriginalDataSize();
 

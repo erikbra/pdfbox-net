@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: tools/src/main/java/org/apache/pdfbox/tools/PrintPDF.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -27,6 +27,7 @@
 
 using PdfBox.Net.PDModel;
 using PdfBox.Net.Printing;
+using PdfBox.Net.Rendering;
 
 namespace PdfBox.Net.Tools;
 
@@ -40,7 +41,7 @@ public static class PrintPDF
         try
         {
             PrintPDFOptions options = ParseOptions(args);
-            Print(options.InputFile, options.Password, options.PrinterName);
+            Print(options.InputFile, options.Password, options.PrinterName, options.Subsampling, options.Hinting);
             return 0;
         }
         catch (ArgumentException ex)
@@ -61,10 +62,22 @@ public static class PrintPDF
     }
 
     public static void Print(string inputFile, string? password = null, string? printerName = null)
+        => Print(inputFile, password, printerName, subsampling: false, hinting: false);
+
+    /// <summary>Prints a PDF after refreshing requested form appearances and applying renderer options.</summary>
+    public static void Print(string inputFile, string? password, string? printerName, bool subsampling, bool hinting)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(inputFile);
         using PDDocument document = Loader.LoadPDF(inputFile, password);
-        PDFPrinter printer = new(document)
+        var form = document.GetDocumentCatalog().GetAcroForm();
+        if (form is not null && form.GetNeedAppearances())
+        {
+            form.RefreshAppearances();
+        }
+        PDFRenderer renderer = new(document);
+        renderer.SetSubsamplingAllowed(subsampling);
+        renderer.SetHintingEnabled(hinting);
+        PDFPrinter printer = new(document, renderer)
         {
             PrinterName = printerName
         };
@@ -77,6 +90,8 @@ public static class PrintPDF
         string? input = null;
         string? password = null;
         string? printerName = null;
+        bool subsampling = false;
+        bool hinting = false;
 
         for (int i = 0; i < args.Length; i++)
         {
@@ -89,6 +104,12 @@ public static class PrintPDF
                     break;
                 case "-password":
                     password = ReadOptionValue(args, ref i, arg);
+                    break;
+                case "-subsampling":
+                    subsampling = true;
+                    break;
+                case "-hinting":
+                    hinting = true;
                     break;
                 case "-printerName":
                     printerName = ReadOptionValue(args, ref i, arg);
@@ -103,7 +124,7 @@ public static class PrintPDF
             throw new ArgumentException("Missing required option -i/--input.");
         }
 
-        return new PrintPDFOptions(input, password, printerName);
+        return new PrintPDFOptions(input, password, printerName, subsampling, hinting);
     }
 
     private static string ReadOptionValue(string[] args, ref int index, string optionName)
@@ -116,5 +137,5 @@ public static class PrintPDF
         return args[++index];
     }
 
-    private sealed record PrintPDFOptions(string InputFile, string? Password, string? PrinterName);
+    private sealed record PrintPDFOptions(string InputFile, string? Password, string? PrinterName, bool Subsampling, bool Hinting);
 }

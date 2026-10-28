@@ -131,6 +131,25 @@ public sealed class PDAppearanceContentStream : ContentStreamForGlyphLayoutInter
         WriteOperator("Tj", GlyphLayoutContentStreamSupport.ToGlyphCodeString(glyphCodes));
     }
 
+    /// <summary>Begins marked content with a property list.</summary>
+    public void BeginMarkedContent(COSName tag, PdfBox.Net.PDModel.DocumentInterchange.MarkedContent.PDPropertyList propertyList)
+    {
+        COSDictionary dictionary = propertyList.GetCOSObject();
+        if (dictionary.Size() == 1 && dictionary.ContainsKey(COSName.GetPDFName("ActualText")))
+        {
+            if (dictionary.GetItem(COSName.GetPDFName("ActualText")) is not COSString)
+                throw new ArgumentException("ActualText parameter must be a string");
+            WriteOperator("BDC", tag, dictionary);
+            return;
+        }
+        PDResources resources = _appearance.GetResources() ?? new PDResources();
+        _appearance.SetResources(resources);
+        WriteOperator("BDC", tag, resources.Add(propertyList, "MC"));
+    }
+
+    /// <summary>Ends a marked content sequence.</summary>
+    public void EndMarkedContent() => WriteOperator("EMC");
+
     public void SetTextRise(float rise) => WriteOperator("Ts", rise);
 
     public void MoveTo(float x, float y) => WriteOperator("m", x, y);

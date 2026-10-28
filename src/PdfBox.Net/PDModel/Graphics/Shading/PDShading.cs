@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/shading/PDShading.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -298,17 +298,7 @@ public abstract partial class PDShading : COSObjectable
         // From the PDF spec:
         // "If the value returned by the function for a given colour component
         // is out of range, it shall be adjusted to the nearest valid value."
-        for (int i = 0; i < returnValues.Length; ++i)
-        {
-            if (returnValues[i] < 0)
-            {
-                returnValues[i] = 0;
-            }
-            else if (returnValues[i] > 1)
-            {
-                returnValues[i] = 1;
-            }
-        }
+        GetColorSpace().Clamp(returnValues);
         return returnValues;
     }
 

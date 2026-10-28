@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -151,46 +151,57 @@ public partial class COSUpdateState(COSUpdateInfo updateInfo)
 
     private void SetOriginDocumentState(COSDocumentState? originDocumentState, bool dereferencing)
     {
-        if (_originDocumentState is not null || originDocumentState is null)
+        if (originDocumentState is null)
         {
             return;
         }
-
-        _originDocumentState = originDocumentState;
-        if (!dereferencing)
+        // PDFBOX-6200: the structure may be nested deeper than the call stack allows.
+        Stack<COSUpdateState> pending = new();
+        pending.Push(this);
+        while (pending.Count != 0)
         {
-            Update();
+            COSUpdateState state = pending.Pop();
+            if (state._originDocumentState is not null)
+            {
+                continue;
+            }
+            state._originDocumentState = originDocumentState;
+            if (!dereferencing)
+            {
+                state.Update();
+            }
+            state.PushSubstructures(pending);
         }
+    }
 
+    /// <summary>Pushes update states directly contained by the managed object onto the stack.</summary>
+    private void PushSubstructures(Stack<COSUpdateState> pending)
+    {
         switch (_updateInfo)
         {
             case COSDictionary dictionary:
                 foreach (COSBase entry in dictionary.GetValues())
                 {
-                    if (entry is COSUpdateInfo updateEntry)
-                    {
-                        updateEntry.GetUpdateState().SetOriginDocumentState(originDocumentState, dereferencing);
-                    }
+                    PushUpdateState(pending, entry);
                 }
-
                 break;
             case COSArray array:
                 foreach (COSBase? entry in array)
                 {
-                    if (entry is COSUpdateInfo updateEntry)
-                    {
-                        updateEntry.GetUpdateState().SetOriginDocumentState(originDocumentState, dereferencing);
-                    }
+                    PushUpdateState(pending, entry);
                 }
-
                 break;
             case COSObject obj when obj.IsDereferenced():
-                if (obj.GetObject() is COSUpdateInfo updateReference)
-                {
-                    updateReference.GetUpdateState().SetOriginDocumentState(originDocumentState, dereferencing);
-                }
-
+                PushUpdateState(pending, obj.GetObject());
                 break;
+        }
+    }
+
+    private static void PushUpdateState(Stack<COSUpdateState> pending, COSBase? value)
+    {
+        if (value is COSUpdateInfo updateInfo)
+        {
+            pending.Push(updateInfo.GetUpdateState());
         }
     }
 }

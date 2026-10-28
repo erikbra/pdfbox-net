@@ -23,6 +23,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Common.Function;
 using PdfBox.Net.PDModel.Graphics.Shading;
@@ -448,6 +449,7 @@ public class PDShadingTest
     public void EvalFunction_SingleFunction_EvaluatesCorrectly()
     {
         PDShadingType2 shading = new(new COSDictionary());
+        shading.SetColorSpace(PDDeviceGray.Instance);
         COSDictionary funcDict = BuildType2FunctionDict([0f], [1f]);
         funcDict.SetFloat(COSName.N, 1f);
         shading.SetFunction(new PDFunctionType2(funcDict));
@@ -461,6 +463,7 @@ public class PDShadingTest
     public void EvalFunction_MultipleComponents_EvaluatesEachFunction()
     {
         PDShadingType2 shading = new(new COSDictionary());
+        shading.SetColorSpace(PDDeviceRGB.Instance);
 
         COSArray funcArray = new();
         // R: 0 -> 1 linear
@@ -483,6 +486,7 @@ public class PDShadingTest
     {
         // Build a function that returns values outside [0,1]
         PDShadingType2 shading = new(new COSDictionary());
+        shading.SetColorSpace(PDDeviceGray.Instance);
         COSDictionary funcDict = BuildType2FunctionDict([-1f], [2f]);
         funcDict.SetFloat(COSName.N, 1f);
         shading.SetFunction(new PDFunctionType2(funcDict));

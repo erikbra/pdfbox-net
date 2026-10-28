@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/GlyphCache.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -42,6 +42,20 @@ internal sealed class GlyphCache
 
     private readonly PDVectorFont _font;
     private readonly Dictionary<int, GeneralPath> _cache = [];
+    private readonly Dictionary<long, GeneralPath> _hintedCache = [];
+
+    /// <summary>Returns a cached hinted outline, falling back to the ordinary outline when hinting does not apply.</summary>
+    public GeneralPath GetPathForCharacterCode(int code, int ppem)
+    {
+        long key = ((long)ppem << 32) | (uint)code;
+        if (_hintedCache.TryGetValue(key, out GeneralPath? cached)) return cached;
+        GeneralPath? path = null;
+        try { path = _font.GetHintedNormalizedPath(code, ppem); }
+        catch (IOException ex) { LOG.LogWarning(ex, "Hinting failed for code {Code} in font {FontName}", code, _font.GetName()); }
+        GeneralPath result = path ?? GetPathForCharacterCode(code);
+        _hintedCache[key] = result;
+        return result;
+    }
 
     internal GlyphCache(PDVectorFont font)
     {

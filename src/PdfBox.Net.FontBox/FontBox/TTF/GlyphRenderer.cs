@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/GlyphRenderer.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -32,9 +32,13 @@ using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.FontBox.TTF;
 
-internal class GlyphRenderer(GlyphDescription glyphDescription)
+internal class GlyphRenderer(GlyphDescription glyphDescription, int[]? hintedX, int[]? hintedY)
 {
     private static ILogger<GlyphRenderer> LOG => PdfBoxLogging.CreateLogger<GlyphRenderer>();
+
+    public GlyphRenderer(GlyphDescription glyphDescription) : this(glyphDescription, null, null)
+    {
+    }
 
     public GeneralPath GetPath()
     {
@@ -42,7 +46,7 @@ internal class GlyphRenderer(GlyphDescription glyphDescription)
         return CalculatePath(points);
     }
 
-    private static Point[] Describe(GlyphDescription gd)
+    private Point[] Describe(GlyphDescription gd)
     {
         int endPtIndex = 0;
         int endPtOfContourIndex = -1;
@@ -61,7 +65,8 @@ internal class GlyphRenderer(GlyphDescription glyphDescription)
                 endPtOfContourIndex = -1;
             }
 
-            points[i] = new Point(gd.GetXCoordinate(i), gd.GetYCoordinate(i),
+            points[i] = new Point(hintedX != null ? hintedX[i] : gd.GetXCoordinate(i),
+                hintedY != null ? hintedY[i] : gd.GetYCoordinate(i),
                 (gd.GetFlags(i) & GlyfDescript.OnCurve) != 0, endPt);
         }
 

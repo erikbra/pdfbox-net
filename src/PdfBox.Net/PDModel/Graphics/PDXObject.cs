@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/PDXObject.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -127,7 +127,8 @@ public class PDXObject : COSObjectable
             return;
         }
 
-        cos.SetName(COSName.TYPE, "XObject");
-        cos.SetName(SubtypeName, subtype);
+        COSName subtypeName = COSName.GetPDFName(subtype);
+        if (!COSName.GetPDFName("XObject").Equals(cos.GetItem(COSName.TYPE))) cos.SetItem(COSName.TYPE, COSName.GetPDFName("XObject"));
+        if (!subtypeName.Equals(cos.GetItem(SubtypeName))) cos.SetItem(SubtypeName, subtypeName);
     }
 }

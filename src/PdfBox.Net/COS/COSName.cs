@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -43,6 +43,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     //
 
     // A
+    public static readonly COSName AN = GetPDFName("AN");
     public static readonly COSName A = GetPDFName("A");
     public static readonly COSName AA = GetPDFName("AA");
     public static readonly COSName ANNOT = GetPDFName("Annot");
@@ -54,6 +55,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName ACRO_FORM = GetPDFName("AcroForm");
     public static readonly COSName ART_BOX = GetPDFName("ArtBox");
     public static readonly COSName AUTHOR = GetPDFName("Author");
+    public static readonly COSName SPAN = GetPDFName("Span");
     // B
     public static readonly COSName B = GetPDFName("B");
     public static readonly COSName BACKGROUND = GetPDFName("Background");

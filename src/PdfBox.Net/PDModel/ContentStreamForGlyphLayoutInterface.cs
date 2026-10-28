@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/ContentStreamForGlyphLayoutInterface.java
  * PDFBOX_SOURCE_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
  * PORT_MODE: adapted-minimal
- * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -24,6 +24,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 
 namespace PdfBox.Net.PDModel;
 
@@ -46,4 +49,10 @@ public interface ContentStreamForGlyphLayoutInterface
     /// </summary>
     /// <param name="rise">Distance in unscaled text space units to move the baseline.</param>
     void SetTextRise(float rise);
+
+    /// <summary>Begins marked content with a property list.</summary>
+    void BeginMarkedContent(COSName tag, PDPropertyList propertyList);
+
+    /// <summary>Ends a marked content sequence.</summary>
+    void EndMarkedContent();
 }

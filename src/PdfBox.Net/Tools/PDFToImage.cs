@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: tools/src/main/java/org/apache/pdfbox/tools/PDFToImage.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -34,12 +34,18 @@ namespace PdfBox.Net.Tools;
 public static class PDFToImage
 {
     public static IReadOnlyList<string> RenderPng(string inputFile, string outputPrefix, float dpi = 96f)
+        => RenderPng(inputFile, outputPrefix, dpi, subsampling: false, hinting: false);
+
+    /// <summary>Renders a PDF using optional image subsampling and TrueType font hinting.</summary>
+    public static IReadOnlyList<string> RenderPng(string inputFile, string outputPrefix, float dpi, bool subsampling, bool hinting)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(inputFile);
         ArgumentException.ThrowIfNullOrWhiteSpace(outputPrefix);
 
         using PDDocument document = Loader.LoadPDF(inputFile);
         PDFRenderer renderer = new(document);
+        renderer.SetSubsamplingAllowed(subsampling);
+        renderer.SetHintingEnabled(hinting);
         List<string> output = new(document.GetNumberOfPages());
         for (int i = 0; i < document.GetNumberOfPages(); i++)
         {
