@@ -36,27 +36,28 @@ namespace PdfBox.Net.FontBox.TTF;
 
 /// <summary>
 /// The TrueType bytecode interpreter: the VM driver and the 256-entry opcode dispatch table.
-/// &lt;p&gt;
+///
 /// It carries the execution engine - the BytecodeStream cursor driven dispatch loop, function
 /// definition and calling with a depth cap, branching, the push family, and the
 /// stack/arithmetic/logical/storage and point-moving opcodes - plus the size lifecycle: fpgm
 /// executed once, prep executed per ppem change with the result saved as the per-glyph
 /// template. An opcode with no handler and no IDEF binding throws HintingException,
 /// which the caller catches per glyph and falls back to the raw outline.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class TrueTypeInterpreter
 {
     /// <summary>
-/// Maximum CALL/LOOPCALL nesting depth, matching FreeType.
-/// </summary>
+    /// Maximum CALL/LOOPCALL nesting depth, matching FreeType.
+    /// </summary>
     internal const int MAX_CALL_DEPTH = 64;
 
     /// <summary>
-/// A single opcode handler.
-/// </summary>
-    
+    /// A single opcode handler.
+    /// </summary>
+
     private delegate void OpHandler(ExecutionContext ctx);
 
     // opcodes referenced by the engine itself (control flow / push)
@@ -94,12 +95,18 @@ internal class TrueTypeInterpreter
     private GraphicsState? savedState;
     private ExecutionTracer? tracer;
 
-    /// <summary>
-/// @param maxStackElements operand stack capacity (from maxp)
-/// @param maxStorage storage area size (from maxp)
-/// @param maxTwilightPoints twilight zone size (from maxp)
-/// @param unitsPerEm the font's unitsPerEm (from head)
-/// </summary>
+    /// <param name="maxStackElements">
+    /// operand stack capacity (from maxp)
+    /// </param>
+    /// <param name="maxStorage">
+    /// storage area size (from maxp)
+    /// </param>
+    /// <param name="maxTwilightPoints">
+    /// twilight zone size (from maxp)
+    /// </param>
+    /// <param name="unitsPerEm">
+    /// the font's unitsPerEm (from head)
+    /// </param>
     public TrueTypeInterpreter(int maxStackElements, int maxStorage, int maxTwilightPoints,
             int unitsPerEm)
     {
@@ -112,37 +119,38 @@ internal class TrueTypeInterpreter
 
     // --- configuration ---------------------------------------------------
 
-    /// <summary>
-/// @param program the raw fpgm bytecode, or null
-/// </summary>
+    /// <param name="program">
+    /// the raw fpgm bytecode, or null
+    /// </param>
     public void SetFontProgram(byte[]? program)
     {
         this.fontProgram = program;
     }
 
-    /// <summary>
-/// @param program the raw prep bytecode, or null
-/// </summary>
+    /// <param name="program">
+    /// the raw prep bytecode, or null
+    /// </param>
     public void SetControlValueProgram(byte[]? program)
     {
         this.controlValueProgram = program;
     }
 
-    /// <summary>
-/// @param values the raw control values in font units, or null
-/// </summary>
+    /// <param name="values">
+    /// the raw control values in font units, or null
+    /// </param>
     public void SetControlValues(int[]? values)
     {
         this.rawControlValues = values != null ? values : new int[0];
     }
 
     /// <summary>
-/// Attaches (or clears with null) an execution tracer that emits one FreeType-comparable
-/// line per executed instruction. Used by the trace-diff tooling to localize divergence; off in
-/// normal operation.
-/// 
-/// @param tracer the tracer, or null to disable tracing
-/// </summary>
+    /// Attaches (or clears with null) an execution tracer that emits one FreeType-comparable
+    /// line per executed instruction. Used by the trace-diff tooling to localize divergence; off in
+    /// normal operation.
+    /// </summary>
+    /// <param name="tracer">
+    /// the tracer, or null to disable tracing
+    /// </param>
     public void SetTracer(ExecutionTracer? tracer)
     {
         this.tracer = tracer;
@@ -151,9 +159,9 @@ internal class TrueTypeInterpreter
     // --- lifecycle -------------------------------------------------------
 
     /// <summary>
-/// Runs the font program (fpgm) once, populating the function table. Safe to call when
-/// there is no font program.
-/// </summary>
+    /// Runs the font program (fpgm) once, populating the function table. Safe to call when
+    /// there is no font program.
+    /// </summary>
     public void PrepareFontProgram()
     {
         functions.Clear();
@@ -168,16 +176,19 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Establishes a new ppem: scales the control values, clears the storage area and twilight zone, runs
-/// the control value program (prep) from a default graphics state, and saves the resulting
-/// state as the per-glyph template. Whatever prep leaves in storage and the twilight zone
-/// stays there for every glyph hinted at this size, which is why they are cleared here and not per
-/// glyph - after FreeType's tt_size_run_prep. Anything the font program wrote to storage is
-/// discarded, again as FreeType does: fpgm is only meant to define functions.
-/// 
-/// @param ppemValue the pixels-per-em to render at
-/// @param pointSizeValue the point size
-/// </summary>
+    /// Establishes a new ppem: scales the control values, clears the storage area and twilight zone, runs
+    /// the control value program (prep) from a default graphics state, and saves the resulting
+    /// state as the per-glyph template. Whatever prep leaves in storage and the twilight zone
+    /// stays there for every glyph hinted at this size, which is why they are cleared here and not per
+    /// glyph - after FreeType's tt_size_run_prep. Anything the font program wrote to storage is
+    /// discarded, again as FreeType does: fpgm is only meant to define functions.
+    /// </summary>
+    /// <param name="ppemValue">
+    /// the pixels-per-em to render at
+    /// </param>
+    /// <param name="pointSizeValue">
+    /// the point size
+    /// </param>
     public void SetPpem(int ppemValue, int pointSizeValue)
     {
         this.ppem = ppemValue;
@@ -206,13 +217,16 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Builds a fresh execution context wired to this interpreter's sizes, scaled control values and the
-/// current ppem. The stack and per-run counters are new; the storage area and twilight zone are the
-/// interpreter's own, so values prep left there are visible to the glyph programs.
-/// 
-/// @param gs the graphics state the context starts from
-/// @return a new execution context
-/// </summary>
+    /// Builds a fresh execution context wired to this interpreter's sizes, scaled control values and the
+    /// current ppem. The stack and per-run counters are new; the storage area and twilight zone are the
+    /// interpreter's own, so values prep left there are visible to the glyph programs.
+    /// </summary>
+    /// <param name="gs">
+    /// the graphics state the context starts from
+    /// </param>
+    /// <returns>
+    /// a new execution context
+    /// </returns>
     public ExecutionContext NewContext(GraphicsState gs)
     {
         ExecutionContext ctx = new ExecutionContext(this, gs, maxStackElements, storage,
@@ -224,14 +238,19 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Test/utility entry point: runs a standalone bytecode program from the saved (post-prep)
-/// state, or a default state if no size has been set, and returns the resulting context so callers
-/// can inspect the stack and state.
-/// 
-/// @param program the bytecode to run
-/// @param ppemValue the ppem to run at
-/// @return the execution context after the program completes
-/// </summary>
+    /// Test/utility entry point: runs a standalone bytecode program from the saved (post-prep)
+    /// state, or a default state if no size has been set, and returns the resulting context so callers
+    /// can inspect the stack and state.
+    /// </summary>
+    /// <param name="program">
+    /// the bytecode to run
+    /// </param>
+    /// <param name="ppemValue">
+    /// the ppem to run at
+    /// </param>
+    /// <returns>
+    /// the execution context after the program completes
+    /// </returns>
     public ExecutionContext ExecuteProgram(byte[] program, int ppemValue)
     {
         this.ppem = ppemValue;
@@ -241,17 +260,17 @@ internal class TrueTypeInterpreter
         return ctx;
     }
 
-    /// <summary>
-/// @return the saved post-prep graphics state, or null if no size has been set
-/// </summary>
+    /// <returns>
+    /// the saved post-prep graphics state, or null if no size has been set
+    /// </returns>
     public GraphicsState GetSavedState()
     {
-        return savedState;
+        return savedState!; // SetPpem establishes the saved state before glyph execution.
     }
 
-    /// <summary>
-/// @return the function table populated by fpgm
-/// </summary>
+    /// <returns>
+    /// the function table populated by fpgm
+    /// </returns>
     public Dictionary<int, FunctionDef> GetFunctions()
     {
         return functions;
@@ -260,12 +279,15 @@ internal class TrueTypeInterpreter
     // --- execution engine ------------------------------------------------
 
     /// <summary>
-/// Runs a bytecode stream to completion (or until an ENDF returns from a function body),
-/// dispatching each opcode through the table.
-/// 
-/// @param ctx the execution context
-/// @param s the stream to run
-/// </summary>
+    /// Runs a bytecode stream to completion (or until an ENDF returns from a function body),
+    /// dispatching each opcode through the table.
+    /// </summary>
+    /// <param name="ctx">
+    /// the execution context
+    /// </param>
+    /// <param name="s">
+    /// the stream to run
+    /// </param>
     public void Run(ExecutionContext ctx, BytecodeStream s)
     {
         BytecodeStream previous = ctx.GetStream();
@@ -290,15 +312,20 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Calls the function with the given number, running its body until the matching ENDF.
-/// 
-/// @param ctx the execution context
-/// @param functionNumber the function to call
-/// @throws HintingException if the function is undefined or the call depth is exceeded
-/// </summary>
+    /// Calls the function with the given number, running its body until the matching ENDF.
+    /// </summary>
+    /// <param name="ctx">
+    /// the execution context
+    /// </param>
+    /// <param name="functionNumber">
+    /// the function to call
+    /// </param>
+    /// <exception cref="HintingException">
+    /// if the function is undefined or the call depth is exceeded
+    /// </exception>
     public void CallFunction(ExecutionContext ctx, int functionNumber)
     {
-        FunctionDef def = functions.GetValueOrDefault(functionNumber);
+        FunctionDef? def = functions.GetValueOrDefault(functionNumber);
         if (def == null)
         {
             throw new HintingException("call to undefined function " + functionNumber);
@@ -307,8 +334,8 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Runs a function/instruction body from its entry point until the matching ENDF.
-/// </summary>
+    /// Runs a function/instruction body from its entry point until the matching ENDF.
+    /// </summary>
     private void CallBody(ExecutionContext ctx, FunctionDef def)
     {
         if (ctx.GetCallDepth() >= MAX_CALL_DEPTH)
@@ -340,8 +367,8 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// IDEF: binds the opcode on top of the stack to the following instructions (until ENDF).
-/// </summary>
+    /// IDEF: binds the opcode on top of the stack to the following instructions (until ENDF).
+    /// </summary>
     private void DefineInstruction(ExecutionContext ctx)
     {
         int opcode = ctx.Pop();
@@ -352,11 +379,12 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Skips to the ENDF closing a function/instruction body, leaving the stream after it.
-/// A nested FDEF/IDEF is an error, as in FreeType (Nested_DEFS).
-/// 
-/// @return the position of the ENDF
-/// </summary>
+    /// Skips to the ENDF closing a function/instruction body, leaving the stream after it.
+    /// A nested FDEF/IDEF is an error, as in FreeType (Nested_DEFS).
+    /// </summary>
+    /// <returns>
+    /// the position of the ENDF
+    /// </returns>
     private int SkipFunctionBody(BytecodeStream s)
     {
         while (s.HasNext())
@@ -376,10 +404,10 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// On a false IF, skips forward to the matching ELSE or EIF, accounting for
-/// nested IF blocks and for the inline operands of push instructions. Leaves the stream
-/// positioned just after the terminator.
-/// </summary>
+    /// On a false IF, skips forward to the matching ELSE or EIF, accounting for
+    /// nested IF blocks and for the inline operands of push instructions. Leaves the stream
+    /// positioned just after the terminator.
+    /// </summary>
     private void SkipToElseOrEif(BytecodeStream s)
     {
         int depth = 0;
@@ -411,9 +439,9 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// After a true IF branch reaches its ELSE, skips the else-branch to the matching
-/// EIF.
-/// </summary>
+    /// After a true IF branch reaches its ELSE, skips the else-branch to the matching
+    /// EIF.
+    /// </summary>
     private void SkipToEif(BytecodeStream s)
     {
         int depth = 0;
@@ -441,8 +469,8 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Advances the stream past the inline operands of a push opcode; a no-op for other opcodes.
-/// </summary>
+    /// Advances the stream past the inline operands of a push opcode; a no-op for other opcodes.
+    /// </summary>
     private void SkipPushOperands(int opcode, BytecodeStream s)
     {
         if (opcode == NPUSHB)
@@ -473,7 +501,7 @@ internal class TrueTypeInterpreter
             dispatch[i] = ctx =>
             {
                 // an opcode with no built-in handler may have been given one by IDEF
-                FunctionDef def = instructionDefs.GetValueOrDefault(opcode);
+                FunctionDef? def = instructionDefs.GetValueOrDefault(opcode);
                 if (def != null)
                 {
                     CallBody(ctx, def);
@@ -552,7 +580,7 @@ internal class TrueTypeInterpreter
             ctx.Push(b);
         };
         dispatch[0x24] = ctx => ctx.Push(ctx.GetStackDepth());        // DEPTH
-        // CINDEX/MINDEX: k counts from the top, 1-based. An output-of-range k is ignored (the index
+        // CINDEX/MINDEX: k counts from the top, 1-based. An out-of-range k is ignored (the index
         // operand has been consumed and the stack is otherwise left alone), as FreeType does outside
         // pedantic mode, rather than aborting the glyph.
         dispatch[0x25] = ctx =>                                       // CINDEX
@@ -600,7 +628,7 @@ internal class TrueTypeInterpreter
         dispatch[0x61] = ctx => Binary(ctx, (a, b) => a - b);            // SUB
         dispatch[0x62] = ctx => Binary(ctx, Fixed.Div);                 // DIV
         dispatch[0x63] = ctx => Binary(ctx, Fixed.Mul);                 // MUL
-        dispatch[0x64] = ctx => ctx.Push(Math.Abs(ctx.Pop()));           // ABS
+        dispatch[0x64] = ctx => ctx.Push(Fixed.Abs(ctx.Pop()));           // ABS
         dispatch[0x65] = ctx => ctx.Push(-ctx.Pop());                    // NEG
         dispatch[0x66] = ctx => ctx.Push(Fixed.Floor(ctx.Pop()));        // FLOOR
         dispatch[0x67] = ctx => ctx.Push(Fixed.Ceil(ctx.Pop()));         // CEILING
@@ -687,14 +715,19 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Jumps to offset bytes from the start of the current instruction. A backward jump is the
-/// only way TrueType bytecode can loop other than LOOPCALL, so those are counted against the
-/// run's budget and the program is abandoned once it exceeds it.
-/// 
-/// @param ctx the execution context
-/// @param offset the jump offset, relative to the current instruction
-/// @throws HintingException if the stream position is output of range, or too many backward jumps
-/// </summary>
+    /// Jumps to offset bytes from the start of the current instruction. A backward jump is the
+    /// only way TrueType bytecode can loop other than LOOPCALL, so those are counted against the
+    /// run's budget and the program is abandoned once it exceeds it.
+    /// </summary>
+    /// <param name="ctx">
+    /// the execution context
+    /// </param>
+    /// <param name="offset">
+    /// the jump offset, relative to the current instruction
+    /// </param>
+    /// <exception cref="HintingException">
+    /// if the stream position is out of range, or too many backward jumps
+    /// </exception>
     private static void Jump(ExecutionContext ctx, int offset)
     {
         if (offset < 0)
@@ -915,14 +948,15 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Pops two point numbers and returns the unit vector along (or perpendicular to) the line between
-/// them, as FreeType's Ins_SxVTL/Ins_SDPVTL do: the top of the stack is a point in zp2, the one
-/// below it a point in zp1, and the line runs from the zp2 point to the zp1 point. A zero-length
-/// line gives the x axis, ignoring the perpendicular flag.
-/// 
-/// @return {current-based vector, original-based vector (only when withOriginal, else
-///         null)}
-/// </summary>
+    /// Pops two point numbers and returns the unit vector along (or perpendicular to) the line between
+    /// them, as FreeType's Ins_SxVTL/Ins_SDPVTL do: the top of the stack is a point in zp2, the one
+    /// below it a point in zp1, and the line runs from the zp2 point to the zp1 point. A zero-length
+    /// line gives the x axis, ignoring the perpendicular flag.
+    /// </summary>
+    /// <returns>
+    /// {current-based vector, original-based vector (only when withOriginal, else
+    /// null)}
+    /// </returns>
     private UnitVector[] LineVector(ExecutionContext ctx, bool perpendicular,
             bool withOriginal)
     {
@@ -933,7 +967,7 @@ internal class TrueTypeInterpreter
         Zone from = ctx.GetZone(gs.GetZp2());
         ExecutionContext.CheckPoint(to, p1);
         ExecutionContext.CheckPoint(from, p2);
-        UnitVector original = null;
+        UnitVector original = null!; // Read only when withOriginal is true, after assignment below.
         bool perp = perpendicular;
         if (withOriginal)
         {
@@ -1004,12 +1038,12 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// ISECT: moves a point to where line A (through a0 and a1, in zp1) crosses line B (through b0 and
-/// b1, in zp0). With u = a1 - a0 and v = b1 - b0 the crossing is a0 + t u, where
-/// t = ((b0 - a0) x v) / (u x v), solved exactly in integers. When the lines are within about 3
-/// degrees of parallel (|u x v| at most 1/19 of |u . v|, the cut-off FreeType uses) the crossing
-/// is too unstable to use, and the point goes to the average of the four line points instead.
-/// </summary>
+    /// ISECT: moves a point to where line A (through a0 and a1, in zp1) crosses line B (through b0 and
+    /// b1, in zp0). With u = a1 - a0 and v = b1 - b0 the crossing is a0 + t u, where
+    /// t = ((b0 - a0) x v) / (u x v), solved exactly in integers. When the lines are within about 3
+    /// degrees of parallel (|u x v| at most 1/19 of |u . v|, the cut-off FreeType uses) the crossing
+    /// is too unstable to use, and the point goes to the average of the four line points instead.
+    /// </summary>
     private void DoIsect(ExecutionContext ctx)
     {
         GraphicsState gs = ctx.GetGraphicsState();
@@ -1040,7 +1074,7 @@ internal class TrueTypeInterpreter
         long dot = ux * vx + uy * vy;
         int x;
         int y;
-        if (Math.Abs(cross) * 19 > Math.Abs(dot))
+        if (Fixed.Abs(cross) * 19 > Fixed.Abs(dot))
         {
             long along = (otherX - startX) * vy - (otherY - startY) * vx;
             x = (int) (startX + RoundedQuotient(along, ux, cross));
@@ -1058,8 +1092,8 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// a * b / c rounded to the nearest integer, halves away from zero, without overflow.
-/// </summary>
+    /// a * b / c rounded to the nearest integer, halves away from zero, without overflow.
+    /// </summary>
     private static long RoundedQuotient(long a, long b, long c)
     {
         BigInteger product = new BigInteger(a) * new BigInteger(b);
@@ -1110,7 +1144,7 @@ internal class TrueTypeInterpreter
         int cur = ctx.Project(zone.GetCurrentX()[point], zone.GetCurrentY()[point]);
         if (round)
         {
-            if (Math.Abs(value - cur) > gs.GetControlValueCutIn())
+            if (Fixed.Abs(value - cur) > gs.GetControlValueCutIn())
             {
                 value = cur;
             }
@@ -1165,9 +1199,9 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// ALIGNPTS, after FreeType's Ins_ALIGNPTS: the point below the top of the stack is in zp1, the top
-/// one in zp0, and each moves by half their projected distance (truncated), towards the other.
-/// </summary>
+    /// ALIGNPTS, after FreeType's Ins_ALIGNPTS: the point below the top of the stack is in zp1, the top
+    /// one in zp0, and each moves by half their projected distance (truncated), towards the other.
+    /// </summary>
     private void DoAlignPts(ExecutionContext ctx)
     {
         GraphicsState gs = ctx.GetGraphicsState();
@@ -1197,11 +1231,11 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// SHPIX moves points by a raw pixel amount along the freedom vector. Under backward
-/// compatibility (v40 grayscale) FreeType treats a glyph-zone SHPIX like DELTAP - it only moves
-/// points already touched in y, and never after IUP - because an unconditional SHPIX pushes
-/// untouched points off their interpolated positions; twilight-zone points are always moved.
-/// </summary>
+    /// SHPIX moves points by a raw pixel amount along the freedom vector. Under backward
+    /// compatibility (v40 grayscale) FreeType treats a glyph-zone SHPIX like DELTAP - it only moves
+    /// points already touched in y, and never after IUP - because an unconditional SHPIX pushes
+    /// untouched points off their interpolated positions; twilight-zone points are always moved.
+    /// </summary>
     private void DoShpix(ExecutionContext ctx)
     {
         GraphicsState gs = ctx.GetGraphicsState();
@@ -1289,8 +1323,8 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// The projected distance the reference point (rp1 in zp0, or rp2 in zp1) has been moved.
-/// </summary>
+    /// The projected distance the reference point (rp1 in zp0, or rp2 in zp1) has been moved.
+    /// </summary>
     private static int ReferenceShift(ExecutionContext ctx, Zone refZone, int reference)
     {
         ExecutionContext.CheckPoint(refZone, reference);
@@ -1383,7 +1417,7 @@ internal class TrueTypeInterpreter
         {
             // the control value cut-in only applies when both points are in the same zone
             if (gs.GetZp0() == gs.GetZp1()
-                    && Math.Abs(cvtValue - orgDist) > gs.GetControlValueCutIn())
+                    && Fixed.Abs(cvtValue - orgDist) > gs.GetControlValueCutIn())
             {
                 cvtValue = orgDist;
             }
@@ -1407,7 +1441,7 @@ internal class TrueTypeInterpreter
 
     private static int ApplySingleWidth(GraphicsState gs, int distance)
     {
-        if (Math.Abs(distance - gs.GetSingleWidthValue()) < gs.GetSingleWidthCutIn())
+        if (Fixed.Abs(distance - gs.GetSingleWidthValue()) < gs.GetSingleWidthCutIn())
         {
             return distance >= 0 ? gs.GetSingleWidthValue() : -gs.GetSingleWidthValue();
         }
@@ -1471,11 +1505,11 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Interpolates the untouched points of one contour, after FreeType's Ins_IUP: a single touched
-/// point shifts the whole contour by its movement; otherwise each run of untouched points between two
-/// touched ones is shifted by the nearer one's movement when it lies outside their original span,
-/// and interpolated between them when inside - by the unscaled (font-unit) coordinates.
-/// </summary>
+    /// Interpolates the untouched points of one contour, after FreeType's Ins_IUP: a single touched
+    /// point shifts the whole contour by its movement; otherwise each run of untouched points between two
+    /// touched ones is shifted by the nearer one's movement when it lies outside their original span,
+    /// and interpolated between them when inside - by the unscaled (font-unit) coordinates.
+    /// </summary>
     private static void InterpolateContour(int[] cur, int[] org, int[] orus, bool[] touched,
             int start, int end)
     {
@@ -1531,14 +1565,14 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Places the untouched points that lie between two touched points, walking the contour forwards
-/// from from to to, as the TrueType specification describes for IUP: a point whose
-/// original coordinate lies between the two touched points' originals keeps its relative position
-/// between them, measured on the unscaled (font unit) outline for precision; a point outside that
-/// range moves by the same amount as the touched point on its side. The ratio of the hinted to the
-/// font-unit span is held in 16.16 fixed point, the precision FreeType interpolates at, so results
-/// agree with it to the 1/64 px.
-/// </summary>
+    /// Places the untouched points that lie between two touched points, walking the contour forwards
+    /// from from to to, as the TrueType specification describes for IUP: a point whose
+    /// original coordinate lies between the two touched points' originals keeps its relative position
+    /// between them, measured on the unscaled (font unit) outline for precision; a point outside that
+    /// range moves by the same amount as the touched point on its side. The ratio of the hinted to the
+    /// font-unit span is held in 16.16 fixed point, the precision FreeType interpolates at, so results
+    /// agree with it to the 1/64 px.
+    /// </summary>
     private static void InterpolateRun(int[] cur, int[] org, int[] orus, int from, int to,
             int start, int end)
     {
@@ -1570,8 +1604,8 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// The point after i on a closed contour running from start to end.
-/// </summary>
+    /// The point after i on a closed contour running from start to end.
+    /// </summary>
     private static int Following(int i, int start, int end)
     {
         return i == end ? start : i + 1;
@@ -1704,12 +1738,12 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// Backward-compatibility (v40 grayscale) gate shared by DELTAP and SHPIX: once IUP has run the
-/// move is dropped, and before IUP it is applied only to points already touched in y (or, for
-/// composites, when the freedom vector has a y component). Outside backward-compatibility mode
-/// the move always applies. This keeps DELTAP/SHPIX from nudging untouched points off their
-/// interpolated grayscale positions (FreeType Ins_DELTAP / Ins_SHPIX).
-/// </summary>
+    /// Backward-compatibility (v40 grayscale) gate shared by DELTAP and SHPIX: once IUP has run the
+    /// move is dropped, and before IUP it is applied only to points already touched in y (or, for
+    /// composites, when the freedom vector has a y component). Outside backward-compatibility mode
+    /// the move always applies. This keeps DELTAP/SHPIX from nudging untouched points off their
+    /// interpolated grayscale positions (FreeType Ins_DELTAP / Ins_SHPIX).
+    /// </summary>
     private static bool DeltaPointAllowed(ExecutionContext ctx, Zone zone, int point)
     {
         if (!ctx.IsBackwardCompatibility())
@@ -1776,13 +1810,13 @@ internal class TrueTypeInterpreter
     }
 
     /// <summary>
-/// INSTCTRL, after FreeType's Ins_INSTCTRL. The selector is an index 1..3 naming one flag bit, and
-/// the value must be 0 or that bit. In prep it sets or clears the bit in the graphics
-/// state, which GlyphHinter reads before each glyph: bit 1 turns hinting off, bit 2 makes
-/// glyph programs start from the default graphics state, bit 4 waives v40 backward compatibility.
-/// A glyph program may only use selector 3, to waive (or restore) backward compatibility for itself
-/// - native-ClearType fonts do that per glyph. Anything else is ignored.
-/// </summary>
+    /// INSTCTRL, after FreeType's Ins_INSTCTRL. The selector is an index 1..3 naming one flag bit, and
+    /// the value must be 0 or that bit. In prep it sets or clears the bit in the graphics
+    /// state, which GlyphHinter reads before each glyph: bit 1 turns hinting off, bit 2 makes
+    /// glyph programs start from the default graphics state, bit 4 waives v40 backward compatibility.
+    /// A glyph program may only use selector 3, to waive (or restore) backward compatibility for itself
+    /// - native-ClearType fonts do that per glyph. Anything else is ignored.
+    /// </summary>
     private static void DoInstctrl(ExecutionContext ctx)
     {
         int selector = ctx.Pop();
@@ -1823,13 +1857,13 @@ internal class TrueTypeInterpreter
 
     // --- loop helper -----------------------------------------------------
 
-    
+
     private delegate void PointConsumer(int point);
 
     /// <summary>
-/// Processes the graphics-state loop count of points, popping one per iteration, then resets the
-/// loop counter to 1.
-/// </summary>
+    /// Processes the graphics-state loop count of points, popping one per iteration, then resets the
+    /// loop counter to 1.
+    /// </summary>
     private static void ForEachLoopPoint(ExecutionContext ctx, PointConsumer consumer)
     {
         int loop = ctx.GetGraphicsState().GetLoop();
@@ -1842,7 +1876,7 @@ internal class TrueTypeInterpreter
 
     // --- handler helpers -------------------------------------------------
 
-    
+
     private delegate int IntBinaryOp(int a, int b);
 
     private static void Binary(ExecutionContext ctx, IntBinaryOp op)
@@ -1866,7 +1900,7 @@ internal class TrueTypeInterpreter
     {
         if (index < 0 || index >= array.Length)
         {
-            throw new HintingException(name + " index output of range: " + index);
+            throw new HintingException(name + " index out of range: " + index);
         }
         return array[index];
     }
@@ -1875,7 +1909,7 @@ internal class TrueTypeInterpreter
     {
         if (index < 0 || index >= array.Length)
         {
-            throw new HintingException(name + " index output of range: " + index);
+            throw new HintingException(name + " index out of range: " + index);
         }
         array[index] = value;
     }

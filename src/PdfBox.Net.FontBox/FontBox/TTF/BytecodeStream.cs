@@ -38,9 +38,10 @@ namespace PdfBox.Net.FontBox.TTF;
 /// a function body). It owns the program counter so individual opcode handlers never index the array by
 /// hand - this removes a whole class of off-by-one and overrun bugs and is trivially testable on its
 /// own. Reads past the end throw HintingException so the per-glyph fallback can catch cleanly.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class BytecodeStream
 {
     private byte[] code;
@@ -49,103 +50,113 @@ internal class BytecodeStream
     // exclusive upper bound for the program counter; a function body ends at its ENDF
     private int limit;
 
-    /// <summary>
-/// @param code the bytecode program; not copied
-/// </summary>
+    /// <param name="code">
+    /// the bytecode program; not copied
+    /// </param>
     public BytecodeStream(byte[] code)
     {
         this.code = code != null ? code : new byte[0];
         this.limit = this.code.Length;
     }
 
-    /// <summary>
-/// @return the underlying bytecode array (not copied); used to record function entry points
-/// </summary>
+    /// <returns>
+    /// the underlying bytecode array (not copied); used to record function entry points
+    /// </returns>
     public byte[] GetCode()
     {
         return code;
     }
 
-    /// <summary>
-/// @return true if there is at least one more byte to read
-/// </summary>
+    /// <returns>
+    /// true if there is at least one more byte to read
+    /// </returns>
     public bool HasNext()
     {
         return ip < limit;
     }
 
     /// <summary>
-/// Restricts execution to [0, end]: the stream is exhausted after the byte at end
-/// (the ENDF of a function body) and a seek past it is an error, as a jump output of a
-/// function body is in FreeType.
-/// 
-/// @param end the position of the last byte that may be executed
-/// </summary>
+    /// Restricts execution to [0, end]: the stream is exhausted after the byte at end
+    /// (the ENDF of a function body) and a seek past it is an error, as a jump out of a
+    /// function body is in FreeType.
+    /// </summary>
+    /// <param name="end">
+    /// the position of the last byte that may be executed
+    /// </param>
     public void SetEnd(int end)
     {
         this.limit = Math.Min(code.Length, end + 1);
     }
 
-    /// <summary>
-/// @return the current program-counter position
-/// </summary>
+    /// <returns>
+    /// the current program-counter position
+    /// </returns>
     public int Position()
     {
         return ip;
     }
 
     /// <summary>
-/// Records the current position as the start of the instruction about to be read. Relative jumps
-/// (JMPR/JROT/JROF) are measured from here.
-/// </summary>
+    /// Records the current position as the start of the instruction about to be read. Relative jumps
+    /// (JMPR/JROT/JROF) are measured from here.
+    /// </summary>
     public void MarkInstructionStart()
     {
         instructionStart = ip;
     }
 
-    /// <summary>
-/// @return the position recorded by the most recent #markInstructionStart()
-/// </summary>
+    /// <returns>
+    /// the position recorded by the most recent #markInstructionStart()
+    /// </returns>
     public int InstructionStart()
     {
         return instructionStart;
     }
 
     /// <summary>
-/// Moves the program counter to an absolute position.
-/// 
-/// @param position the new position, within [0, length]
-/// @throws HintingException if the position is output of range
-/// </summary>
+    /// Moves the program counter to an absolute position.
+    /// </summary>
+    /// <param name="position">
+    /// the new position, within [0, length]
+    /// </param>
+    /// <exception cref="HintingException">
+    /// if the position is out of range
+    /// </exception>
     public void Seek(int position)
     {
         if (position < 0 || position > limit)
         {
             throw new HintingException(
-                    "bytecode seek output of range: " + position + " of " + limit);
+                    "bytecode seek out of range: " + position + " of " + limit);
         }
         ip = position;
     }
 
     /// <summary>
-/// Advances the program counter by a relative amount (may be negative).
-/// 
-/// @param delta the number of bytes to skip
-/// @throws HintingException if the result is output of range
-/// </summary>
+    /// Advances the program counter by a relative amount (may be negative).
+    /// </summary>
+    /// <param name="delta">
+    /// the number of bytes to skip
+    /// </param>
+    /// <exception cref="HintingException">
+    /// if the result is out of range
+    /// </exception>
     public void Skip(int delta)
     {
         Seek(ip + delta);
     }
 
     /// <summary>
-/// Reads the next byte as an unsigned 0-255 value (an opcode, or push operand). Like
-/// #seek(int), reads honour a function body's end, so a push reached by a jump into the
-/// middle of another push's operands cannot take bytes past the body's ENDF.
-/// 
-/// @return the next unsigned byte
-/// @throws HintingException if the stream is exhausted
-/// </summary>
+    /// Reads the next byte as an unsigned 0-255 value (an opcode, or push operand). Like
+    /// #seek(int), reads honour a function body's end, so a push reached by a jump into the
+    /// middle of another push's operands cannot take bytes past the body's ENDF.
+    /// </summary>
+    /// <returns>
+    /// the next unsigned byte
+    /// </returns>
+    /// <exception cref="HintingException">
+    /// if the stream is exhausted
+    /// </exception>
     public int NextByte()
     {
         if (ip >= limit)
@@ -156,11 +167,14 @@ internal class BytecodeStream
     }
 
     /// <summary>
-/// Reads the next two bytes as a signed big-endian 16-bit word.
-/// 
-/// @return the next signed word
-/// @throws HintingException if fewer than two bytes remain
-/// </summary>
+    /// Reads the next two bytes as a signed big-endian 16-bit word.
+    /// </summary>
+    /// <returns>
+    /// the next signed word
+    /// </returns>
+    /// <exception cref="HintingException">
+    /// if fewer than two bytes remain
+    /// </exception>
     public int NextWord()
     {
         if (ip + 1 >= limit)

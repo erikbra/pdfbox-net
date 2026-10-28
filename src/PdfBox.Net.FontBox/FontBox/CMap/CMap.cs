@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/cmap/CMap.java
  * PDFBOX_SOURCE_COMMIT: 746cf4e103f4c5ef3897edd3715088ca43beee42
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 746cf4e103f4c5ef3897edd3715088ca43beee42
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -65,6 +65,7 @@ public class CMap
 
     private readonly Dictionary<int, Dictionary<int, int>> _codeToCid = [];
     private readonly List<CIDRange> _codeToCidRanges = [];
+    private readonly List<CMap> _parentCMaps = [];
 
     private readonly Dictionary<string, byte[]> _unicodeToByteCodes = [];
 
@@ -74,7 +75,8 @@ public class CMap
     {
     }
 
-    public bool HasCIDMappings() => _codeToCid.Count != 0 || _codeToCidRanges.Count != 0;
+    public bool HasCIDMappings() => _codeToCid.Count != 0 || _codeToCidRanges.Count != 0
+        || _parentCMaps.Any(parent => parent.HasCIDMappings());
 
     public bool HasUnicodeMappings() => _charToUnicodeOneByte.Count != 0
         || _charToUnicodeTwoBytes.Count != 0
@@ -198,87 +200,68 @@ public class CMap
         return code;
     }
 
-    public int ToCID(byte[] code)
-    {
-        if (!HasCIDMappings() || code.Length < _minCidLength || code.Length > _maxCidLength)
-        {
-            return 0;
-        }
-
-        int? cid = null;
-        if (_codeToCid.TryGetValue(code.Length, out Dictionary<int, int>? codeToCidMap))
-        {
-            if (codeToCidMap.TryGetValue(ToInt(code), out int directCid))
-            {
-                cid = directCid;
-            }
-        }
-
-        return cid ?? ToCIDFromRanges(code);
-    }
+    public int ToCID(byte[] code) => ToCID(ToInt(code), code.Length);
 
     public int ToCID(int code)
     {
-        if (!HasCIDMappings())
+        for (int length = _minCidLength; length <= _maxCidLength; length++)
         {
-            return 0;
+            int cid = FindCID(code, length);
+            if (cid != -1)
+            {
+                return cid;
+            }
         }
-
-        int cid = 0;
-        int length = _minCidLength;
-        while (cid == 0 && length <= _maxCidLength)
-        {
-            cid = ToCID(code, length++);
-        }
-
-        return cid;
+        return 0;
     }
 
     public int ToCID(int code, int length)
     {
-        if (!HasCIDMappings() || length < _minCidLength || length > _maxCidLength)
-        {
-            return 0;
-        }
+        int cid = FindCID(code, length);
+        return cid != -1 ? cid : 0;
+    }
 
-        int? cid = null;
-        if (_codeToCid.TryGetValue(length, out Dictionary<int, int>? codeToCidMap))
+    /// <summary>
+    /// Finds the CID locally or in inherited CMaps, nearest first. A deliberately mapped CID 0
+    /// must remain distinct from an absent mapping while walking a usecmap chain.
+    /// </summary>
+    private int FindCID(int code, int length)
+    {
+        if (length < _minCidLength || length > _maxCidLength)
         {
-            if (codeToCidMap.TryGetValue(code, out int directCid))
+            return -1;
+        }
+        if (_codeToCid.TryGetValue(length, out var mappings) && mappings.TryGetValue(code, out int cid))
+        {
+            return cid;
+        }
+        int rangeCid = ToCIDFromRanges(code, length);
+        if (rangeCid != -1)
+        {
+            return rangeCid;
+        }
+        foreach (CMap parent in _parentCMaps)
+        {
+            int parentCid = parent.FindCID(code, length);
+            if (parentCid != -1)
             {
-                cid = directCid;
+                return parentCid;
             }
         }
-
-        return cid ?? ToCIDFromRanges(code, length);
+        return -1;
     }
 
     private int ToCIDFromRanges(int code, int length)
     {
         foreach (CIDRange range in _codeToCidRanges)
         {
-            int ch = range.Map(code, length);
-            if (ch != -1)
+            int cid = range.Map(code, length);
+            if (cid != -1)
             {
-                return ch;
+                return cid;
             }
         }
-
-        return 0;
-    }
-
-    private int ToCIDFromRanges(byte[] code)
-    {
-        foreach (CIDRange range in _codeToCidRanges)
-        {
-            int ch = range.Map(code);
-            if (ch != -1)
-            {
-                return ch;
-            }
-        }
-
-        return 0;
+        return -1;
     }
 
     internal void AddCharMapping(byte[] codes, string unicode)
@@ -376,22 +359,8 @@ public class CMap
             _unicodeToByteCodes[value] = bar;
         }
 
-        foreach ((int key, Dictionary<int, int> value) in cmap._codeToCid)
-        {
-            if (!_codeToCid.TryGetValue(key, out Dictionary<int, int>? existing))
-            {
-                _codeToCid[key] = new Dictionary<int, int>(value);
-            }
-            else
-            {
-                foreach ((int mapCode, int mapCid) in value)
-                {
-                    existing[mapCode] = mapCid;
-                }
-            }
-        }
-
-        _codeToCidRanges.AddRange(cmap._codeToCidRanges);
+        // Keep the parent instead of merging: this CMap's mappings win, nearest-first.
+        _parentCMaps.Add(cmap);
         _maxCodeLength = Math.Max(_maxCodeLength, cmap._maxCodeLength);
         _minCodeLength = Math.Min(_minCodeLength, cmap._minCodeLength);
         _maxCidLength = Math.Max(_maxCidLength, cmap._maxCidLength);

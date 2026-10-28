@@ -37,23 +37,26 @@ namespace PdfBox.Net.FontBox.TTF;
 /// Thrown when the TrueType bytecode interpreter encounters a malformed or unsupported program. It is
 /// unchecked so that opcode handlers stay terse; the caller catches it per glyph and falls back to raw,
 /// unhinted coordinates rather than letting one bad glyph disable hinting for the whole font.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class HintingException : Exception
 {
 
-    /// <summary>
-/// @param message describes the failure
-/// </summary>
+    /// <param name="message">
+    /// describes the failure
+    /// </param>
     public HintingException(string message) : base(message)
     {
     }
 
-    /// <summary>
-/// @param message describes the failure
-/// @param cause the underlying cause
-/// </summary>
+    /// <param name="message">
+    /// describes the failure
+    /// </param>
+    /// <param name="cause">
+    /// the underlying cause
+    /// </param>
     public HintingException(string message, Exception cause) : base(message, cause)
     {
     }

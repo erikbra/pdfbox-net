@@ -37,20 +37,25 @@ namespace PdfBox.Net.FontBox.TTF;
 /// A function defined by an FDEF instruction: the bytecode program it lives in (normally the
 /// fpgm) and the offset of its first body instruction, just past the FDEF. CALL
 /// and LOOPCALL run the body from this offset until the matching ENDF.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class FunctionDef
 {
     private byte[] program;
     private int entryPoint;
     private int end;
 
-    /// <summary>
-/// @param program the bytecode the function body lives in
-/// @param entryPoint the offset of the first instruction after FDEF
-/// @param end the offset of the matching ENDF
-/// </summary>
+    /// <param name="program">
+    /// the bytecode the function body lives in
+    /// </param>
+    /// <param name="entryPoint">
+    /// the offset of the first instruction after FDEF
+    /// </param>
+    /// <param name="end">
+    /// the offset of the matching ENDF
+    /// </param>
     public FunctionDef(byte[] program, int entryPoint, int end)
     {
         this.program = program;
@@ -58,25 +63,25 @@ internal class FunctionDef
         this.end = end;
     }
 
-    /// <summary>
-/// @return the bytecode the function body lives in
-/// </summary>
+    /// <returns>
+    /// the bytecode the function body lives in
+    /// </returns>
     public byte[] GetProgram()
     {
         return program;
     }
 
-    /// <summary>
-/// @return the offset of the first body instruction
-/// </summary>
+    /// <returns>
+    /// the offset of the first body instruction
+    /// </returns>
     public int GetEntryPoint()
     {
         return entryPoint;
     }
 
-    /// <summary>
-/// @return the offset of the body's ENDF; execution never passes it
-/// </summary>
+    /// <returns>
+    /// the offset of the body's ENDF; execution never passes it
+    /// </returns>
     public int GetEnd()
     {
         return end;

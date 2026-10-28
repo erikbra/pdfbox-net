@@ -39,14 +39,15 @@ namespace PdfBox.Net.FontBox.TTF;
 /// similar control measurements - used by the TrueType hinting bytecode. The values are stored here in
 /// raw font units (signed FWords); they are scaled to the active ppem by the interpreter, not at parse
 /// time.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 public class ControlValueTable : TTFTable
 {
     /// <summary>
-/// A tag that identifies this table type.
-/// </summary>
+    /// A tag that identifies this table type.
+    /// </summary>
     public const string TAG = "cvt ";
 
     private int[] values = [];
@@ -56,14 +57,19 @@ public class ControlValueTable : TTFTable
     }
 
     /// <summary>
-/// This will read the required data from the stream.
-/// 
-/// @param ttf The font that is being read.
-/// @param data The stream to read the data from.
-/// @throws IOException If there is an error reading the data.
-/// </summary>
-    
-    internal override void Read(TrueTypeFont ttf, TTFDataStream data) 
+    /// This will read the required data from the stream.
+    /// </summary>
+    /// <param name="ttf">
+    /// The font that is being read.
+    /// </param>
+    /// <param name="data">
+    /// The stream to read the data from.
+    /// </param>
+    /// <exception cref="IOException">
+    /// If there is an error reading the data.
+    /// </exception>
+
+    internal override void Read(TrueTypeFont ttf, TTFDataStream data)
     {
         int count = (int) (Length / 2);
         int[] cvt = new int[count];
@@ -76,21 +82,23 @@ public class ControlValueTable : TTFTable
     }
 
     /// <summary>
-/// Returns the raw control values in font units (FWords). The interpreter scales these to the
-/// active ppem.
-/// 
-/// @return the control values in font units
-/// </summary>
+    /// Returns the raw control values in font units (FWords). The interpreter scales these to the
+    /// active ppem.
+    /// </summary>
+    /// <returns>
+    /// the control values in font units
+    /// </returns>
     public int[] GetValues()
     {
         return values;
     }
 
     /// <summary>
-/// Returns the number of control values in this table.
-/// 
-/// @return the entry count
-/// </summary>
+    /// Returns the number of control values in this table.
+    /// </summary>
+    /// <returns>
+    /// the entry count
+    /// </returns>
     public int GetValueCount()
     {
         return values != null ? values.Length : 0;

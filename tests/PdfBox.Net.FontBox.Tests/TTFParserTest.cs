@@ -6,6 +6,14 @@ namespace PdfBox.Net.FontBox.Tests;
 public class TTFParserTest
 {
     [Fact]
+    public void HeaderTimestampsUseUtc()
+    {
+        using TrueTypeFont font = new TTFParser().Parse(FontBoxTestFixtures.CreateMinimalTrueType());
+        Assert.Equal(TimeSpan.Zero, font.GetHeader()!.GetCreated().Offset);
+        Assert.Equal(TimeSpan.Zero, font.GetHeader()!.GetModified().Offset);
+    }
+
+    [Fact]
     public void ParseTableHeaders_AgreesWithCompleteFontAndClosesSource()
     {
         byte[] bytes = FontBoxTestFixtures.CreateMinimalTrueType();

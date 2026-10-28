@@ -39,14 +39,15 @@ namespace PdfBox.Net.FontBox.TTF;
 /// bytecode that is executed whenever the point size or transform changes, to prepare the Control Value
 /// Table and graphics state for the new ppem. The bytecode is stored here as raw bytes and run by the
 /// interpreter.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 public class ControlValueProgramTable : TTFTable
 {
     /// <summary>
-/// A tag that identifies this table type.
-/// </summary>
+    /// A tag that identifies this table type.
+    /// </summary>
     public const string TAG = "prep";
 
     private byte[] program = [];
@@ -56,24 +57,30 @@ public class ControlValueProgramTable : TTFTable
     }
 
     /// <summary>
-/// This will read the required data from the stream.
-/// 
-/// @param ttf The font that is being read.
-/// @param data The stream to read the data from.
-/// @throws IOException If there is an error reading the data.
-/// </summary>
-    
-    internal override void Read(TrueTypeFont ttf, TTFDataStream data) 
+    /// This will read the required data from the stream.
+    /// </summary>
+    /// <param name="ttf">
+    /// The font that is being read.
+    /// </param>
+    /// <param name="data">
+    /// The stream to read the data from.
+    /// </param>
+    /// <exception cref="IOException">
+    /// If there is an error reading the data.
+    /// </exception>
+
+    internal override void Read(TrueTypeFont ttf, TTFDataStream data)
     {
         program = data.Read((int) Length);
         initialized = true;
     }
 
     /// <summary>
-/// Returns the raw control value program bytecode.
-/// 
-/// @return the bytecode of the pre-program
-/// </summary>
+    /// Returns the raw control value program bytecode.
+    /// </summary>
+    /// <returns>
+    /// the bytecode of the pre-program
+    /// </returns>
     public byte[] GetProgram()
     {
         return program;

@@ -109,7 +109,7 @@ public sealed class Type1Font : FontBoxFont, EncodedFont, Type1CharStringReader
             throw new IOException($"Type 1 glyph '{name}' was not found.");
         }
 
-        return _charStringCache.GetOrAdd(name, key => new Type1CharString(GetFontName(), key, bytes));
+        return _charStringCache.GetOrAdd(name, key => new Type1CharString(this, GetFontName(), key, bytes, _subrs));
     }
 
     public string GetFontName() => GetStringProperty("FontName") ?? string.Empty;

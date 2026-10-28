@@ -38,64 +38,74 @@ namespace PdfBox.Net.FontBox.TTF;
 /// A first-class, toggleable execution tracer for the interpreter. When attached to a
 /// TrueTypeInterpreter it emits one line per executed instruction, just before the instruction
 /// runs, in a format deliberately close to FreeType's FT2_DEBUG=ttinterp output:
-/// 
-/// &lt;pre&gt;
-///   &amp;lt;pc&amp;gt;  &amp;lt;MNEMONIC&amp;gt;  # &amp;lt;top of stack, deepest..top&amp;gt;
-/// &lt;/pre&gt;
-/// 
+///
+///
+/// &lt;pc&gt;  &lt;MNEMONIC&gt;  # &lt;top of stack, deepest..top&gt;
+///
+///
 /// The program counter and the operand stack are what matter for diffing: feeding the same glyph
 /// through this tracer and through FreeType and aligning the two traces by instruction index pinpoints
 /// the first instruction where control flow or an operand value diverges. See
 /// src/test/resources/ttf/hinting/trace_diff.py for the diff tool.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class ExecutionTracer
 {
     private static readonly string[] MNEMONICS = BuildMnemonics();
 
     /// <summary>
-/// Number of top-of-stack operands to print, matching FreeType's trace window.
-/// </summary>
+    /// Number of top-of-stack operands to print, matching FreeType's trace window.
+    /// </summary>
     private const int STACK_WINDOW = 8;
 
     private TextWriter output;
     private int tracePoint;
 
-    /// <summary>
-/// @param output where to write trace lines
-/// </summary>
+    /// <param name="output">
+    /// where to write trace lines
+    /// </param>
     public ExecutionTracer(TextWriter output) : this(output, -1)
     {
     }
 
-    /// <summary>
-/// @param output where to write trace lines
-/// @param tracePoint a glyph-zone point index whose current coordinate is appended to each line
-/// (for localizing silent point-position divergence), or -1 to omit
-/// </summary>
+    /// <param name="output">
+    /// where to write trace lines
+    /// </param>
+    /// <param name="tracePoint">
+    /// a glyph-zone point index whose current coordinate is appended to each line
+    /// (for localizing silent point-position divergence), or -1 to omit
+    /// </param>
     public ExecutionTracer(TextWriter output, int tracePoint)
     {
         this.output = output;
         this.tracePoint = tracePoint;
     }
 
-    /// <summary>
-/// @param opcode an opcode value 0-255
-/// @return the mnemonic for that opcode
-/// </summary>
+    /// <param name="opcode">
+    /// an opcode value 0-255
+    /// </param>
+    /// <returns>
+    /// the mnemonic for that opcode
+    /// </returns>
     public static string Mnemonic(int opcode)
     {
         return MNEMONICS[opcode & 0xFF];
     }
 
     /// <summary>
-/// Emits a trace line for the instruction about to execute.
-/// 
-/// @param pc the program-counter position of the instruction
-/// @param opcode the opcode about to run
-/// @param ctx the execution context (its stack is sampled)
-/// </summary>
+    /// Emits a trace line for the instruction about to execute.
+    /// </summary>
+    /// <param name="pc">
+    /// the program-counter position of the instruction
+    /// </param>
+    /// <param name="opcode">
+    /// the opcode about to run
+    /// </param>
+    /// <param name="ctx">
+    /// the execution context (its stack is sampled)
+    /// </param>
     internal void Trace(int pc, int opcode, ExecutionContext ctx)
     {
         StringBuilder sb = new StringBuilder();

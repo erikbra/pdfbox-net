@@ -38,14 +38,15 @@ namespace PdfBox.Net.FontBox.TTF;
 /// The 'fpgm' (Font Program) table. It holds TrueType hinting bytecode - typically a set of function
 /// definitions (FDEF) - that is executed once when the font is first used, before any glyph is hinted.
 /// The bytecode is stored here as raw bytes and run by the interpreter.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 public class FontProgramTable : TTFTable
 {
     /// <summary>
-/// A tag that identifies this table type.
-/// </summary>
+    /// A tag that identifies this table type.
+    /// </summary>
     public const string TAG = "fpgm";
 
     private byte[] program = [];
@@ -55,24 +56,30 @@ public class FontProgramTable : TTFTable
     }
 
     /// <summary>
-/// This will read the required data from the stream.
-/// 
-/// @param ttf The font that is being read.
-/// @param data The stream to read the data from.
-/// @throws IOException If there is an error reading the data.
-/// </summary>
-    
-    internal override void Read(TrueTypeFont ttf, TTFDataStream data) 
+    /// This will read the required data from the stream.
+    /// </summary>
+    /// <param name="ttf">
+    /// The font that is being read.
+    /// </param>
+    /// <param name="data">
+    /// The stream to read the data from.
+    /// </param>
+    /// <exception cref="IOException">
+    /// If there is an error reading the data.
+    /// </exception>
+
+    internal override void Read(TrueTypeFont ttf, TTFDataStream data)
     {
         program = data.Read((int) Length);
         initialized = true;
     }
 
     /// <summary>
-/// Returns the raw font program bytecode.
-/// 
-/// @return the bytecode of the font program
-/// </summary>
+    /// Returns the raw font program bytecode.
+    /// </summary>
+    /// <returns>
+    /// the bytecode of the font program
+    /// </returns>
     public byte[] GetProgram()
     {
         return program;

@@ -39,9 +39,10 @@ namespace PdfBox.Net.FontBox.TTF;
 /// reference points) or zone 1 (the glyph's own outline points plus its appended phantom points). Each
 /// point has its scaled-but-unhinted "original" position and a "current" position the bytecode moves,
 /// both in F26Dot6, plus per-axis touch flags used by interpolation.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class Zone
 {
     private int[] currentX;
@@ -56,11 +57,14 @@ internal class Zone
     private int[] contourEnds;
 
     /// <summary>
-/// Allocates a zone of the given size.
-/// 
-/// @param pointCount number of points (including any phantom points)
-/// @param contourCount number of contours (0 for the twilight zone)
-/// </summary>
+    /// Allocates a zone of the given size.
+    /// </summary>
+    /// <param name="pointCount">
+    /// number of points (including any phantom points)
+    /// </param>
+    /// <param name="contourCount">
+    /// number of contours (0 for the twilight zone)
+    /// </param>
     public Zone(int pointCount, int contourCount)
     {
         currentX = new int[pointCount];
@@ -76,10 +80,10 @@ internal class Zone
     }
 
     /// <summary>
-/// Zeroes every coordinate and flag. The twilight zone outlives a single program run - it is owned by
-/// the interpreter so values prep puts there survive into each glyph program - so it is reset
-/// rather than reallocated when the size changes, as FreeType does in tt_size_run_prep.
-/// </summary>
+    /// Zeroes every coordinate and flag. The twilight zone outlives a single program run - it is owned by
+    /// the interpreter so values prep puts there survive into each glyph program - so it is reset
+    /// rather than reallocated when the size changes, as FreeType does in tt_size_run_prep.
+    /// </summary>
     public void Reset()
     {
         Array.Fill(currentX, 0);
@@ -94,91 +98,91 @@ internal class Zone
         Array.Fill(contourEnds, 0);
     }
 
-    /// <summary>
-/// @return the number of points in this zone
-/// </summary>
+    /// <returns>
+    /// the number of points in this zone
+    /// </returns>
     public int GetPointCount()
     {
         return currentX.Length;
     }
 
-    /// <summary>
-/// @return the current (hinted) x coordinates in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the current (hinted) x coordinates in F26Dot6
+    /// </returns>
     public int[] GetCurrentX()
     {
         return currentX;
     }
 
-    /// <summary>
-/// @return the current (hinted) y coordinates in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the current (hinted) y coordinates in F26Dot6
+    /// </returns>
     public int[] GetCurrentY()
     {
         return currentY;
     }
 
-    /// <summary>
-/// @return the original (scaled, unhinted) x coordinates in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the original (scaled, unhinted) x coordinates in F26Dot6
+    /// </returns>
     public int[] GetOriginalX()
     {
         return originalX;
     }
 
-    /// <summary>
-/// @return the original (scaled, unhinted) y coordinates in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the original (scaled, unhinted) y coordinates in F26Dot6
+    /// </returns>
     public int[] GetOriginalY()
     {
         return originalY;
     }
 
-    /// <summary>
-/// @return the original &lt;em&gt;unscaled&lt;/em&gt; x coordinates in font units. Interpolation and relative
-/// measurements use these for the ratio, matching FreeType's orus, because the unrounded
-/// font-unit values preserve precision the scaled F26Dot6 originals would lose.
-/// </summary>
+    /// <returns>
+    /// the original  unscaled  x coordinates in font units. Interpolation and relative
+    /// measurements use these for the ratio, matching FreeType's orus, because the unrounded
+    /// font-unit values preserve precision the scaled F26Dot6 originals would lose.
+    /// </returns>
     public int[] GetUnscaledX()
     {
         return unscaledX;
     }
 
-    /// <summary>
-/// @return the original unscaled y coordinates in font units
-/// </summary>
+    /// <returns>
+    /// the original unscaled y coordinates in font units
+    /// </returns>
     public int[] GetUnscaledY()
     {
         return unscaledY;
     }
 
-    /// <summary>
-/// @return per-point touch flags for the x axis
-/// </summary>
+    /// <returns>
+    /// per-point touch flags for the x axis
+    /// </returns>
     public bool[] GetTouchedX()
     {
         return touchedX;
     }
 
-    /// <summary>
-/// @return per-point touch flags for the y axis
-/// </summary>
+    /// <returns>
+    /// per-point touch flags for the y axis
+    /// </returns>
     public bool[] GetTouchedY()
     {
         return touchedY;
     }
 
-    /// <summary>
-/// @return per-point on-curve flags
-/// </summary>
+    /// <returns>
+    /// per-point on-curve flags
+    /// </returns>
     public bool[] GetOnCurve()
     {
         return onCurve;
     }
 
-    /// <summary>
-/// @return the index of the last point of each contour
-/// </summary>
+    /// <returns>
+    /// the index of the last point of each contour
+    /// </returns>
     public int[] GetContourEnds()
     {
         return contourEnds;

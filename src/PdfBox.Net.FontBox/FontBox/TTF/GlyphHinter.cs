@@ -37,14 +37,14 @@ namespace PdfBox.Net.FontBox.TTF;
 
 /// <summary>
 /// Applies TrueType bytecode hinting (grid-fitting) to a font's glyphs, producing grid-fitted paths.
-/// &lt;p&gt;
+///
 /// One hinter is created per TrueTypeFont. It lazily builds a TrueTypeInterpreter from
 /// the font's maxp/head/cvt/fpgm/prep tables, runs the font
 /// program once, and re-runs the control value program whenever the ppem changes. For each glyph it
 /// scales the outline into the pixel grid (appending the phantom points), runs the glyph's instructions
 /// and scales the grid-fitted result back into font units, so the rest of the rendering pipeline - which
 /// scales font units to device pixels at exactly this ppem - reproduces the grid-fitting.
-/// &lt;p&gt;
+///
 /// Hinting is best-effort: anything malformed, unsupported, or not applicable (an empty glyph, a simple
 /// glyph with no instructions, a ppem below head.lowestRecPPEM or excluded by the gasp
 /// table, or a prep that switches hinting off with INSTCTRL) falls back to null, and the
@@ -52,7 +52,7 @@ namespace PdfBox.Net.FontBox.TTF;
 /// instructions, then the composite's. One bad glyph never disables hinting for the rest of the font.
 /// Whether to hint at all is the caller's decision (PDFRenderer.setHintingEnabled(boolean), off
 /// by default); this class always grid-fits when asked.
-/// &lt;p&gt;
+///
 /// The interpreter carries a great deal of mutable state - the storage area, the twilight zone, the
 /// post-prep template, the active ppem - so every entry point here is synchronized and
 /// one font hints one glyph at a time. That is correct but it does serialize: a font substituted from
@@ -60,9 +60,10 @@ namespace PdfBox.Net.FontBox.TTF;
 /// queue on this monitor. Embedded fonts are per-document and unaffected. If it ever measures as a
 /// bottleneck the answer is a per-thread or pooled interpreter, not a weaker lock; until then the simple
 /// thing is the right thing. HintingConcurrencyTest pins the current behavior.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class GlyphHinter
 {
     private static ILogger<GlyphHinter> LOG => PdfBoxLogging.CreateLogger<GlyphHinter>();
@@ -85,28 +86,28 @@ internal class GlyphHinter
     private bool? forcedBackwardCompatibility;
 
     /// <summary>
-/// The ppem the full-control probe hints its sample glyphs at.
-/// </summary>
+    /// The ppem the full-control probe hints its sample glyphs at.
+    /// </summary>
     private const int PROBE_PPEM = 32;
     /// <summary>
-/// At most this many glyphs with instructions are sampled by the probe.
-/// </summary>
+    /// At most this many glyphs with instructions are sampled by the probe.
+    /// </summary>
     private const int PROBE_SAMPLE = 32;
     /// <summary>
-/// Glyphs examined while looking for the sample, to bound the cost on huge CJK fonts.
-/// </summary>
+    /// Glyphs examined while looking for the sample, to bound the cost on huge CJK fonts.
+    /// </summary>
     private const int PROBE_CANDIDATES = 512;
     /// <summary>
-/// A sampled glyph "moves" if some point is displaced by more than this (5px at PROBE_PPEM).
-/// </summary>
+    /// A sampled glyph "moves" if some point is displaced by more than this (5px at PROBE_PPEM).
+    /// </summary>
     private const int PROBE_TOLERANCE = 5 * 64;
     /// <summary>
-/// The number of moving glyphs that marks a font as needing full control.
-/// </summary>
+    /// The number of moving glyphs that marks a font as needing full control.
+    /// </summary>
     private const int PROBE_MIN_MOVING = 2;
     /// <summary>
-/// Upper bound on the size a full-control font is assembled at (see assemblyPpem).
-/// </summary>
+    /// Upper bound on the size a full-control font is assembled at (see assemblyPpem).
+    /// </summary>
     private const int MAX_ASSEMBLY_PPEM = 64;
 
     internal GlyphHinter(TrueTypeFont font)
@@ -115,7 +116,7 @@ internal class GlyphHinter
     }
 
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-    private void Initialize() 
+    private void Initialize()
     {
         if (initialized)
         {
@@ -124,10 +125,10 @@ internal class GlyphHinter
         initialized = true;
         available = false;
 
-        MaximumProfileTable maxp = font.GetMaximumProfile();
-        FontProgramTable fpgm = font.GetFontProgram();
-        ControlValueProgramTable prep = font.GetControlValueProgram();
-        ControlValueTable cvt = font.GetControlValues();
+        MaximumProfileTable? maxp = font.GetMaximumProfile();
+        FontProgramTable? fpgm = font.GetFontProgram();
+        ControlValueProgramTable? prep = font.GetControlValueProgram();
+        ControlValueTable? cvt = font.GetControlValues();
 
         // hinting is only meaningful if the font carries a bytecode program
         if (maxp == null || (fpgm == null && prep == null))
@@ -137,7 +138,7 @@ internal class GlyphHinter
 
         unitsPerEm = font.GetUnitsPerEm();
         gasp = font.GetGasp();
-        lowestRecPpem = font.GetHeader().GetLowestRecPPEM();
+        lowestRecPpem = font.GetHeader()!.GetLowestRecPPEM() /* A parsed TrueType font requires the head table. */;
 
         interpreter = new TrueTypeInterpreter(maxp.GetMaxStackElements(), maxp.GetMaxStorage(),
                 maxp.GetMaxTwilightPoints(), unitsPerEm);
@@ -149,23 +150,28 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Returns the grid-fitted path of the glyph at the given ppem, or null if hinting does not
-/// apply and the caller should render the raw outline.
-/// &lt;p&gt;
-/// One deliberate departure from FreeType: a font whose bytecode builds its glyphs (see
-/// #needsFullControl()) is, below its head.lowestRecPPEM, hinted at that size and
-/// the result scaled down (see #assemblyPpem). Such fonts - MingLiU and its relatives all
-/// declare 25 - need the bytecode to put their glyphs together, but at small sizes the same
-/// program also forces every stroke to a whole pixel in both directions. It was written for
-/// black-and-white rendering, and Windows showed embedded bitmaps there instead; antialiased, those
-/// whole-pixel strokes make text roughly 1.7 times as heavy as the design. Assembling at the
-/// smallest size the vendor recommends for the outlines keeps the glyphs correct at their designed
-/// weight. #getHintedPointsF26Dot6 is unaffected and still hints at the requested size.
-/// 
-/// @param gid the glyph id
-/// @param requestedPpem the pixels-per-em the glyph is drawn at
-/// @return the hinted path in font units, or null
-/// </summary>
+    /// Returns the grid-fitted path of the glyph at the given ppem, or null if hinting does not
+    /// apply and the caller should render the raw outline.
+    ///
+    /// One deliberate departure from FreeType: a font whose bytecode builds its glyphs (see
+    /// #needsFullControl()) is, below its head.lowestRecPPEM, hinted at that size and
+    /// the result scaled down (see #assemblyPpem). Such fonts - MingLiU and its relatives all
+    /// declare 25 - need the bytecode to put their glyphs together, but at small sizes the same
+    /// program also forces every stroke to a whole pixel in both directions. It was written for
+    /// black-and-white rendering, and Windows showed embedded bitmaps there instead; antialiased, those
+    /// whole-pixel strokes make text roughly 1.7 times as heavy as the design. Assembling at the
+    /// smallest size the vendor recommends for the outlines keeps the glyphs correct at their designed
+    /// weight. #getHintedPointsF26Dot6 is unaffected and still hints at the requested size.
+    /// </summary>
+    /// <param name="gid">
+    /// the glyph id
+    /// </param>
+    /// <param name="requestedPpem">
+    /// the pixels-per-em the glyph is drawn at
+    /// </param>
+    /// <returns>
+    /// the hinted path in font units, or null
+    /// </returns>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
     internal GeneralPath? GetPath(int gid, int requestedPpem)
     {
@@ -178,7 +184,7 @@ internal class GlyphHinter
                 ppem = AssemblyPpem(requestedPpem, NeedsFullControl(), lowestRecPpem);
             }
         }
-        catch (IOException e)
+        catch (IOException)
         {
             // hint() below reports the failure and falls back
         }
@@ -201,14 +207,19 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Returns the grid-fitted glyph points in F26Dot6 device coordinates (the raw interpreter output,
-/// before scaling back to font units, and excluding the phantom points), or null if hinting
-/// does not apply. This is the form compared against a FreeType reference dump by the golden tests.
-/// 
-/// @param gid the glyph id
-/// @param ppem the pixels-per-em to grid-fit to
-/// @return a {x[], y[]} pair in F26Dot6, or null
-/// </summary>
+    /// Returns the grid-fitted glyph points in F26Dot6 device coordinates (the raw interpreter output,
+    /// before scaling back to font units, and excluding the phantom points), or null if hinting
+    /// does not apply. This is the form compared against a FreeType reference dump by the golden tests.
+    /// </summary>
+    /// <param name="gid">
+    /// the glyph id
+    /// </param>
+    /// <param name="ppem">
+    /// the pixels-per-em to grid-fit to
+    /// </param>
+    /// <returns>
+    /// a {x[], y[]} pair in F26Dot6, or null
+    /// </returns>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
     internal int[][]? GetHintedPointsF26Dot6(int gid, int ppem)
     {
@@ -225,19 +236,28 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Runs the control value program untraced, then grid-fits the glyph with an execution tracer
-/// attached, so the per-instruction trace can be diffed against FreeType's ttinterp trace.
-/// For development/debugging only.
-/// 
-/// @param gid the glyph id
-/// @param ppem the pixels-per-em
-/// @param output where to write the trace
-/// @param tracePoint a glyph point index to log per instruction, or -1
-/// @throws IOException if the font could not be read
-/// </summary>
+    /// Runs the control value program untraced, then grid-fits the glyph with an execution tracer
+    /// attached, so the per-instruction trace can be diffed against FreeType's ttinterp trace.
+    /// For development/debugging only.
+    /// </summary>
+    /// <param name="gid">
+    /// the glyph id
+    /// </param>
+    /// <param name="ppem">
+    /// the pixels-per-em
+    /// </param>
+    /// <param name="output">
+    /// where to write the trace
+    /// </param>
+    /// <param name="tracePoint">
+    /// a glyph point index to log per instruction, or -1
+    /// </param>
+    /// <exception cref="IOException">
+    /// if the font could not be read
+    /// </exception>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
     internal void TraceGlyph(int gid, int ppem, TextWriter output, int tracePoint)
-            
+
     {
         Initialize();
         if (!available)
@@ -257,13 +277,13 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Maximum composite nesting depth, to bound recursion on pathological fonts.
-/// </summary>
+    /// Maximum composite nesting depth, to bound recursion on pathological fonts.
+    /// </summary>
     private const int MAX_COMPONENT_DEPTH = 8;
 
     /// <summary>
-/// Runs all gating, then grid-fits the glyph, returning the executed zone or null on fallback.
-/// </summary>
+    /// Runs all gating, then grid-fits the glyph, returning the executed zone or null on fallback.
+    /// </summary>
     private Hinted? Hint(int gid, int ppem)
     {
         if (ppem <= 0)
@@ -313,11 +333,11 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Reports a glyph that could not be hinted. Only the first failure in a font is a warning carrying
-/// the stack trace; the rest go to debug. Hinting is attempted per (glyph, ppem) pair, so a
-/// font whose bytecode never runs - a malformed program, or one using something unimplemented - would
-/// otherwise emit thousands of identical stack traces for a page of CJK text.
-/// </summary>
+    /// Reports a glyph that could not be hinted. Only the first failure in a font is a warning carrying
+    /// the stack trace; the rest go to debug. Hinting is attempted per (glyph, ppem) pair, so a
+    /// font whose bytecode never runs - a malformed program, or one using something unimplemented - would
+    /// otherwise emit thousands of identical stack traces for a page of CJK text.
+    /// </summary>
     private void LogFailure(int gid, int ppem, Exception e)
     {
         failureCount++;
@@ -334,19 +354,19 @@ internal class GlyphHinter
         LOG.LogWarning(e, "hinting failed for glyph {GlyphId} at {Ppem}ppem in font {FontName}, using raw outline; further failures in this font are logged at debug level", gid, ppem, FontName());
     }
 
-    /// <summary>
-/// @return how many (glyph, ppem) hinting attempts failed and fell back to the raw outline, as
-/// opposed to not applying (no instructions, gasp, lowestRecPPEM); for tests
-/// </summary>
+    /// <returns>
+    /// how many (glyph, ppem) hinting attempts failed and fell back to the raw outline, as
+    /// opposed to not applying (no instructions, gasp, lowestRecPPEM); for tests
+    /// </returns>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
     internal int GetFailureCount()
     {
         return failureCount;
     }
 
-    /// <summary>
-/// @return the first failure, "glyph &amp;lt;gid&amp;gt; at &amp;lt;ppem&amp;gt;ppem: &amp;lt;exception&amp;gt;", or null
-/// </summary>
+    /// <returns>
+    /// the first failure, "glyph &lt;gid&gt; at &lt;ppem&gt;ppem: &lt;exception&gt;", or null
+    /// </returns>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
     internal string? GetFirstFailure()
     {
@@ -354,30 +374,37 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// The font's PostScript name for the warning above, best-effort - we are already handling a fault.
-/// </summary>
+    /// The font's PostScript name for the warning above, best-effort - we are already handling a fault.
+    /// </summary>
     private string FontName()
     {
         try
         {
             return font.GetName();
         }
-        catch (IOException e)
+        catch (IOException)
         {
             return "<unknown>";
         }
     }
 
     /// <summary>
-/// The ppem to run a glyph program at when the glyph is drawn at ppem: the same, except that
-/// a full-control font below its lowestRecPPEM is assembled at lowestRecPPEM
-/// (capped at {@value #MAX_ASSEMBLY_PPEM}), and the result scaled down (see #getPath).
-/// 
-/// @param ppem the size the glyph is drawn at
-/// @param fullControl whether the font's bytecode builds its glyphs
-/// @param lowestRecPpem the font's head.lowestRecPPEM
-/// @return the size to hint at
-/// </summary>
+    /// The ppem to run a glyph program at when the glyph is drawn at ppem: the same, except that
+    /// a full-control font below its lowestRecPPEM is assembled at lowestRecPPEM
+    /// (capped at {@value #MAX_ASSEMBLY_PPEM}), and the result scaled down (see #getPath).
+    /// </summary>
+    /// <param name="ppem">
+    /// the size the glyph is drawn at
+    /// </param>
+    /// <param name="fullControl">
+    /// whether the font's bytecode builds its glyphs
+    /// </param>
+    /// <param name="lowestRecPpem">
+    /// the font's head.lowestRecPPEM
+    /// </param>
+    /// <returns>
+    /// the size to hint at
+    /// </returns>
     internal static int AssemblyPpem(int ppem, bool fullControl, int lowestRecPpem)
     {
         if (!fullControl || ppem <= 0 || ppem >= lowestRecPpem)
@@ -388,32 +415,35 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Whether the font's bytecode builds its glyph geometry rather than just fitting outlines to the
-/// pixel grid. A small set of fonts - DynaLab CJK faces such as MingLiU and DFKai-SB, which FreeType
-/// calls "tricky" - position and scale glyph components with their instructions, in x as well as y,
-/// so they only render correctly with full bytecode control: no v40 backward compatibility (which
-/// suppresses x moves) and no size gates.
-/// &lt;p&gt;
-/// Rather than recognise such fonts by name, this measures the behaviour itself, once per font: it
-/// hints a spread of up to {@value #PROBE_SAMPLE} glyphs that carry instructions at
-/// {@value #PROBE_PPEM} ppem with backward compatibility on and with it off (full control), and
-/// compares them point by point with each other and with the raw outline. Ordinary hinting only
-/// rounds edges to the grid, so with backward compatibility on no point moves more than a pixel or
-/// two from the raw outline; a program that builds the glyphs moves components by many pixels even
-/// then, and moves them differently again with it off. A glyph counts when both comparisons exceed
-/// 5px (see #buildsGeometry), and {@value #PROBE_MIN_MOVING} such glyphs mark the font.
-/// &lt;p&gt;
-/// Measured at {@value #PROBE_PPEM} ppem on 267 fonts from CJK PDFs and system fonts, against
-/// FreeType's own classification (second-largest glyph per font): fonts FreeType calls tricky are
-/// at least 7.0px from raw with backward compatibility on and differ by at least 8.9px with it off;
-/// ordinary fonts stay within 2.0px of raw - including Giovanni Book, whose broken x instructions
-/// move points 90px with it off. No false positives; the only misses were two tiny subsets whose
-/// hinted glyphs stay within 0.4px of the raw outline, so full control changes nothing for them.
-/// 
-/// @return true if glyph programs must run with full control
-/// @throws IOException if the glyph table cannot be read
-/// </summary>
-    private bool NeedsFullControl() 
+    /// Whether the font's bytecode builds its glyph geometry rather than just fitting outlines to the
+    /// pixel grid. A small set of fonts - DynaLab CJK faces such as MingLiU and DFKai-SB, which FreeType
+    /// calls "tricky" - position and scale glyph components with their instructions, in x as well as y,
+    /// so they only render correctly with full bytecode control: no v40 backward compatibility (which
+    /// suppresses x moves) and no size gates.
+    ///
+    /// Rather than recognise such fonts by name, this measures the behaviour itself, once per font: it
+    /// hints a spread of up to {@value #PROBE_SAMPLE} glyphs that carry instructions at
+    /// {@value #PROBE_PPEM} ppem with backward compatibility on and with it off (full control), and
+    /// compares them point by point with each other and with the raw outline. Ordinary hinting only
+    /// rounds edges to the grid, so with backward compatibility on no point moves more than a pixel or
+    /// two from the raw outline; a program that builds the glyphs moves components by many pixels even
+    /// then, and moves them differently again with it off. A glyph counts when both comparisons exceed
+    /// 5px (see #buildsGeometry), and {@value #PROBE_MIN_MOVING} such glyphs mark the font.
+    ///
+    /// Measured at {@value #PROBE_PPEM} ppem on 267 fonts from CJK PDFs and system fonts, against
+    /// FreeType's own classification (second-largest glyph per font): fonts FreeType calls tricky are
+    /// at least 7.0px from raw with backward compatibility on and differ by at least 8.9px with it off;
+    /// ordinary fonts stay within 2.0px of raw - including Giovanni Book, whose broken x instructions
+    /// move points 90px with it off. No false positives; the only misses were two tiny subsets whose
+    /// hinted glyphs stay within 0.4px of the raw outline, so full control changes nothing for them.
+    /// </summary>
+    /// <returns>
+    /// true if glyph programs must run with full control
+    /// </returns>
+    /// <exception cref="IOException">
+    /// if the glyph table cannot be read
+    /// </exception>
+    private bool NeedsFullControl()
     {
         if (fullControl == null)
         {
@@ -424,20 +454,20 @@ internal class GlyphHinter
         return fullControl.Value;
     }
 
-    private bool ProbeFullControl() 
+    private bool ProbeFullControl()
     {
         int moving = 0;
         foreach (int gid in ProbeSample())
         {
             try
             {
-                int[][] compatible = ProbeHintedPoints(gid, true);
-                int[][] full = ProbeHintedPoints(gid, false);
+                int[][]? compatible = ProbeHintedPoints(gid, true);
+                int[][]? full = ProbeHintedPoints(gid, false);
                 if (compatible == null || full == null)
                 {
                     continue;
                 }
-                int[][] raw = ProbeRawPoints(gid, full[0].Length);
+                int[][]? raw = ProbeRawPoints(gid, full[0].Length);
                 if (raw != null && BuildsGeometry(raw, compatible, full) && ++moving >= PROBE_MIN_MOVING)
                 {
                     return true;
@@ -453,15 +483,15 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Up to PROBE_SAMPLE glyphs with instructions, spread evenly over the font's non-empty glyphs.
-/// Non-empty glyphs are found from the loca offsets without parsing them - an embedded CID subset
-/// keeps its full glyph count with only a handful of glyphs present - and at most
-/// PROBE_CANDIDATES of them, spread evenly, are parsed.
-/// </summary>
-    private int[] ProbeSample() 
+    /// Up to PROBE_SAMPLE glyphs with instructions, spread evenly over the font's non-empty glyphs.
+    /// Non-empty glyphs are found from the loca offsets without parsing them - an embedded CID subset
+    /// keeps its full glyph count with only a handful of glyphs present - and at most
+    /// PROBE_CANDIDATES of them, spread evenly, are parsed.
+    /// </summary>
+    private int[] ProbeSample()
     {
-        IndexToLocationTable loca = font.GetIndexToLocation();
-        long[] offsets = loca != null ? loca.GetOffsets() : null;
+        IndexToLocationTable? loca = font.GetIndexToLocation();
+        long[]? offsets = loca != null ? loca.GetOffsets() : null;
         if (offsets == null)
         {
             return new int[0];
@@ -481,7 +511,7 @@ internal class GlyphHinter
         for (int i = 0; i < candidates; i++)
         {
             int gid = present[(int) ((long) i * presentCount / candidates)];
-            GlyphData glyph = font.GetGlyph().GetGlyph(gid);
+            GlyphData? glyph = font.GetGlyph()!.GetGlyph(gid);
             if (glyph == null || !(glyph.Description is GlyfDescript))
             {
                 continue;
@@ -506,9 +536,9 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Hints one glyph at PROBE_PPEM with backward compatibility forced, ignoring the size gates.
-/// </summary>
-    private int[][] ProbeHintedPoints(int gid, bool backwardCompatibility) 
+    /// Hints one glyph at PROBE_PPEM with backward compatibility forced, ignoring the size gates.
+    /// </summary>
+    private int[][]? ProbeHintedPoints(int gid, bool backwardCompatibility)
     {
         SetActivePpem(PROBE_PPEM);
         forcedBackwardCompatibility = backwardCompatibility;
@@ -530,12 +560,12 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// The glyph's scaled, unhinted outline at PROBE_PPEM, in the frame of the hinted points (origin
-/// at x = 0, as the parsed description has it), or null if its point count differs.
-/// </summary>
-    private int[][] ProbeRawPoints(int gid, int pointCount) 
+    /// The glyph's scaled, unhinted outline at PROBE_PPEM, in the frame of the hinted points (origin
+    /// at x = 0, as the parsed description has it), or null if its point count differs.
+    /// </summary>
+    private int[][]? ProbeRawPoints(int gid, int pointCount)
     {
-        GlyphDescription gd = font.GetGlyph().GetGlyph(gid).Description;
+        GlyphDescription gd = font.GetGlyph()!.GetGlyph(gid)!.Description!; // ProbeSample selected a parsed non-empty glyph.
         if (gd.IsComposite())
         {
             gd.Resolve();
@@ -554,18 +584,25 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Whether a glyph's program builds its geometry rather than fitting it to the grid: backward
-/// compatibility changes the result by more than PROBE_TOLERANCE, &lt;em&gt;and&lt;/em&gt; even with backward
-/// compatibility on the result is that far from the raw outline. The second condition tells a font
-/// that needs full control (MingLiU: at least 7px from raw with it on) from one whose x
-/// instructions are merely broken and are hidden by backward compatibility (Giovanni Book: about
-/// 1px from raw with it on, 90px with it off) - giving the latter full control would wreck it.
-/// 
-/// @param raw the scaled, unhinted outline
-/// @param compatible the outline hinted with backward compatibility on
-/// @param full the outline hinted with full control
-/// @return true if the glyph counts towards needing full control
-/// </summary>
+    /// Whether a glyph's program builds its geometry rather than fitting it to the grid: backward
+    /// compatibility changes the result by more than PROBE_TOLERANCE,  and  even with backward
+    /// compatibility on the result is that far from the raw outline. The second condition tells a font
+    /// that needs full control (MingLiU: at least 7px from raw with it on) from one whose x
+    /// instructions are merely broken and are hidden by backward compatibility (Giovanni Book: about
+    /// 1px from raw with it on, 90px with it off) - giving the latter full control would wreck it.
+    /// </summary>
+    /// <param name="raw">
+    /// the scaled, unhinted outline
+    /// </param>
+    /// <param name="compatible">
+    /// the outline hinted with backward compatibility on
+    /// </param>
+    /// <param name="full">
+    /// the outline hinted with full control
+    /// </param>
+    /// <returns>
+    /// true if the glyph counts towards needing full control
+    /// </returns>
     internal static bool BuildsGeometry(int[][] raw, int[][] compatible, int[][] full)
     {
         return PointDelta(compatible, full) > PROBE_TOLERANCE
@@ -573,34 +610,34 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// The largest displacement of any point between two outlines of the same glyph, on either axis.
-/// </summary>
+    /// The largest displacement of any point between two outlines of the same glyph, on either axis.
+    /// </summary>
     internal static int PointDelta(int[][] a, int[][] b)
     {
         int delta = 0;
         for (int i = 0; i < a[0].Length; i++)
         {
-            delta = Math.Max(delta, Math.Max(Math.Abs(a[0][i] - b[0][i]), Math.Abs(a[1][i] - b[1][i])));
+            delta = Math.Max(delta, Math.Max(Fixed.Abs(a[0][i] - b[0][i]), Fixed.Abs(a[1][i] - b[1][i])));
         }
         return delta;
     }
 
-    /// <summary>
-/// @return whether the probe found that this font's bytecode builds its glyphs; for tests
-/// </summary>
+    /// <returns>
+    /// whether the probe found that this font's bytecode builds its glyphs; for tests
+    /// </returns>
     [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.Synchronized)]
-    internal bool IsFullControl() 
+    internal bool IsFullControl()
     {
         Initialize();
         return available && NeedsFullControl();
     }
 
     /// <summary>
-/// Re-runs the control value program if the ppem changed. The guard is load-bearing, not just an
-/// optimization: setPpem clears the storage area and twilight zone before running
-/// prep, so re-running it per glyph would wipe the values prep seeded for the glyph
-/// programs to read.
-/// </summary>
+    /// Re-runs the control value program if the ppem changed. The guard is load-bearing, not just an
+    /// optimization: setPpem clears the storage area and twilight zone before running
+    /// prep, so re-running it per glyph would wipe the values prep seeded for the glyph
+    /// programs to read.
+    /// </summary>
     private void SetActivePpem(int ppem)
     {
         if (ppem != currentPpem)
@@ -614,20 +651,20 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Grid-fits one glyph (simple or composite), recursing into components.
-/// </summary>
-    private Hinted? Hint(int gid, int ppem, int depth) 
+    /// Grid-fits one glyph (simple or composite), recursing into components.
+    /// </summary>
+    private Hinted? Hint(int gid, int ppem, int depth)
     {
         if (depth > MAX_COMPONENT_DEPTH)
         {
             return null;
         }
-        GlyphData glyph = font.GetGlyph().GetGlyph(gid);
+        GlyphData? glyph = font.GetGlyph()!.GetGlyph(gid);
         if (glyph == null)
         {
             return null;
         }
-        GlyphDescription gd = glyph.Description;
+        GlyphDescription? gd = glyph.Description;
         if (!(gd is GlyfDescript))
         {
             return null;
@@ -668,12 +705,12 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Grid-fits a composite glyph the way FreeType does: each component is hinted on its own, then
-/// transformed and offset into the composite's coordinate space, the phantom points appended, and
-/// finally the composite's own instructions (if any) run over the assembled outline.
-/// </summary>
+    /// Grid-fits a composite glyph the way FreeType does: each component is hinted on its own, then
+    /// transformed and offset into the composite's coordinate space, the phantom points appended, and
+    /// finally the composite's own instructions (if any) run over the assembled outline.
+    /// </summary>
     private Hinted? HintComposite(GlyphData glyph, GlyfCompositeDescript composite, int gid, int ppem,
-            int depth) 
+            int depth)
     {
         int pointCount = composite.GetPointCount();
         int contourCount = composite.GetContourCount();
@@ -704,18 +741,18 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Hints one component glyph and writes its transformed/offset points into the composite's zone
-/// arrays. The component's grid-fitted outline goes to both the current and the original arrays,
-/// as FreeType bakes hinted components into the composite before running its instructions.
-/// </summary>
+    /// Hints one component glyph and writes its transformed/offset points into the composite's zone
+    /// arrays. The component's grid-fitted outline goes to both the current and the original arrays,
+    /// as FreeType bakes hinted components into the composite before running its instructions.
+    /// </summary>
     private void AssembleComponent(GlyfCompositeComp comp, int ppem, int depth, Zone zone)
-            
+
     {
         int componentGid = comp.GlyphIndex;
         int first = comp.FirstIndex;
 
-        GlyphData componentGlyph = font.GetGlyph().GetGlyph(componentGid);
-        GlyphDescription cgd = componentGlyph != null ? componentGlyph.Description : null;
+        GlyphData? componentGlyph = font.GetGlyph()!.GetGlyph(componentGid);
+        GlyphDescription? cgd = componentGlyph != null ? componentGlyph.Description : null;
         if (cgd == null)
         {
             return;
@@ -774,8 +811,8 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Clones the saved post-prep state, resets it for the glyph, and runs the program over the zone.
-/// </summary>
+    /// Clones the saved post-prep state, resets it for the glyph, and runs the program over the zone.
+    /// </summary>
     private ExecutionContext RunProgram(Zone zone, int[] instructions, int ppem, bool composite)
     {
         GraphicsState saved = interpreter.GetSavedState();
@@ -806,9 +843,9 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// The result of grid-fitting one glyph: its description, the executed zone, and its point count
-/// (without the appended phantom points).
-/// </summary>
+    /// The result of grid-fitting one glyph: its description, the executed zone, and its point count
+    /// (without the appended phantom points).
+    /// </summary>
     private sealed class Hinted
     {
         internal readonly GlyphDescription gd;
@@ -824,7 +861,7 @@ internal class GlyphHinter
     }
 
     private Zone BuildZone(GlyphData glyph, GlyphDescription gd, int gid, int ppem, int pointCount,
-            int contourCount) 
+            int contourCount)
     {
         // four phantom points are appended after the glyph's own points
         Zone zone = new Zone(pointCount + 4, contourCount);
@@ -838,7 +875,7 @@ internal class GlyphHinter
         // GlyphData shifts a simple glyph's x coordinates by lsb - xMin so its origin is at 0.
         // FreeType hints the unshifted outline, with the origin phantom point at xMin - lsb, and
         // moves the origin afterwards; undo the shift so rounding and phantom-point positions match
-        HorizontalMetricsTable hmtx = font.GetHorizontalMetrics();
+        HorizontalMetricsTable? hmtx = font.GetHorizontalMetrics();
         int leftSideBearing = hmtx != null ? hmtx.GetLeftSideBearing(gid) : 0;
         int parseShift = (short) (leftSideBearing - glyph.XMinimum);
         for (int i = 0; i < pointCount; i++)
@@ -865,9 +902,9 @@ internal class GlyphHinter
     }
 
     private void AppendPhantomPoints(GlyphData glyph, int gid, int ppem, int pointCount, Zone zone)
-            
+
     {
-        HorizontalMetricsTable hmtx = font.GetHorizontalMetrics();
+        HorizontalMetricsTable? hmtx = font.GetHorizontalMetrics();
         int advanceWidth = hmtx != null ? hmtx.GetAdvanceWidth(gid) : unitsPerEm;
         int leftSideBearing = hmtx != null ? hmtx.GetLeftSideBearing(gid) : 0;
         int originX = glyph.XMinimum - leftSideBearing;
@@ -890,8 +927,8 @@ internal class GlyphHinter
     }
 
     /// <summary>
-/// Scales an F26Dot6 device coordinate back to font units.
-/// </summary>
+    /// Scales an F26Dot6 device coordinate back to font units.
+    /// </summary>
     private int ToFontUnits(int f26dot6, int ppem)
     {
         long numerator = (long) f26dot6 * unitsPerEm;

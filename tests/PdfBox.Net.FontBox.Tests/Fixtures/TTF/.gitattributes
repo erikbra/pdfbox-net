@@ -1,0 +1,3 @@
+LICENSE.txt whitespace=-blank-at-eol
+# Preserve the upstream README bytes, including CRLF line endings.
+hinting/README.md -text whitespace=-blank-at-eol

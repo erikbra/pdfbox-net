@@ -39,54 +39,62 @@ namespace PdfBox.Net.FontBox.TTF;
 /// vectors of the TrueType graphics state. Kept as a mutable class (not Point2D.Float) so the
 /// interpreter can stay in integer math. Because they are mutable, GraphicsState#copy()
 /// deep-copies them, so a per-glyph clone cannot write through to the saved post-prep template.
-/// &lt;p&gt;
+///
 /// Named after FreeType's FT_UnitVector, and like it the unit length is a convention rather than
 /// an enforced invariant: SPVFS and SFVFS write whatever the font pushed on the stack,
 /// which a malformed font need not have normalized.
-/// 
-/// @author Apache PDFBox
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class UnitVector
 {
     private int x;
     private int y;
 
-    /// <summary>
-/// @param x the x component in F2Dot14
-/// @param y the y component in F2Dot14
-/// </summary>
+    /// <param name="x">
+    /// the x component in F2Dot14
+    /// </param>
+    /// <param name="y">
+    /// the y component in F2Dot14
+    /// </param>
     public UnitVector(int x, int y)
     {
         this.x = x;
         this.y = y;
     }
 
-    /// <summary>
-/// @return the x axis unit vector (1, 0)
-/// </summary>
+    /// <returns>
+    /// the x axis unit vector (1, 0)
+    /// </returns>
     public static UnitVector XAxis()
     {
         return new UnitVector(Fixed.ONE_F2DOT14, 0);
     }
 
-    /// <summary>
-/// @return the y axis unit vector (0, 1)
-/// </summary>
+    /// <returns>
+    /// the y axis unit vector (0, 1)
+    /// </returns>
     public static UnitVector YAxis()
     {
         return new UnitVector(0, Fixed.ONE_F2DOT14);
     }
 
     /// <summary>
-/// Builds a unit vector in F2Dot14 from a coordinate delta. Each component is the exact quotient
-/// d / |(dx, dy)| in 16.16 fixed point, rounded to nearest, then reduced to F2Dot14 by
-/// truncation towards zero - the reduction FreeType uses, so diagonal vectors agree with it. A
-/// zero-length delta falls back to the x axis.
-/// 
-/// @param dx the x delta
-/// @param dy the y delta
-/// @return the normalized unit vector
-/// </summary>
+    /// Builds a unit vector in F2Dot14 from a coordinate delta. Each component is the exact quotient
+    /// d / |(dx, dy)| in 16.16 fixed point, rounded to nearest, then reduced to F2Dot14 by
+    /// truncation towards zero - the reduction FreeType uses, so diagonal vectors agree with it. A
+    /// zero-length delta falls back to the x axis.
+    /// </summary>
+    /// <param name="dx">
+    /// the x delta
+    /// </param>
+    /// <param name="dy">
+    /// the y delta
+    /// </param>
+    /// <returns>
+    /// the normalized unit vector
+    /// </returns>
     public static UnitVector Normalize(int dx, int dy)
     {
         if (dx == 0 && dy == 0)
@@ -106,15 +114,15 @@ internal class UnitVector
     }
 
     /// <summary>
-/// round(d * 65536 / sqrt(lengthSquared)) computed exactly: the result r is the integer
-/// whose interval [r - 1/2, r + 1/2) contains the quotient, found from the squared inequality
-/// (2|d| * 65536)^2 &gt;= (2r - 1)^2 * lengthSquared, so no floating point is involved.
-/// </summary>
+    /// round(d * 65536 / sqrt(lengthSquared)) computed exactly: the result r is the integer
+    /// whose interval [r - 1/2, r + 1/2) contains the quotient, found from the squared inequality
+    /// (2|d| * 65536)^2 &gt;= (2r - 1)^2 * lengthSquared, so no floating point is involved.
+    /// </summary>
     private static int Component(int d, BigInteger lengthSquared)
     {
-        BigInteger numerator = BigInteger.Pow(new BigInteger(2L * Math.Abs((long) d) * 0x10000L), 2);
+        BigInteger numerator = BigInteger.Pow(new BigInteger(2L * Fixed.Abs((long) d) * 0x10000L), 2);
         // the quotient is at most 65536; start from the floating-point estimate and correct it
-        long r = (long)Math.Floor(0.5 + Math.Abs((double) d) * 0x10000 / Math.Sqrt((double)lengthSquared));
+        long r = (long)Math.Floor(0.5 + Fixed.Abs((double) d) * 0x10000 / Math.Sqrt((double)lengthSquared));
         while (r > 0 && BigInteger.Pow(new BigInteger(2 * r - 1), 2) * lengthSquared > numerator)
         {
             r--;
@@ -126,49 +134,51 @@ internal class UnitVector
         return (int) (d < 0 ? -r : r);
     }
 
-    /// <summary>
-/// @return this vector rotated 90 degrees counter-clockwise, i.e. (-y, x)
-/// </summary>
+    /// <returns>
+    /// this vector rotated 90 degrees counter-clockwise, i.e. (-y, x)
+    /// </returns>
     public UnitVector Perpendicular()
     {
         return new UnitVector(-y, x);
     }
 
-    /// <summary>
-/// @return the x component in F2Dot14
-/// </summary>
+    /// <returns>
+    /// the x component in F2Dot14
+    /// </returns>
     public int GetX()
     {
         return x;
     }
 
-    /// <summary>
-/// @return the y component in F2Dot14
-/// </summary>
+    /// <returns>
+    /// the y component in F2Dot14
+    /// </returns>
     public int GetY()
     {
         return y;
     }
 
-    /// <summary>
-/// @param x the x component in F2Dot14
-/// @param y the y component in F2Dot14
-/// </summary>
+    /// <param name="x">
+    /// the x component in F2Dot14
+    /// </param>
+    /// <param name="y">
+    /// the y component in F2Dot14
+    /// </param>
     public void Set(int x, int y)
     {
         this.x = x;
         this.y = y;
     }
 
-    /// <summary>
-/// @return an independent copy of this vector
-/// </summary>
+    /// <returns>
+    /// an independent copy of this vector
+    /// </returns>
     public UnitVector Copy()
     {
         return new UnitVector(x, y);
     }
 
-    
+
     public override bool Equals(object? obj)
     {
         if (this == obj)
@@ -183,13 +193,13 @@ internal class UnitVector
         return x == other.x && y == other.y;
     }
 
-    
+
     public override int GetHashCode()
     {
         return 31 * x + y;
     }
 
-    
+
     public override string ToString()
     {
         return "UnitVector(" + x + ", " + y + ")";

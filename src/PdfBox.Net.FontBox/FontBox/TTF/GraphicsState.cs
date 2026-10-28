@@ -36,50 +36,50 @@ namespace PdfBox.Net.FontBox.TTF;
 /// <summary>
 /// The TrueType interpreter graphics state: projection/freedom vectors, reference and zone pointers,
 /// round state, and the various cut-ins and distances. Two operations carry the correctness burden:
-/// &lt;ul&gt;
-///   &lt;li&gt;#copy() performs a &lt;em&gt;deep&lt;/em&gt; copy of the UnitVector fields, so mutating a
-///       per-glyph clone never contaminates the saved post-prep template.&lt;/li&gt;
-///   &lt;li&gt;#resetForGlyph() resets only the fields the TrueType spec re-initializes at the start
-///       of each glyph program (the vectors, reference points, zone pointers and loop counter), while
-///       leaving the values established by prep (round state, cut-ins, delta base/shift, etc.)
-///       intact.&lt;/li&gt;
-/// &lt;/ul&gt;
-/// 
-/// @author Apache PDFBox
+///
+/// #copy() performs a  deep  copy of the UnitVector fields, so mutating a
+/// per-glyph clone never contaminates the saved post-prep template.
+/// #resetForGlyph() resets only the fields the TrueType spec re-initializes at the start
+/// of each glyph program (the vectors, reference points, zone pointers and loop counter), while
+/// leaving the values established by prep (round state, cut-ins, delta base/shift, etc.)
+/// intact.
 /// </summary>
+/// <remarks>
+/// Author: Apache PDFBox
+/// </remarks>
 internal class GraphicsState
 {
     /// <summary>
-/// Round to grid - the default round state.
-/// </summary>
+    /// Round to grid - the default round state.
+    /// </summary>
     public const int ROUND_TO_GRID = 0;
     /// <summary>
-/// Round to half grid.
-/// </summary>
+    /// Round to half grid.
+    /// </summary>
     public const int ROUND_TO_HALF_GRID = 1;
     /// <summary>
-/// Round to double grid.
-/// </summary>
+    /// Round to double grid.
+    /// </summary>
     public const int ROUND_TO_DOUBLE_GRID = 2;
     /// <summary>
-/// Round down to grid.
-/// </summary>
+    /// Round down to grid.
+    /// </summary>
     public const int ROUND_DOWN_TO_GRID = 3;
     /// <summary>
-/// Round up to grid.
-/// </summary>
+    /// Round up to grid.
+    /// </summary>
     public const int ROUND_UP_TO_GRID = 4;
     /// <summary>
-/// Rounding off.
-/// </summary>
+    /// Rounding off.
+    /// </summary>
     public const int ROUND_OFF = 5;
     /// <summary>
-/// Super round (set by SROUND).
-/// </summary>
+    /// Super round (set by SROUND).
+    /// </summary>
     public const int ROUND_SUPER = 6;
     /// <summary>
-/// Super round 45 degrees (set by S45ROUND).
-/// </summary>
+    /// Super round 45 degrees (set by S45ROUND).
+    /// </summary>
     public const int ROUND_SUPER_45 = 7;
 
     private UnitVector projectionVector;
@@ -114,9 +114,9 @@ internal class GraphicsState
     private int instructControl;
 
     /// <summary>
-/// Creates a graphics state with the spec-mandated default values. This is the state before the
-/// font's fpgm/prep programs run.
-/// </summary>
+    /// Creates a graphics state with the spec-mandated default values. This is the state before the
+    /// font's fpgm/prep programs run.
+    /// </summary>
     public GraphicsState()
     {
         projectionVector = UnitVector.XAxis();
@@ -172,23 +172,24 @@ internal class GraphicsState
     }
 
     /// <summary>
-/// Returns an independent deep copy, with the UnitVector fields cloned rather than shared.
-/// 
-/// @return a deep copy of this graphics state
-/// </summary>
+    /// Returns an independent deep copy, with the UnitVector fields cloned rather than shared.
+    /// </summary>
+    /// <returns>
+    /// a deep copy of this graphics state
+    /// </returns>
     public GraphicsState Copy()
     {
         return new GraphicsState(this);
     }
 
     /// <summary>
-/// Resets the per-glyph graphics state fields to their defaults, as the TrueType spec requires at
-/// the start of each glyph's instruction stream. The projection, freedom and dual-projection
-/// vectors return to the x axis; the reference points reset to 0; the zone pointers reset to the
-/// glyph zone (1); the loop counter resets to 1. Fields configured by prep (round state,
-/// cut-ins, minimum distance, delta base/shift, single width, auto-flip, scan control) are left
-/// untouched.
-/// </summary>
+    /// Resets the per-glyph graphics state fields to their defaults, as the TrueType spec requires at
+    /// the start of each glyph's instruction stream. The projection, freedom and dual-projection
+    /// vectors return to the x axis; the reference points reset to 0; the zone pointers reset to the
+    /// glyph zone (1); the loop counter resets to 1. Fields configured by prep (round state,
+    /// cut-ins, minimum distance, delta base/shift, single width, auto-flip, scan control) are left
+    /// untouched.
+    /// </summary>
     public void ResetForGlyph()
     {
         projectionVector.Set(Fixed.ONE_F2DOT14, 0);
@@ -203,157 +204,158 @@ internal class GraphicsState
         loop = 1;
     }
 
-    /// <summary>
-/// @return the projection vector
-/// </summary>
+    /// <returns>
+    /// the projection vector
+    /// </returns>
     public UnitVector GetProjectionVector()
     {
         return projectionVector;
     }
 
-    /// <summary>
-/// @return the freedom vector
-/// </summary>
+    /// <returns>
+    /// the freedom vector
+    /// </returns>
     public UnitVector GetFreedomVector()
     {
         return freedomVector;
     }
 
-    /// <summary>
-/// @return the dual projection vector
-/// </summary>
+    /// <returns>
+    /// the dual projection vector
+    /// </returns>
     public UnitVector GetDualProjectionVector()
     {
         return dualProjectionVector;
     }
 
-    /// <summary>
-/// @return reference point 0
-/// </summary>
+    /// <returns>
+    /// reference point 0
+    /// </returns>
     public int GetRp0()
     {
         return rp0;
     }
 
-    /// <summary>
-/// @param value reference point 0
-/// </summary>
+    /// <param name="value">
+    /// reference point 0
+    /// </param>
     public void SetRp0(int value)
     {
         rp0 = value;
     }
 
-    /// <summary>
-/// @return reference point 1
-/// </summary>
+    /// <returns>
+    /// reference point 1
+    /// </returns>
     public int GetRp1()
     {
         return rp1;
     }
 
-    /// <summary>
-/// @param value reference point 1
-/// </summary>
+    /// <param name="value">
+    /// reference point 1
+    /// </param>
     public void SetRp1(int value)
     {
         rp1 = value;
     }
 
-    /// <summary>
-/// @return reference point 2
-/// </summary>
+    /// <returns>
+    /// reference point 2
+    /// </returns>
     public int GetRp2()
     {
         return rp2;
     }
 
-    /// <summary>
-/// @param value reference point 2
-/// </summary>
+    /// <param name="value">
+    /// reference point 2
+    /// </param>
     public void SetRp2(int value)
     {
         rp2 = value;
     }
 
-    /// <summary>
-/// @return zone pointer 0
-/// </summary>
+    /// <returns>
+    /// zone pointer 0
+    /// </returns>
     public int GetZp0()
     {
         return zp0;
     }
 
-    /// <summary>
-/// @param value zone pointer 0
-/// </summary>
+    /// <param name="value">
+    /// zone pointer 0
+    /// </param>
     public void SetZp0(int value)
     {
         zp0 = value;
     }
 
-    /// <summary>
-/// @return zone pointer 1
-/// </summary>
+    /// <returns>
+    /// zone pointer 1
+    /// </returns>
     public int GetZp1()
     {
         return zp1;
     }
 
-    /// <summary>
-/// @param value zone pointer 1
-/// </summary>
+    /// <param name="value">
+    /// zone pointer 1
+    /// </param>
     public void SetZp1(int value)
     {
         zp1 = value;
     }
 
-    /// <summary>
-/// @return zone pointer 2
-/// </summary>
+    /// <returns>
+    /// zone pointer 2
+    /// </returns>
     public int GetZp2()
     {
         return zp2;
     }
 
-    /// <summary>
-/// @param value zone pointer 2
-/// </summary>
+    /// <param name="value">
+    /// zone pointer 2
+    /// </param>
     public void SetZp2(int value)
     {
         zp2 = value;
     }
 
-    /// <summary>
-/// @return the loop counter
-/// </summary>
+    /// <returns>
+    /// the loop counter
+    /// </returns>
     public int GetLoop()
     {
         return loop;
     }
 
-    /// <summary>
-/// @param value the loop counter
-/// </summary>
+    /// <param name="value">
+    /// the loop counter
+    /// </param>
     public void SetLoop(int value)
     {
         loop = value;
     }
 
-    /// <summary>
-/// @return the round state
-/// </summary>
+    /// <returns>
+    /// the round state
+    /// </returns>
     public int GetRoundState()
     {
         return roundState;
     }
 
     /// <summary>
-/// Sets the round state and derives the period/phase/threshold the #round(int) engine uses.
-/// The simple states are expressed as special cases of the super-round parameters. SROUND
-/// and S45ROUND call #setSuperRound(int, int) instead.
-/// 
-/// @param value one of the ROUND_* constants
-/// </summary>
+    /// Sets the round state and derives the period/phase/threshold the #round(int) engine uses.
+    /// The simple states are expressed as special cases of the super-round parameters. SROUND
+    /// and S45ROUND call #setSuperRound(int, int) instead.
+    /// </summary>
+    /// <param name="value">
+    /// one of the ROUND_* constants
+    /// </param>
     public void SetRoundState(int value)
     {
         roundState = value;
@@ -395,20 +397,23 @@ internal class GraphicsState
     }
 
     /// <summary>
-/// SROUND/S45ROUND period selector (bits 7-6) to the period in half grid periods.
-/// </summary>
+    /// SROUND/S45ROUND period selector (bits 7-6) to the period in half grid periods.
+    /// </summary>
     private static readonly int[] PERIOD_HALVES = [ 1, 2, 4, 2 ];
 
     /// <summary>
-/// Configures super-round parameters for SROUND/S45ROUND from the selector byte,
-/// per the TrueType specification. The period, phase and threshold are derived in F2Dot14 and
-/// then converted to F26Dot6, exactly as FreeType's SetSuperRound does; deriving them in
-/// F26Dot6 directly is off by one for the S45ROUND "period - 1" threshold (44 instead of 45).
-/// 
-/// @param gridPeriod the base grid period in F2Dot14 (0x4000 = one pixel for SROUND;
-/// 0x2D41 = sqrt(2)/2, the diagonal, for S45ROUND)
-/// @param selector the operand byte controlling period, phase and threshold
-/// </summary>
+    /// Configures super-round parameters for SROUND/S45ROUND from the selector byte,
+    /// per the TrueType specification. The period, phase and threshold are derived in F2Dot14 and
+    /// then converted to F26Dot6, exactly as FreeType's SetSuperRound does; deriving them in
+    /// F26Dot6 directly is off by one for the S45ROUND "period - 1" threshold (44 instead of 45).
+    /// </summary>
+    /// <param name="gridPeriod">
+    /// the base grid period in F2Dot14 (0x4000 = one pixel for SROUND;
+    /// 0x2D41 = sqrt(2)/2, the diagonal, for S45ROUND)
+    /// </param>
+    /// <param name="selector">
+    /// the operand byte controlling period, phase and threshold
+    /// </param>
     public void SetSuperRound(int gridPeriod, int selector)
     {
         // bits 7-6: the period as a multiple of the grid, in halves - 1/2, 1, 2, and the reserved
@@ -427,13 +432,16 @@ internal class GraphicsState
     }
 
     /// <summary>
-/// Rounds a distance according to the current round state. Engine compensation (the black/white/
-/// grey distance bias FreeType applies) is treated as zero, which is correct for an anti-aliased
-/// Java2D target.
-/// 
-/// @param distance the distance in F26Dot6
-/// @return the rounded distance in F26Dot6
-/// </summary>
+    /// Rounds a distance according to the current round state. Engine compensation (the black/white/
+    /// grey distance bias FreeType applies) is treated as zero, which is correct for an anti-aliased
+    /// Java2D target.
+    /// </summary>
+    /// <param name="distance">
+    /// the distance in F26Dot6
+    /// </param>
+    /// <returns>
+    /// the rounded distance in F26Dot6
+    /// </returns>
     public int Round(int distance)
     {
         if (roundOff)
@@ -462,161 +470,161 @@ internal class GraphicsState
         return val;
     }
 
-    /// <summary>
-/// @return the minimum distance in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the minimum distance in F26Dot6
+    /// </returns>
     public int GetMinimumDistance()
     {
         return minimumDistance;
     }
 
-    /// <summary>
-/// @param value the minimum distance in F26Dot6
-/// </summary>
+    /// <param name="value">
+    /// the minimum distance in F26Dot6
+    /// </param>
     public void SetMinimumDistance(int value)
     {
         minimumDistance = value;
     }
 
-    /// <summary>
-/// @return the control value cut-in in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the control value cut-in in F26Dot6
+    /// </returns>
     public int GetControlValueCutIn()
     {
         return controlValueCutIn;
     }
 
-    /// <summary>
-/// @param value the control value cut-in in F26Dot6
-/// </summary>
+    /// <param name="value">
+    /// the control value cut-in in F26Dot6
+    /// </param>
     public void SetControlValueCutIn(int value)
     {
         controlValueCutIn = value;
     }
 
-    /// <summary>
-/// @return the single width cut-in in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the single width cut-in in F26Dot6
+    /// </returns>
     public int GetSingleWidthCutIn()
     {
         return singleWidthCutIn;
     }
 
-    /// <summary>
-/// @param value the single width cut-in in F26Dot6
-/// </summary>
+    /// <param name="value">
+    /// the single width cut-in in F26Dot6
+    /// </param>
     public void SetSingleWidthCutIn(int value)
     {
         singleWidthCutIn = value;
     }
 
-    /// <summary>
-/// @return the single width value in F26Dot6
-/// </summary>
+    /// <returns>
+    /// the single width value in F26Dot6
+    /// </returns>
     public int GetSingleWidthValue()
     {
         return singleWidthValue;
     }
 
-    /// <summary>
-/// @param value the single width value in F26Dot6
-/// </summary>
+    /// <param name="value">
+    /// the single width value in F26Dot6
+    /// </param>
     public void SetSingleWidthValue(int value)
     {
         singleWidthValue = value;
     }
 
-    /// <summary>
-/// @return the delta base
-/// </summary>
+    /// <returns>
+    /// the delta base
+    /// </returns>
     public int GetDeltaBase()
     {
         return deltaBase;
     }
 
-    /// <summary>
-/// @param value the delta base
-/// </summary>
+    /// <param name="value">
+    /// the delta base
+    /// </param>
     public void SetDeltaBase(int value)
     {
         deltaBase = value;
     }
 
-    /// <summary>
-/// @return the delta shift
-/// </summary>
+    /// <returns>
+    /// the delta shift
+    /// </returns>
     public int GetDeltaShift()
     {
         return deltaShift;
     }
 
-    /// <summary>
-/// @param value the delta shift
-/// </summary>
+    /// <param name="value">
+    /// the delta shift
+    /// </param>
     public void SetDeltaShift(int value)
     {
         deltaShift = value;
     }
 
-    /// <summary>
-/// @return whether auto-flip is enabled
-/// </summary>
+    /// <returns>
+    /// whether auto-flip is enabled
+    /// </returns>
     public bool IsAutoFlip()
     {
         return autoFlip;
     }
 
-    /// <summary>
-/// @param value whether auto-flip is enabled
-/// </summary>
+    /// <param name="value">
+    /// whether auto-flip is enabled
+    /// </param>
     public void SetAutoFlip(bool value)
     {
         autoFlip = value;
     }
 
-    /// <summary>
-/// @return the scan control flags
-/// </summary>
+    /// <returns>
+    /// the scan control flags
+    /// </returns>
     public int GetScanControl()
     {
         return scanControl;
     }
 
-    /// <summary>
-/// @param value the scan control flags
-/// </summary>
+    /// <param name="value">
+    /// the scan control flags
+    /// </param>
     public void SetScanControl(int value)
     {
         scanControl = value;
     }
 
-    /// <summary>
-/// @return the scan type
-/// </summary>
+    /// <returns>
+    /// the scan type
+    /// </returns>
     public int GetScanType()
     {
         return scanType;
     }
 
-    /// <summary>
-/// @param value the scan type
-/// </summary>
+    /// <param name="value">
+    /// the scan type
+    /// </param>
     public void SetScanType(int value)
     {
         scanType = value;
     }
 
-    /// <summary>
-/// @return the instruction control flags
-/// </summary>
+    /// <returns>
+    /// the instruction control flags
+    /// </returns>
     public int GetInstructControl()
     {
         return instructControl;
     }
 
-    /// <summary>
-/// @param value the instruction control flags
-/// </summary>
+    /// <param name="value">
+    /// the instruction control flags
+    /// </param>
     public void SetInstructControl(int value)
     {
         instructControl = value;
