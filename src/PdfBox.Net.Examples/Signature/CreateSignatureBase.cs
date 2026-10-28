@@ -4,8 +4,8 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignatureBase.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -169,6 +169,6 @@ public class CreateSignatureBase : SignatureInterface
             signedData = _tsaClient.AddTimestamp(signedData);
         }
 
-        return signedData;
+        return Internal.CmsEncoding.EncodeDer(signedData);
     }
 }

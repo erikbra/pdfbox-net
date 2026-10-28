@@ -63,6 +63,8 @@ public sealed partial class PDDocument : IDisposable
     private PDDocumentCatalog? _documentCatalog;
     private PDDocumentInformation? _documentInformation;
     private PDEncryption? _encryption;
+    // Preserve the already derived input-file encryption key for incremental updates.
+    private SecurityHandler<ProtectionPolicy>? _incrementalSecurityHandler;
     private ResourceCache? _resourceCache = ResourceCacheFactory.CreateResourceCache();
     private byte[]? _sourceBytes;
     private HashSet<COSObjectKey>? _originalXrefKeys;
@@ -145,6 +147,7 @@ public sealed partial class PDDocument : IDisposable
         ParsedPDFDocument parsed = parser.Parse();
         PDDocument doc = new(parsed.Document);
         doc._accessPermission = parsed.AccessPermission;
+        doc._incrementalSecurityHandler = parser.GetSecurityHandler();
         doc._sourceBytes = sourceBytes;
         doc._originalXrefKeys = new HashSet<COSObjectKey>(parsed.Document.GetXrefTable().Keys);
         doc.DecryptIfNeeded(password);
@@ -570,7 +573,10 @@ public sealed partial class PDDocument : IDisposable
             }
             else
             {
-                WritePDFValue(output, entry.Value, securityHandler, contextKey, willEncrypt, allowIndirectReference: true);
+                bool signatureContents = entry.Key.Equals(COSName.CONTENTS) && entry.Value is COSString &&
+                    dictionary.GetCOSName(COSName.TYPE) is COSName type &&
+                    (type.Equals(COSName.GetPDFName("Sig")) || type.GetName() == "DocTimeStamp");
+                WritePDFValue(output, entry.Value, securityHandler, contextKey, willEncrypt && !signatureContents, allowIndirectReference: true);
             }
         }
 
@@ -1290,19 +1296,22 @@ public sealed partial class PDDocument : IDisposable
             if (inner is COSStream cosStream)
             {
                 buffer.Write(objHeader);
-                byte[] dictBytes = COSWriter.Serialize(inner);
-                buffer.Write(dictBytes);
+                byte[] streamBytes = GetWritableStreamBytes(cosStream, _incrementalSecurityHandler, key,
+                    _incrementalSecurityHandler is not null);
+                WritePDFValue(buffer, inner, _incrementalSecurityHandler, key,
+                    _incrementalSecurityHandler is not null, allowIndirectReference: false,
+                    streamLengthOverride: streamBytes.Length);
                 buffer.Write(Encoding.ASCII.GetBytes("\nstream\n"));
-                using (Stream rawStream = cosStream.CreateRawInputStream())
-                {
-                    rawStream.CopyTo(buffer);
-                }
+                buffer.Write(streamBytes);
 
                 buffer.Write(Encoding.ASCII.GetBytes("\nendstream"));
             }
             else
             {
-                byte[] bodyBytes = COSWriter.Serialize(inner);
+                using MemoryStream body = new();
+                WritePDFValue(body, inner, _incrementalSecurityHandler, key,
+                    _incrementalSecurityHandler is not null, allowIndirectReference: false);
+                byte[] bodyBytes = body.ToArray();
 
                 if (isSigDict)
                 {
@@ -1416,6 +1425,13 @@ public sealed partial class PDDocument : IDisposable
             incrTrailer.SetItem(COSName.GetPDFName("Info"), info);
         }
 
+        foreach (COSName key in new[] { COSName.GetPDFName("Encrypt"), COSName.GetPDFName("ID") })
+        {
+            if (_trailer.GetItem(key) is COSBase value)
+            {
+                incrTrailer.SetItem(key, value);
+            }
+        }
         output.Write(Encoding.ASCII.GetBytes("\ntrailer\n"));
         output.Write(COSWriter.Serialize(incrTrailer));
         output.Write(Encoding.ASCII.GetBytes(

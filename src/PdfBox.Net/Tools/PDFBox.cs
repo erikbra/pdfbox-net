@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: tools/src/main/java/org/apache/pdfbox/tools/PDFBox.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -45,17 +45,18 @@ public static class PDFBox
         string[] commandArgs = args.Skip(1).ToArray();
         return args[0].ToLowerInvariant() switch
         {
+            "decompress" => DecompressObjectstreams.Run(commandArgs, error),
             "decrypt" => Decrypt.Run(commandArgs, error),
             "encrypt" => Encrypt.Run(commandArgs, error),
-            "exportfdf" => ExportFDF.Run(commandArgs, error),
-            "exportxfdf" => ExportXFDF.Run(commandArgs, error),
-            "extractimages" => ExtractImages.Run(commandArgs, error),
-            "extractxmp" => ExtractXMP.Run(commandArgs, output, error),
-            "imagetopdf" => ImageToPDF.Run(commandArgs, error),
-            "importfdf" => ImportFDF.Run(commandArgs, error),
-            "importxfdf" => ImportXFDF.Run(commandArgs, error),
-            "printpdf" => PrintPDF.Run(commandArgs, error),
-            "texttopdf" => TextToPDF.Run(commandArgs, error),
+            "export:fdf" or "exportfdf" => ExportFDF.Run(commandArgs, error),
+            "export:xfdf" or "exportxfdf" => ExportXFDF.Run(commandArgs, error),
+            "export:images" or "extractimages" => ExtractImages.Run(commandArgs, error),
+            "export:xmp" or "extract:xmp" or "extractxmp" => ExtractXMP.Run(commandArgs, output, error),
+            "fromimage" or "imagetopdf" => ImageToPDF.Run(commandArgs, error),
+            "import:fdf" or "importfdf" => ImportFDF.Run(commandArgs, error),
+            "import:xfdf" or "importxfdf" => ImportXFDF.Run(commandArgs, error),
+            "print" or "printpdf" => PrintPDF.Run(commandArgs, error),
+            "fromtext" or "texttopdf" => TextToPDF.Run(commandArgs, error),
             _ => UnknownCommand(args[0], error)
         };
     }

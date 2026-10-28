@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: debugger/src/main/java/org/apache/pdfbox/debugger/ui/ViewMenu.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -29,6 +29,14 @@ namespace PdfBox.Net.Debugger.Ui;
 
 public sealed class ViewMenu : MenuBase
 {
+    private static bool _hintingEnabled;
+
+    /// <summary>Returns whether TrueType font hinting is enabled in the debugger view options.</summary>
+    public static bool IsHintingEnabled() => _hintingEnabled;
+
+    /// <summary>Sets the hinting selection for the headless debugger view model.</summary>
+    public static void SetHintingEnabled(bool enabled) => _hintingEnabled = enabled;
+
     public ViewMenu()
         : base(nameof(ViewMenu))
     {

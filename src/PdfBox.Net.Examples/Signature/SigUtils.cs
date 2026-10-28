@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/SigUtils.java
  * PDFBOX_SOURCE_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -41,10 +41,11 @@ namespace PdfBox.Net.Examples.Signature;
 public sealed class SigUtils
 {
     private static ILogger<SigUtils> LOG => PdfBoxLogging.CreateLogger<SigUtils>();
-    private static readonly HttpClient HttpClient = new(new HttpClientHandler
+    private static readonly HttpClient HttpClient = new(new SocketsHttpHandler
     {
-        AllowAutoRedirect = false
-    });
+        AllowAutoRedirect = false,
+        ConnectTimeout = TimeSpan.FromMilliseconds(10_000)
+    }) { Timeout = TimeSpan.FromMilliseconds(20_000) };
 
     // Certificates / CRLs / LDAP needed for the upstream unit tests; add yours
     // or create your own logic in CheckAccess().
@@ -55,6 +56,7 @@ public sealed class SigUtils
         "http://www.pki.admin.ch/aia/RootCAIV.crt",
         "http://www.pki.admin.ch/crl/RegularCA01.crl",
         "http://www.pki.admin.ch/crl/RootCAII.crl",
+        "http://www.pki.admin.ch/crl/RootCAIV.crl",
         "http://www.pki.admin.ch/aia/RegulatedCA02.crt",
         "http://www.pki.admin.ch/aia/ocsp",
         "http://www.pki.admin.ch/crl/RegulatedCA02.crl",
@@ -293,7 +295,8 @@ public sealed class SigUtils
             using HttpResponseMessage response = client.GetAsync(url).GetAwaiter().GetResult();
             LOG.LogInformation("{StatusCode} {ReasonPhrase}", (int)response.StatusCode, response.ReasonPhrase);
             if (response.StatusCode is System.Net.HttpStatusCode.MovedPermanently or
-                System.Net.HttpStatusCode.Found or System.Net.HttpStatusCode.SeeOther &&
+                System.Net.HttpStatusCode.Found or System.Net.HttpStatusCode.SeeOther or
+                System.Net.HttpStatusCode.TemporaryRedirect or System.Net.HttpStatusCode.PermanentRedirect &&
                 response.Headers.Location is Uri location &&
                 urlString.StartsWith("http://", StringComparison.Ordinal) &&
                 location.OriginalString.StartsWith("https://", StringComparison.Ordinal) &&

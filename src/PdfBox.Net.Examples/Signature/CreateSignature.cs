@@ -4,8 +4,8 @@
  *
  * PDFBOX_SOURCE_PATH: examples/src/main/java/org/apache/pdfbox/examples/signature/CreateSignature.java
  * PDFBOX_SOURCE_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: eeb5d611e0cea8beac3d7025a4dbccbef51d5caf
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -69,6 +69,18 @@ public class CreateSignature : CreateSignatureBase
         SignDetached(input, output);
     }
 
+    /// <summary>Signs a PDF, optionally adding a TSA timestamp.</summary>
+    public void SignDetached(string inputPdfPath, string outputPdfPath, string? tsaUrl)
+        => SignDetached(inputPdfPath, outputPdfPath, tsaUrl, password: null);
+
+    /// <summary>Signs a PDF, optionally adding a TSA timestamp, using its opening password.</summary>
+    public void SignDetached(string inputPdfPath, string outputPdfPath, string? tsaUrl, string? password)
+    {
+        using FileStream input = File.OpenRead(inputPdfPath);
+        using FileStream output = File.Create(outputPdfPath);
+        SignDetached(input, output, tsaUrl is null ? null : new TSAClient(tsaUrl), password);
+    }
+
     /// <summary>Signs the PDF read from <paramref name="inputPdf"/> and writes to <paramref name="outputPdf"/>.</summary>
     public void SignDetached(Stream inputPdf, Stream outputPdf)
     {
@@ -80,10 +92,14 @@ public class CreateSignature : CreateSignatureBase
     /// timestamp from <paramref name="tsaClient"/>, and writes to <paramref name="outputPdf"/>.
     /// </summary>
     public void SignDetached(Stream inputPdf, Stream outputPdf, TSAClient? tsaClient)
+        => SignDetached(inputPdf, outputPdf, tsaClient, password: null);
+
+    /// <summary>Signs a PDF opened using the supplied PDF password.</summary>
+    public void SignDetached(Stream inputPdf, Stream outputPdf, TSAClient? tsaClient, string? password)
     {
         SetTsaClient(tsaClient);
 
-        using PDDocument doc = PDDocument.Load(inputPdf);
+        using PDDocument doc = PDDocument.Load(inputPdf, password);
 
         PDSignature signature = new();
         signature.SetFilter(PDSignature.FILTER_ADOBE_PPKLITE);

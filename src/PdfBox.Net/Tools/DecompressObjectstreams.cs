@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: tools/src/main/java/org/apache/pdfbox/tools/DecompressObjectstreams.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -31,6 +31,47 @@ namespace PdfBox.Net.Tools;
 
 public static class DecompressObjectstreams
 {
+    /// <summary>Runs the decompress command, optionally overwriting the input PDF.</summary>
+    public static int Run(string[] args, TextWriter? error = null)
+    {
+        error ??= Console.Error;
+        string? input = null;
+        string? output = null;
+        try
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                string option = args[i];
+                if (option is not ("-i" or "--input" or "-o" or "--output"))
+                {
+                    throw new ArgumentException($"Unknown option: {option}");
+                }
+                if (++i >= args.Length)
+                {
+                    throw new ArgumentException($"Missing value for {option}.");
+                }
+                if (option is "-i" or "--input") input = args[i];
+                else output = args[i];
+            }
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                throw new ArgumentException("Missing required option -i/--input.");
+            }
+            Rewrite(input, output ?? input);
+            return 0;
+        }
+        catch (ArgumentException exception)
+        {
+            error.WriteLine(exception.Message);
+            return 1;
+        }
+        catch (IOException exception)
+        {
+            error.WriteLine($"Error processing file [{exception.GetType().Name}]: {exception.Message}");
+            return 4;
+        }
+    }
+
     public static void Rewrite(string inputFile, string outputFile)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(inputFile);

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -34,10 +34,8 @@ namespace PdfBox.Net.XmpBox.Xml;
 
 public static class PdfaExtensionHelper
 {
-    private const string ClosedChoice = "closed Choice of ";
-    private const string ClosedChoiceUpper = "Closed Choice of ";
-    private const string OpenChoice = "open Choice of ";
-    private const string OpenChoiceUpper = "Open Choice of ";
+    private const string ClosedChoice = "closed choice of ";
+    private const string OpenChoice = "open choice of ";
 
     public static void ValidateNaming(XMPMetadata meta, XmlElement description)
     {
@@ -277,13 +275,11 @@ public static class PdfaExtensionHelper
             return TypeMapping.CreatePropertyType(Types.LangAlt, Cardinality.Simple);
         }
 
-        if (valueType.StartsWith(ClosedChoice, StringComparison.Ordinal)
-            || valueType.StartsWith(ClosedChoiceUpper, StringComparison.Ordinal))
+        if (valueType.StartsWith(ClosedChoice, StringComparison.OrdinalIgnoreCase))
         {
             valueType = valueType[ClosedChoice.Length..];
         }
-        else if (valueType.StartsWith(OpenChoice, StringComparison.Ordinal)
-            || valueType.StartsWith(OpenChoiceUpper, StringComparison.Ordinal))
+        else if (valueType.StartsWith(OpenChoice, StringComparison.OrdinalIgnoreCase))
         {
             valueType = valueType[OpenChoice.Length..];
         }

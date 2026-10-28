@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2026 Erik A. Brandstadmoen (C# port modifications/adaptations).
+ * Adapted from Apache PDFBox Java tests with AI assistance.
+ */
+
 // PDFBOX_SOURCE_PATH: examples/src/test/java/org/apache/pdfbox/examples/pdmodel/TestCreateSignature.java
 // PDFBOX_SOURCE_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
-// PORT_MODE: mechanical
-// PORT_LAST_SYNC_COMMIT: ddef86fcb1a5407035fdd1c8587832c3d1c761b9
+// PORT_MODE: adapted
+// PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -59,6 +64,36 @@ public class TestCreateSignature
         SignedCms cms = new(new ContentInfo(signature.GetSignedContent(signedPdfBytes)), detached: true);
         cms.Decode(signature.GetContents(signedPdfBytes));
         cms.CheckSignature(verifySignatureOnly: true);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void TestSignEncrypted(bool external)
+    {
+        byte[] inputPdf = CreateInputPdf();
+        using MemoryStream encrypted = new();
+        using (PDDocument document = PDDocument.Load(new MemoryStream(inputPdf)))
+        {
+            var policy = new PdfBox.Net.PDModel.Encryption.StandardProtectionPolicy("owner", "12345", new());
+            policy.SetPreferAes(true);
+            document.Protect(policy);
+            document.Save(encrypted);
+        }
+        byte[] keyStore = CreateKeyStore("password");
+        CreateSignature signer = new(keyStore, "password") { IsExternalSigning = external };
+        using MemoryStream signed = new();
+        encrypted.Position = 0;
+        signer.SignDetached(encrypted, signed, tsaClient: null, password: "12345");
+        byte[] bytes = signed.ToArray();
+        using PDDocument result = PDDocument.Load(new MemoryStream(bytes), "12345");
+        PDSignature signature = Assert.Single(result.GetSignatureDictionaries());
+        SignedCms cms = new(new ContentInfo(signature.GetSignedContent(bytes)), detached: true);
+        cms.Decode(signature.GetContents(bytes));
+        cms.CheckSignature(verifySignatureOnly: true);
+        Assert.Equal(signer.GetCertificate()!.GetNameInfo(X509NameType.SimpleName, false), signature.GetName());
+        byte[] contents = signature.GetContents();
+        Assert.All(contents.TakeLast(5), value => Assert.Equal((byte)0, value));
     }
 
     [Fact(Skip = "Requires an external TSA endpoint.")]

@@ -140,6 +140,8 @@ public sealed class PDFParser
         return trailer;
     }
 
+    internal SecurityHandler<ProtectionPolicy>? GetSecurityHandler() => _securityHandler;
+
     private void PrepareDecryption(COSDictionary trailer)
     {
         _encryptionDictionary = trailer.GetCOSDictionary(COSName.GetPDFName("Encrypt"));
@@ -238,8 +240,15 @@ public sealed class PDFParser
 
     private void DecryptDictionaryItems(COSDictionary dictionary, long objNum, long genNum, HashSet<COSBase> visited)
     {
+        bool isSignature = dictionary.GetCOSName(COSName.TYPE) is COSName type &&
+            (type.Equals(COSName.GetPDFName("Sig")) || type.GetName() == "DocTimeStamp");
         foreach (COSName key in dictionary.KeySet().ToList())
         {
+            // Signature Contents are excluded from document encryption (PDFBOX-6289).
+            if (isSignature && key.Equals(COSName.CONTENTS))
+            {
+                continue;
+            }
             COSBase? value = dictionary.GetItem(key);
             if (value is not null)
             {
