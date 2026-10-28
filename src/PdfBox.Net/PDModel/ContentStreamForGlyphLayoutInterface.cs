@@ -25,6 +25,9 @@
  * limitations under the License.
  */
 
+using PdfBox.Net.COS;
+using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
+
 namespace PdfBox.Net.PDModel;
 
 public interface ContentStreamForGlyphLayoutInterface
@@ -46,4 +49,10 @@ public interface ContentStreamForGlyphLayoutInterface
     /// </summary>
     /// <param name="rise">Distance in unscaled text space units to move the baseline.</param>
     void SetTextRise(float rise);
+
+    /// <summary>Begins marked content with a property list.</summary>
+    void BeginMarkedContent(COSName tag, PDPropertyList propertyList);
+
+    /// <summary>Ends a marked content sequence.</summary>
+    void EndMarkedContent();
 }

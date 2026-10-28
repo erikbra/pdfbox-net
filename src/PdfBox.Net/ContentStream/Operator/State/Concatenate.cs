@@ -55,6 +55,13 @@ public sealed class Concatenate : OperatorProcessor
         float d = ((COSNumber)operands[3]).FloatValue();
         float e = ((COSNumber)operands[4]).FloatValue();
         float f = ((COSNumber)operands[5]).FloatValue();
-        Context.ConcatenateMatrix(new Matrix(a, b, c, d, e, f));
+        try
+        {
+            Context.ConcatenateMatrix(new Matrix(a, b, c, d, e, f));
+        }
+        catch (ArgumentException ex)
+        {
+            throw new IOException(ex.Message, ex);
+        }
     }
 }

@@ -30,7 +30,7 @@ using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-public sealed partial class PDCalRGB : PDColorSpace
+public sealed partial class PDCalRGB : PDCIEDictionaryBasedColorSpace
 {
     private static readonly COSName CalRGB = COSName.GetPDFName("CalRGB");
 
@@ -119,12 +119,16 @@ public sealed partial class PDCalRGB : PDColorSpace
 
     public override float[] ToRGB(float[] value)
     {
-        return
-        [
-            Clamp(MathF.Pow(Clamp(value.Length > 0 ? value[0] : 0f), _gamma[0])),
-            Clamp(MathF.Pow(Clamp(value.Length > 1 ? value[1] : 0f), _gamma[1])),
-            Clamp(MathF.Pow(Clamp(value.Length > 2 ? value[2] : 0f), _gamma[2]))
-        ];
+        if (MathF.Abs(WpX - 0.9505f) < 0.01f && MathF.Abs(WpY - 1) < 0.01f && MathF.Abs(WpZ - 1.089f) < 0.01f)
+            return [value[0], value[1], value[2]];
+        PDGamma gamma = GetGamma();
+        float ar = MathF.Pow(value[0], gamma.GetR());
+        float bg = MathF.Pow(value[1], gamma.GetG());
+        float cb = MathF.Pow(value[2], gamma.GetB());
+        float[] m = GetMatrix();
+        return ConvXYZtoRGB(m[0] * ar + m[3] * bg + m[6] * cb,
+            m[1] * ar + m[4] * bg + m[7] * cb,
+            m[2] * ar + m[5] * bg + m[8] * cb);
     }
 
     private COSDictionary GetDictionary()

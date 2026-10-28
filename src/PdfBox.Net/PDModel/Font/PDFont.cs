@@ -47,6 +47,9 @@ public abstract class PDFont : PDFontLike
     private static readonly COSName FontDescriptorKey = COSName.GetPDFName("FontDescriptor");
 
     protected readonly COSDictionary FontDictionary;
+    // Standard 14 font instances can be shared concurrently.
+    protected readonly System.Collections.Concurrent.ConcurrentDictionary<int, byte[]> CodepointToEncodingMap = new();
+    protected readonly System.Collections.Concurrent.ConcurrentDictionary<int, float> CodepointToWidthMap = new();
 
     private readonly float[]? _widths;
     private readonly int _firstChar;
@@ -181,17 +184,22 @@ public abstract class PDFont : PDFontLike
 
     /// <summary>
     /// Returns the total advance width of the given string in 1/1000ths of a text space unit.
-    /// This is a simplified implementation that treats each character as a single-byte code,
-    /// which is correct for WinAnsiEncoded Type1 fonts but may be inaccurate for multi-byte encodings.
+    /// Widths are cached by Unicode code point after encoding with the font's encoding.
     /// </summary>
     public virtual float GetStringWidth(string text)
     {
-        float totalWidth = 0f;
-        foreach (char c in text)
+        float width = 0;
+        foreach (System.Text.Rune rune in text.EnumerateRunes())
         {
-            totalWidth += GetWidth((int)c);
+            if (!CodepointToWidthMap.TryGetValue(rune.Value, out float codepointWidth))
+            {
+                codepointWidth = 0;
+                foreach (byte code in Encode(rune.Value)) codepointWidth += GetWidth(code);
+                CodepointToWidthMap[rune.Value] = codepointWidth;
+            }
+            width += codepointWidth;
         }
-        return totalWidth;
+        return width;
     }
 
     public virtual string? ToUnicode(int code, GlyphList glyphList)

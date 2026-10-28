@@ -46,6 +46,15 @@ internal static class TrueTypePathNormalizer
         return unitsPerEm == 1000 ? path : Scale(path, 1000f / unitsPerEm);
     }
 
+    internal static GeneralPath? GetHintedNormalizedPath(TrueTypeFont font, int gid, int ppem)
+    {
+        if (gid == 0 || font is OpenTypeFont otf && otf.IsPostScript) return null;
+        GeneralPath? path = font.GetHintedPath(gid, ppem);
+        if (path is null) return null;
+        int units = font.GetUnitsPerEm();
+        return units == 1000 ? path : Scale(path, 1000f / units);
+    }
+
     private static GeneralPath Scale(GeneralPath path, float scale)
     {
         var scaled = new GeneralPath();

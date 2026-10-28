@@ -57,6 +57,14 @@ namespace PdfBox.Net.Printing;
 /// <remarks>Author: John Hewson</remarks>
 public sealed partial class PDFPrintable
 {
+    private bool _hintingEnabled;
+
+    /// <summary>Returns whether TrueType glyph outlines are grid-fitted. Disabled by default.</summary>
+    public bool IsHintingEnabled() => _hintingEnabled;
+
+    /// <summary>Enables grid-fitting for embedded TrueType outlines at their rendered size.</summary>
+    public void SetHintingEnabled(bool hintingEnabled) => _hintingEnabled = hintingEnabled;
+
     private static ILogger<PDFPrintable> LOG => PdfBoxLogging.CreateLogger<PDFPrintable>();
 
     /// <summary>DPI value indicating rasterization is disabled.</summary>
@@ -257,6 +265,7 @@ public sealed partial class PDFPrintable
         }
 
         _renderer.SetSubsamplingAllowed(_subsamplingAllowed);
+        _renderer.SetHintingEnabled(_hintingEnabled);
         _renderer.SetRenderingHints(_renderingHints);
         _renderer.RenderPageToGraphics(pageIndex, graphics, (float)scale, (float)scale, RenderDestination.PRINT);
         return true;

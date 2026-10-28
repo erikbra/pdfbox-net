@@ -543,6 +543,10 @@ public class PDFStreamEngine
             LOG.LogError("Nested arrays are not allowed in an array for TJ operation: {Object}",
                 obj);
         }
+        else if (obj is null)
+        {
+            LOG.LogError("(null) element in array for TJ operation");
+        }
         else
         {
             LOG.LogError("Unknown type {TypeName} in array for TJ operation: {Object}",

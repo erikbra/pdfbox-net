@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.Util.Geometry;
 using PdfBox.Net.Util;
 
 namespace PdfBox.Net.PDModel.Font;
@@ -87,6 +88,9 @@ public abstract partial class PDCIDFont : PDFont
         }
         _fontDescriptor = fontDescriptor;
     }
+
+    /// <summary>Returns a hinted normalized outline, or null for descendants without embedded TrueType outlines.</summary>
+    public virtual GeneralPath? GetHintedNormalizedPath(int code, int ppem, PDType0Font parent) => null;
 
     public override PDFontDescriptor? GetFontDescriptor() => _fontDescriptor;
 

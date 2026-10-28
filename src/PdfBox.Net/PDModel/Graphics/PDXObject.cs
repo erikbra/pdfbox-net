@@ -127,7 +127,8 @@ public class PDXObject : COSObjectable
             return;
         }
 
-        cos.SetName(COSName.TYPE, "XObject");
-        cos.SetName(SubtypeName, subtype);
+        COSName subtypeName = COSName.GetPDFName(subtype);
+        if (!COSName.GetPDFName("XObject").Equals(cos.GetItem(COSName.TYPE))) cos.SetItem(COSName.TYPE, COSName.GetPDFName("XObject"));
+        if (!subtypeName.Equals(cos.GetItem(SubtypeName))) cos.SetItem(SubtypeName, subtypeName);
     }
 }

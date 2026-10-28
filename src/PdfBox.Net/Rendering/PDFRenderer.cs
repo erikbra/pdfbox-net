@@ -43,6 +43,14 @@ public partial class PDFRenderer
 {
     protected readonly PDDocument document;
 
+    private bool _hintingEnabled;
+
+    /// <summary>Returns whether TrueType glyph outlines are grid-fitted. Disabled by default.</summary>
+    public bool IsHintingEnabled() => _hintingEnabled;
+
+    /// <summary>Enables grid-fitting for embedded TrueType outlines at their rendered size.</summary>
+    public void SetHintingEnabled(bool hintingEnabled) => _hintingEnabled = hintingEnabled;
+
     private AnnotationFilter _annotationFilter = _ => true;
     private bool _subsamplingAllowed;
     private RenderDestination? _defaultDestination;
@@ -266,10 +274,11 @@ public partial class PDFRenderer
         graphics.Rotate(rotationAngle * Math.PI / 180d);
     }
 
-    private static bool HasBlendMode(PDPage page)
+    private static bool HasBlendMode(PDPage page) => HasBlendMode(page.GetResources(), new HashSet<COSDictionary>());
+
+    private static bool HasBlendMode(PDResources? resources, HashSet<COSDictionary> visited)
     {
-        PDResources? resources = page.GetResources();
-        if (resources is null)
+        if (resources is null || !visited.Add(resources.GetCOSObject()))
         {
             return false;
         }
@@ -281,6 +290,17 @@ public partial class PDFRenderer
             {
                 return true;
             }
+        }
+
+        foreach (COSName name in resources.GetXObjectNames())
+        {
+            if (resources.IsImageXObject(name)) continue;
+            try
+            {
+                if (resources.GetXObject(name) is PdfBox.Net.PDModel.Graphics.Form.PDFormXObject form &&
+                    HasBlendMode(form.GetResources(), visited)) return true;
+            }
+            catch (IOException) { /* Broken XObjects are reported when the page is drawn. */ }
         }
 
         return false;

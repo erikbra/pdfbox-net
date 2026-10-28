@@ -75,6 +75,14 @@ public sealed class PdfPageFormat
 /// <remarks>Author: John Hewson</remarks>
 public sealed partial class PDFPageable
 {
+    private bool _hintingEnabled;
+
+    /// <summary>Returns whether TrueType glyph outlines are grid-fitted. Disabled by default.</summary>
+    public bool IsHintingEnabled() => _hintingEnabled;
+
+    /// <summary>Enables grid-fitting for embedded TrueType outlines at their rendered size.</summary>
+    public void SetHintingEnabled(bool hintingEnabled) => _hintingEnabled = hintingEnabled;
+
     private readonly PDDocument _document;
     private readonly int _numberOfPages;
     private readonly bool _showPageBorder;
@@ -280,6 +288,7 @@ public sealed partial class PDFPageable
         }
         PDFPrintable printable = new PDFPrintable(_document, Scaling.ActualSize, _showPageBorder, _dpi, _center);
         printable.SetSubsamplingAllowed(_subsamplingAllowed);
+        printable.SetHintingEnabled(_hintingEnabled);
         printable.SetRenderingHints(_renderingHints);
         return printable;
     }

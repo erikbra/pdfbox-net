@@ -44,12 +44,15 @@ namespace PdfBox.Net.GlyphLayout.Awt;
 /// </remarks>
 public class GlyphLayoutProcessorAwt : AbstractGlyphLayoutProcessor, GlyphLayoutProcessorInterface
 {
-    private readonly GlyphLayoutFontLoaderAwt _glyphLayoutFontLoaderAwt;
+    private readonly GlyphLayoutFontLoaderAwt _glyphLayoutFontLoaderAwt = new();
 
     public GlyphLayoutProcessorAwt()
     {
-        _glyphLayoutFontLoaderAwt = new GlyphLayoutFontLoaderAwt();
+
     }
+
+    /// <summary>Constructs a glyph layout processor with options.</summary>
+    public GlyphLayoutProcessorAwt(GlyphLayoutProcessorOptions options) : base(options) { }
 
     public static void CheckMissingGlyphs(string text, Font awtFont)
     {

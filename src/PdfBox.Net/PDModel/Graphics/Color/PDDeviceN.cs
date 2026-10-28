@@ -42,6 +42,62 @@ public sealed partial class PDDeviceN : PDColorSpace
     private PDColorSpace _alternateColorSpace;
     private PDFunction _tintTransform;
     private PDDeviceNAttributes? _attributes;
+    private bool? _useAttributes;
+    private int[] _colorantToComponent = [];
+    private PDSeparation?[] _spotColorSpaces = [];
+    private PDColorSpace? _processColorSpace;
+
+    private void InitColorConversionCache(PDResources? resources)
+    {
+        if (_attributes is null) return;
+        List<string> names = GetColorantNames();
+        PDDeviceNProcess? process = _attributes.GetProcess();
+        IList<string>? components = process?.GetComponents();
+        _processColorSpace = process?.GetColorSpace();
+        _colorantToComponent = new int[names.Count];
+        _spotColorSpaces = new PDSeparation?[names.Count];
+        IDictionary<string, PDSeparation> spots = _attributes.GetColorants(resources);
+        for (int c = 0; c < names.Count; c++)
+        {
+            _colorantToComponent[c] = components?.IndexOf(names[c]) ?? -1;
+            if (spots.TryGetValue(names[c], out PDSeparation? spot))
+            {
+                _spotColorSpaces[c] = spot;
+                if (!IsNChannel()) _colorantToComponent[c] = -1;
+            }
+        }
+    }
+
+    private bool UseAttributes()
+    {
+        if (_attributes is null) return false;
+        if (_useAttributes.HasValue) return _useAttributes.Value;
+        _useAttributes = true;
+        for (int c = 0; c < _spotColorSpaces.Length; c++)
+        {
+            if (_colorantToComponent[c] >= 0 || _spotColorSpaces[c] is not PDSeparation spot) continue;
+            // Bypass Separation's tint cache when testing zero, preserving near-zero tints.
+            float[] rgb = spot.GetAlternateColorSpace().ToRGB(spot.GetTintTransform().Eval([0]));
+            if (rgb.Any(component => component < .9f)) { _useAttributes = false; break; }
+        }
+        return _useAttributes.Value;
+    }
+
+    private float[] ToRGBWithAttributes(float[] value)
+    {
+        float[] rgb = [1, 1, 1];
+        for (int c = 0; c < _colorantToComponent.Length; c++)
+        {
+            bool process = _colorantToComponent[c] >= 0;
+            PDColorSpace? colorSpace = process ? _processColorSpace : _spotColorSpaces[c];
+            if (colorSpace is null) return _alternateColorSpace.ToRGB(_tintTransform.Eval(value));
+            float[] samples = new float[colorSpace.GetNumberOfComponents()];
+            samples[process ? _colorantToComponent[c] : 0] = value[c];
+            float[] component = colorSpace.ToRGB(samples);
+            for (int i = 0; i < 3; i++) rgb[i] *= component[i];
+        }
+        return rgb;
+    }
 
     public PDDeviceN()
         : this(CreatePlaceholderArray(), null)
@@ -67,6 +123,7 @@ public sealed partial class PDDeviceN : PDColorSpace
         _attributes = array.Size() > AttributesIndex && array.GetObject(AttributesIndex) is COSDictionary attributesDictionary
             ? new PDDeviceNAttributes(attributesDictionary)
             : null;
+        InitColorConversionCache(resources);
     }
 
     public override string GetName() => DeviceN.GetName();
@@ -104,6 +161,8 @@ public sealed partial class PDDeviceN : PDColorSpace
     public void SetAttributes(PDDeviceNAttributes? attributes)
     {
         _attributes = attributes;
+        _useAttributes = null;
+        InitColorConversionCache(null);
         COSArray array = (COSArray)GetCOSObject();
         EnsureSize(array, AttributesIndex + 1);
         array.Set(AttributesIndex, attributes?.GetCOSDictionary());
@@ -124,7 +183,7 @@ public sealed partial class PDDeviceN : PDColorSpace
     {
         _tintTransform = tint ?? new PDFunctionTypeIdentity(COSName.IDENTITY);
         COSArray array = (COSArray)GetCOSObject();
-        array.Set(TintTransformIndex, tint?.GetCOSObject());
+        array.Set(TintTransformIndex, tint is PDFunctionTypeIdentity ? COSName.IDENTITY : tint?.GetCOSObject());
     }
 
     public override int GetNumberOfComponents() => Math.Max(1, GetColorantNames().Count);
@@ -151,7 +210,7 @@ public sealed partial class PDDeviceN : PDColorSpace
 
     public override float[] ToRGB(float[] value)
     {
-        return _alternateColorSpace.ToRGB(_tintTransform.Eval(value));
+        return UseAttributes() ? ToRGBWithAttributes(value) : _alternateColorSpace.ToRGB(_tintTransform.Eval(value));
     }
 
     private static COSArray CreateDeviceNArray(List<string> names, PDColorSpace alternateCS, PDFunction tintTransform)
@@ -169,7 +228,7 @@ public sealed partial class PDDeviceN : PDColorSpace
         array.Add(DeviceN);
         array.Add(COSArray.OfCOSNames(names));
         array.Add(alternateCS.GetCOSObject());
-        array.Add(tintTransform.GetCOSObject());
+        array.Add(tintTransform is PDFunctionTypeIdentity ? COSName.IDENTITY : tintTransform.GetCOSObject());
         return array;
     }
 

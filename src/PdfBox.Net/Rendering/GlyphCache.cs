@@ -42,6 +42,20 @@ internal sealed class GlyphCache
 
     private readonly PDVectorFont _font;
     private readonly Dictionary<int, GeneralPath> _cache = [];
+    private readonly Dictionary<long, GeneralPath> _hintedCache = [];
+
+    /// <summary>Returns a cached hinted outline, falling back to the ordinary outline when hinting does not apply.</summary>
+    public GeneralPath GetPathForCharacterCode(int code, int ppem)
+    {
+        long key = ((long)ppem << 32) | (uint)code;
+        if (_hintedCache.TryGetValue(key, out GeneralPath? cached)) return cached;
+        GeneralPath? path = null;
+        try { path = _font.GetHintedNormalizedPath(code, ppem); }
+        catch (IOException ex) { LOG.LogWarning(ex, "Hinting failed for code {Code} in font {FontName}", code, _font.GetName()); }
+        GeneralPath result = path ?? GetPathForCharacterCode(code);
+        _hintedCache[key] = result;
+        return result;
+    }
 
     internal GlyphCache(PDVectorFont font)
     {

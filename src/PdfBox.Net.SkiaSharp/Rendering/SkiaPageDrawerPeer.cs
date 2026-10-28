@@ -264,7 +264,16 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
 
         if (font is PDVectorFont vectorFont)
         {
-            GeneralPath path = GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
+            int ppem = 0;
+            if (_parameters.IsHintingEnabled())
+            {
+                Matrix glyphToUser = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());
+                AffineTransform glyphToDevice = _xform.Clone();
+                glyphToDevice.Concatenate(glyphToUser.CreateAffineTransform());
+                ppem = PageDrawer.HintingPpem(glyphToDevice);
+            }
+            GeneralPath path = ppem > 0 ? GetGlyphCache(vectorFont).GetPathForCharacterCode(code, ppem)
+                : GetGlyphCache(vectorFont).GetPathForCharacterCode(code);
             if (path.Segments.Count > 0)
             {
                 Matrix glyphMatrix = Matrix.Concatenate(textRenderingMatrix, font.GetFontMatrix());

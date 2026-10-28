@@ -56,6 +56,13 @@ public sealed partial class TextPosition
     private readonly float _pageWidth;
     private readonly float _widthOfSpace;
     private string _unicode;
+    private bool _fromActualText;
+
+    /// <summary>Returns whether this text was created from ActualText.</summary>
+    public bool IsFromActualText() => _fromActualText;
+
+    /// <summary>Sets whether this text was created from ActualText.</summary>
+    public void SetFromActualText(bool fromActualText) => _fromActualText = fromActualText;
     private readonly PDFont _font;
     private readonly float _fontSize;
     private readonly int _fontSizePt;

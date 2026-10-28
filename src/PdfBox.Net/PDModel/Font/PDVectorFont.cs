@@ -37,6 +37,9 @@ public abstract partial class PDVectorFont : PDFont
     {
     }
 
+    /// <summary>Returns a grid-fitted normalized glyph outline at the requested pixels per em, or null when hinting does not apply.</summary>
+    public virtual GeneralPath? GetHintedNormalizedPath(int code, int ppem) => null;
+
     public abstract bool HasGlyph(int code);
     public virtual GeneralPath GetPath(int code) => GetNormalizedPath(code);
     public abstract GeneralPath GetNormalizedPath(int code);

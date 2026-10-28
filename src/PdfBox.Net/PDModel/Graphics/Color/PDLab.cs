@@ -29,11 +29,13 @@ using PdfBox.Net.COS;
 
 namespace PdfBox.Net.PDModel.Graphics.Color;
 
-public sealed class PDLab : PDColorSpace
+public sealed class PDLab : PDCIEDictionaryBasedColorSpace
 {
     private static readonly COSName Lab = COSName.GetPDFName("Lab");
 
     private readonly PDColor _initialColor;
+
+    public PDLab() : this(new COSArray { Lab }) { }
 
     public PDLab(COSArray array) : base(array)
     {
@@ -44,29 +46,36 @@ public sealed class PDLab : PDColorSpace
 
     public override int GetNumberOfComponents() => 3;
 
-    public override float[] GetDefaultDecode(int bitsPerComponent) => [0f, 100f, -128f, 127f, -128f, 127f];
+    private float[] GetRanges() => Dictionary.GetCOSArray(COSName.RANGE)?.ToFloatArray() ?? [-100, 100, -100, 100];
+
+    public override float[] GetDefaultDecode(int bitsPerComponent)
+    {
+        float[] range = GetRanges();
+        return [0, 100, range[0], range[1], range[2], range[3]];
+    }
+
+    public override void Clamp(float[] values)
+    {
+        float[] range = GetRanges();
+        values[0] = Math.Clamp(values[0], 0, 100);
+        values[1] = Math.Clamp(values[1], range[0], range[1]);
+        values[2] = Math.Clamp(values[2], range[2], range[3]);
+    }
 
     public override PDColor GetInitialColor() => _initialColor;
 
     public override float[] ToRGB(float[] value)
     {
         float l = Math.Clamp(value.Length > 0 ? value[0] : 0f, 0f, 100f);
-        float a = Math.Clamp(value.Length > 1 ? value[1] : 0f, -128f, 127f);
-        float b = Math.Clamp(value.Length > 2 ? value[2] : 0f, -128f, 127f);
+        float[] ranges = GetRanges();
+        float a = Math.Clamp(value.Length > 1 ? value[1] : 0f, ranges[0], ranges[1]);
+        float b = Math.Clamp(value.Length > 2 ? value[2] : 0f, ranges[2], ranges[3]);
 
         float fy = (l + 16f) / 116f;
         float fx = fy + (a / 500f);
         float fz = fy - (b / 200f);
 
-        float x = 0.95047f * PivotLab(fx);
-        float y = PivotLab(fy);
-        float z = 1.08883f * PivotLab(fz);
-
-        float r = 3.2406f * x - 1.5372f * y - 0.4986f * z;
-        float g = -0.9689f * x + 1.8758f * y + 0.0415f * z;
-        float rgbB = 0.0557f * x - 0.2040f * y + 1.0570f * z;
-
-        return [Clamp(LinearToSrgb(r)), Clamp(LinearToSrgb(g)), Clamp(LinearToSrgb(rgbB))];
+        return ConvXYZtoRGB(WpX * PivotLab(fx), WpY * PivotLab(fy), WpZ * PivotLab(fz));
     }
 
     private static float PivotLab(float value)

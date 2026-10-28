@@ -241,6 +241,14 @@ public partial class PageDrawer : PDFGraphicsStreamEngine, IDisposable
         base.ShowGlyph(textRenderingMatrix, font, code, displacement);
     }
 
+    /// <summary>Derives pixels per em from the vertical basis vector of the glyph-to-device transform, including rotation.</summary>
+    internal static int HintingPpem(AffineTransform at)
+    {
+        double scale = Math.Sqrt(at.ShearX * at.ShearX + at.ScaleY * at.ScaleY);
+        int ppem = (int)Math.Floor(1000 * scale + 0.5);
+        return ppem > 0 ? ppem : 0;
+    }
+
     public void Dispose()
     {
         _peer.Dispose();

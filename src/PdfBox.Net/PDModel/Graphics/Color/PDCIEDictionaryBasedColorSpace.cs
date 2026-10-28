@@ -49,6 +49,14 @@ public abstract partial class PDCIEDictionaryBasedColorSpace : PDCIEBasedColorSp
     /// <summary>Cached whitepoint Z value.</summary>
     protected float WpZ = 1;
 
+    private static readonly double[][] Bradford = [[0.8951, 0.2664, -0.1614], [-0.7502, 1.7135, 0.0367], [0.0389, -0.0685, 1.0296]];
+    private static readonly double[][] BradfordInverse = Invert(Bradford);
+    // PORT-LOCAL-START: The existing .NET XYZ-to-sRGB matrix consumes D65 rather than Java's D50 ICC PCS.
+    private static readonly double[] RgbWhite = [0.95047, 1, 1.08883];
+    // PORT-LOCAL-END
+    private float[] _chromaticAdaptation = [];
+
+
     /// <summary>
     /// Creates a new dictionary-backed CIE colour space using the given name.
     /// </summary>
@@ -66,7 +74,14 @@ public abstract partial class PDCIEDictionaryBasedColorSpace : PDCIEBasedColorSp
     /// </summary>
     protected PDCIEDictionaryBasedColorSpace(COSArray array) : base(array)
     {
-        Dictionary = (COSDictionary)array.GetObject(1)!;
+        if (array.Size() > 1 && array.GetObject(1) is COSDictionary dictionary)
+            Dictionary = dictionary;
+        else
+        {
+            Dictionary = new COSDictionary();
+            while (array.Size() < 2) array.Add(COSNull.NULL);
+            array.Set(1, Dictionary);
+        }
         FillWhitePointCache(GetWhitepoint());
     }
 
@@ -83,13 +98,22 @@ public abstract partial class PDCIEDictionaryBasedColorSpace : PDCIEBasedColorSp
         WpX = whitepoint.GetX();
         WpY = whitepoint.GetY();
         WpZ = whitepoint.GetZ();
+        double[] src = Multiply(Bradford, new double[] { WpX, WpY, WpZ });
+        double[] dst = Multiply(Bradford, RgbWhite);
+        double[][] scale = [[dst[0] / src[0], 0, 0], [0, dst[1] / src[1], 0], [0, 0, dst[2] / src[2]]];
+        double[][] matrix = Multiply(Multiply(BradfordInverse, scale), Bradford);
+        _chromaticAdaptation = matrix.SelectMany(row => row).Select(value => (float)value).ToArray();
     }
 
     /// <summary>
     /// Converts XYZ values to sRGB, clamping negative inputs to zero.
     /// </summary>
-    protected static float[] ConvXYZtoRGB(float x, float y, float z)
+    protected float[] ConvXYZtoRGB(float x, float y, float z)
     {
+        float ax = _chromaticAdaptation[0] * x + _chromaticAdaptation[1] * y + _chromaticAdaptation[2] * z;
+        float ay = _chromaticAdaptation[3] * x + _chromaticAdaptation[4] * y + _chromaticAdaptation[5] * z;
+        float az = _chromaticAdaptation[6] * x + _chromaticAdaptation[7] * y + _chromaticAdaptation[8] * z;
+        x = ax; y = ay; z = az;
         // Negative tristimulus values are not physically meaningful; clamp.
         if (x < 0) x = 0;
         if (y < 0) y = 0;
@@ -102,6 +126,37 @@ public abstract partial class PDCIEDictionaryBasedColorSpace : PDCIEBasedColorSp
 
         // Apply gamma (simplified sRGB).
         return [GammaCorrect(r), GammaCorrect(g), GammaCorrect(b)];
+    }
+
+    private static double[] Multiply(double[][] m, double[] v) =>
+        [m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],
+         m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
+         m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2]];
+
+    private static double[][] Multiply(double[][] a, double[][] b)
+    {
+        double[][] result = [new double[3], new double[3], new double[3]];
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; j++)
+                result[i][j] = a[i][0] * b[0][j] + a[i][1] * b[1][j] + a[i][2] * b[2][j];
+        return result;
+    }
+
+    private static double[][] Invert(double[][] m)
+    {
+        double det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1])
+            - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0])
+            + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+        return [
+            [(m[1][1] * m[2][2] - m[1][2] * m[2][1]) / det,
+             -(m[0][1] * m[2][2] - m[0][2] * m[2][1]) / det,
+             (m[0][1] * m[1][2] - m[0][2] * m[1][1]) / det],
+            [-(m[1][0] * m[2][2] - m[1][2] * m[2][0]) / det,
+             (m[0][0] * m[2][2] - m[0][2] * m[2][0]) / det,
+             -(m[0][0] * m[1][2] - m[0][2] * m[1][0]) / det],
+            [(m[1][0] * m[2][1] - m[1][1] * m[2][0]) / det,
+             -(m[0][0] * m[2][1] - m[0][1] * m[2][0]) / det,
+             (m[0][0] * m[1][1] - m[0][1] * m[1][0]) / det]];
     }
 
     private static float GammaCorrect(float v)

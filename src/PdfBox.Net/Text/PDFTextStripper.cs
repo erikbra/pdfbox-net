@@ -512,24 +512,11 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
 
     public override void EndMarkedContentSequence()
     {
+        if (_currentMarkedContents.TryPop(out PDMarkedContent? markedContent) && markedContent.GetActualText() is not null)
+        {
+            _actualText = null;
+        }
         base.EndMarkedContentSequence();
-        if (_currentMarkedContents.Count > 0)
-        {
-            _currentMarkedContents.Pop();
-        }
-
-        _actualText = null;
-        _firstActualTextPosition = false;
-        foreach (PDMarkedContent markedContent in _currentMarkedContents)
-        {
-            string? actualText = markedContent.GetActualText();
-            if (!string.IsNullOrEmpty(actualText))
-            {
-                _actualText = actualText;
-                _firstActualTextPosition = true;
-                break;
-            }
-        }
     }
 
     protected override void ProcessTextPosition(TextPosition text)
@@ -538,6 +525,7 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
         {
             if (_firstActualTextPosition)
             {
+                text.SetFromActualText(true);
                 text.SetUnicode(_actualText);
                 _firstActualTextPosition = false;
             }
@@ -1224,7 +1212,7 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
 
     private WordWithTextPositions CreateWord(string word, List<TextPosition> wordPositions)
     {
-        return new WordWithTextPositions(NormalizeWord(word), wordPositions);
+        return new WordWithTextPositions(wordPositions[0].IsFromActualText() ? word : NormalizeWord(word), wordPositions);
     }
 
     private string NormalizeWord(string word)
@@ -1285,7 +1273,7 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
         }
 
         TextPosition textPosition = item.GetTextPosition()!;
-        lineBuilder.Append(textPosition.GetVisuallyOrderedUnicode());
+        lineBuilder.Append(textPosition.IsFromActualText() ? textPosition.GetUnicode() : textPosition.GetVisuallyOrderedUnicode());
         wordPositions.Add(textPosition);
         return lineBuilder;
     }

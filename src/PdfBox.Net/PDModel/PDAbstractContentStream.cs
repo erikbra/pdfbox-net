@@ -170,6 +170,14 @@ public abstract class PDAbstractContentStream : ContentStreamForGlyphLayoutInter
     {
         ArgumentNullException.ThrowIfNull(tag);
         ArgumentNullException.ThrowIfNull(properties);
+        COSDictionary dictionary = properties.GetCOSObject();
+        if (dictionary.Size() == 1 && dictionary.ContainsKey(COSName.GetPDFName("ActualText")))
+        {
+            if (dictionary.GetItem(COSName.GetPDFName("ActualText")) is not COSString)
+                throw new ArgumentException("ActualText parameter must be a string");
+            WriteOperator("BDC", tag, dictionary);
+            return;
+        }
         if (Resources is null)
         {
             throw new MissingResourceException("Content stream has no resource dictionary.");

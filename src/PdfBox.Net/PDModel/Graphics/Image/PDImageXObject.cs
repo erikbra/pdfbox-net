@@ -48,8 +48,7 @@ public sealed partial class PDImageXObject : PDXObject
         COSStream? cos = GetCOSObject();
         if (cos is not null)
         {
-            cos.SetName(COSName.TYPE, "XObject");
-            cos.SetName(COSName.GetPDFName("Subtype"), "Image");
+            SetXObjectSubtype("Image");
         }
     }
 

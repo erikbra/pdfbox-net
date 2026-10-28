@@ -51,6 +51,12 @@ public abstract class PDColorSpace : COSObjectable
         _cosObject = cosObject;
     }
 
+    /// <summary>Clamps color components to their allowed ranges, normally zero to one.</summary>
+    public virtual void Clamp(float[] values)
+    {
+        for (int i = 0; i < values.Length; i++) values[i] = Math.Clamp(values[i], 0, 1);
+    }
+
     public static PDColorSpace Create(COSBase? colorSpace)
     {
         return Create(colorSpace, null);
