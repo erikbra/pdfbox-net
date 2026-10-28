@@ -1,0 +1,240 @@
+{
+  "issue": 957,
+  "last_checked_utc": "2026-10-28T06:24:58Z",
+  "upstream_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+  "build": {
+    "command": "dotnet build PdfBoxNet.slnx --configuration Release --no-restore --disable-build-servers -m:2 -p:UseSharedCompilation=false",
+    "result": "passed",
+    "note": "Existing package-advisory and BouncyCastle obsolete-API warnings remain; no new warnings in the converted FontBox slice."
+  },
+  "tests": {
+    "command": "PDFBOX_FONTBOX_TEST_FONTS=<upstream>/fontbox/target/fonts dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo -m:2",
+    "totals": {
+      "passed": 1948,
+      "failed": 0,
+      "skipped": 13,
+      "total": 1961
+    },
+    "suites": [
+      {
+        "suite": "PdfBox.Net.Examples.Tests.dll",
+        "failed": 0,
+        "passed": 80,
+        "skipped": 10,
+        "total": 90
+      },
+      {
+        "suite": "PdfBox.Net.FontBox.Tests.dll",
+        "failed": 0,
+        "passed": 346,
+        "skipped": 0,
+        "total": 346
+      },
+      {
+        "suite": "PdfBox.Net.ImageSharp.Tests.dll",
+        "failed": 0,
+        "passed": 2,
+        "skipped": 0,
+        "total": 2
+      },
+      {
+        "suite": "PdfBox.Net.MauiGraphics.Tests.dll",
+        "failed": 0,
+        "passed": 2,
+        "skipped": 0,
+        "total": 2
+      },
+      {
+        "suite": "PdfBox.Net.XmpBox.Tests.dll",
+        "failed": 0,
+        "passed": 51,
+        "skipped": 0,
+        "total": 51
+      },
+      {
+        "suite": "PdfBox.Net.Tests.dll",
+        "failed": 0,
+        "passed": 1467,
+        "skipped": 3,
+        "total": 1470
+      }
+    ],
+    "skips": "10 existing online/example checks, 2 existing core checks, 1 explicit Type7 mesh regression. Without optional font downloads, five extra smoke cases skip; Arial also skips when absent."
+  },
+  "upstream_reference_tests": {
+    "result": "175 passed, 0 failed",
+    "scope": "Selected exact 5206dee Java opcode/math/hinting/golden/concurrency/integration/COS/page-tree tests."
+  },
+  "api_gate": {
+    "result": "passed",
+    "unreviewed": {
+      "missing_members": 0,
+      "arity_drift_members": 0,
+      "type_name_or_visibility_gaps": 0,
+      "total": 0
+    },
+    "totals": {
+      "java_types": 590,
+      "matched_types": 588,
+      "same_name_matched_types": 582,
+      "java_members": 6340,
+      "matched_members": 5453,
+      "arity_drift_members": 43,
+      "missing_members": 844,
+      "csharp_extra_members": 1659,
+      "nonpublic_or_replacement_types": 2,
+      "renamed_public_types": 6,
+      "missing_types": 0
+    },
+    "ratchet_changed": false
+  },
+  "runtime_gate": {
+    "result": "passed",
+    "upstream_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+    "actual_comparison_rows": 691,
+    "all_rows_match": true,
+    "summary": {
+      "generatedAtUtc": "2026-10-28T06:23:51Z",
+      "manifest": "tools/parity/runtime/corpus-manifest.txt",
+      "pdfCount": 161,
+      "mergePairCount": 80,
+      "counts": {
+        "match": 1027,
+        "known": 0,
+        "unexpected": 0
+      },
+      "categories": {
+        "render-foreground-shape-equivalence-match": 36,
+        "save-structural-match": 148,
+        "merge-structural-match": 72,
+        "render-visual-equivalence-match": 73,
+        "render-form-widget-raster-equivalence-match": 3,
+        "render-glyph-raster-equivalence-match": 3,
+        "render-glyph-layout-equivalence-match": 2,
+        "render-jbig2-decoder-raster-equivalence-match": 1,
+        "render-java-optional-jpx-reader-missing-match": 3,
+        "render-rotation-overlay-shape-equivalence-match": 9,
+        "render-form-widget-bbox-clipping-equivalence-match": 1,
+        "text-semantic-math-linewrap-match": 1,
+        "text-semantic-punctuation-spacing-match": 1,
+        "render-sparse-equivalence-match": 1,
+        "render-pattern-transparency-raster-equivalence-match": 1
+      },
+      "corpusCategories": {
+        "annotations": {
+          "match": 4,
+          "known": 0,
+          "unexpected": 0,
+          "total": 4
+        },
+        "encryption": {
+          "match": 20,
+          "known": 0,
+          "unexpected": 0,
+          "total": 20
+        },
+        "filters/images": {
+          "match": 26,
+          "known": 0,
+          "unexpected": 0,
+          "total": 26
+        },
+        "fonts and subsetting": {
+          "match": 26,
+          "known": 0,
+          "unexpected": 0,
+          "total": 26
+        },
+        "forms": {
+          "match": 84,
+          "known": 0,
+          "unexpected": 0,
+          "total": 84
+        },
+        "malformed PDFs": {
+          "match": 28,
+          "known": 0,
+          "unexpected": 0,
+          "total": 28
+        },
+        "merge/split/save": {
+          "match": 41,
+          "known": 0,
+          "unexpected": 0,
+          "total": 41
+        },
+        "rendering": {
+          "match": 43,
+          "known": 0,
+          "unexpected": 0,
+          "total": 43
+        },
+        "text extraction": {
+          "match": 32,
+          "known": 0,
+          "unexpected": 0,
+          "total": 32
+        },
+        "uncategorized": {
+          "match": 387,
+          "known": 0,
+          "unexpected": 0,
+          "total": 387
+        }
+      },
+      "knownFailureBuckets": [],
+      "operations": {
+        "load": {
+          "javaOk": 150,
+          "javaFail": 11,
+          "dotnetOk": 150,
+          "dotnetFail": 11
+        },
+        "merge": {
+          "javaOk": 72,
+          "javaFail": 8,
+          "dotnetOk": 72,
+          "dotnetFail": 8
+        },
+        "render": {
+          "javaOk": 150,
+          "javaFail": 0,
+          "dotnetOk": 150,
+          "dotnetFail": 0
+        },
+        "save": {
+          "javaOk": 148,
+          "javaFail": 2,
+          "dotnetOk": 148,
+          "dotnetFail": 2
+        },
+        "text": {
+          "javaOk": 150,
+          "javaFail": 0,
+          "dotnetOk": 150,
+          "dotnetFail": 0
+        }
+      }
+    },
+    "category_caps_redistributed": true,
+    "total_category_budget_before": 365,
+    "total_category_budget_after": 365,
+    "tolerances_or_status_limits_changed": false,
+    "evidence": "reports/issue-957-runtime-category-redistribution.json"
+  },
+  "coverage": {
+    "upstream_production_files": 1091,
+    "mapped": 1091,
+    "missing": 0
+  },
+  "review_findings_resolved": [
+    "Custom embedded Type0 CMap encoding now uses reverse ToUnicode codes rather than writing a TTF GID as a character code; exact public-API counterexample is a regression test.",
+    "Reader and writer share the upstream signature predicate, including optional Type with Contents+ByteRange; actual RC4/AES internal/external signing and full-save tests preserve raw DER and padding.",
+    "Full runtime gate exposed lost French word spacing: CFF singleton private-dictionary operands now preserve nominal/default widths; focused and exact PDF regressions cover the prerequisite."
+  ],
+  "skill_h": {
+    "result": "pass",
+    "issue_references": "PR/commits close #957 and #881",
+    "scope": "Applicable upstream source deltas through bd21bd4; pre-existing architecture/test limitations explicitly recorded, not whole-library parity approval."
+  }
+}

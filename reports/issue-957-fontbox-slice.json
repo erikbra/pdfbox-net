@@ -792,5 +792,10 @@
       "target_path": "tests/PdfBox.Net.FontBox.Tests/Fixtures/TTF/hinting/trace_diff.py",
       "sha256": "e0a5fc3c1709610f4b5c87172e743e16b3c1746515ed4c3648faf9202ebd0849"
     }
-  ]
+  ],
+  "additional_license_artifact": {
+    "path": "tests/PdfBox.Net.FontBox.Tests/Fixtures/TTF/LICENSE-LiberationSans.txt",
+    "sha256": "6f8326d269d4f6e9634b99df75db3d5d941b0aa54c725e5a850855a214705055",
+    "note": "Copied unchanged alongside the existing Liberation font binary from src/PdfBox.Net/PDModel/Font/Resources/TTF/LICENSE.txt."
+  }
 }

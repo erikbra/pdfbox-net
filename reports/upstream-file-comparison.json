@@ -1,23 +1,23 @@
 {
-  "generated_at_utc": "2026-09-05T21:54:30.157Z",
+  "generated_at_utc": "2026-10-28T06:08:47.928Z",
   "upstream_repository": "apache/pdfbox",
-  "upstream_branch": "046747da99a870902217efabf1c41297de157059",
+  "upstream_branch": "trunk",
   "excluded_upstream_modules": [
     "pdfbox-layout-fop"
   ],
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head": "046747da99a870902217efabf1c41297de157059",
-  "tracked_parity_baseline_commit": "046747da99a870902217efabf1c41297de157059",
+  "upstream_head": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+  "tracked_parity_baseline_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
-  "total": 1075,
-  "mapped": 1075,
+  "total": 1091,
+  "mapped": 1091,
   "missing": 0,
   "gap_category_counts": {
     "missing-provenance-marker": 1,
-    "missing-traceability-row": 251,
-    "none": 823
+    "missing-traceability-row": 209,
+    "none": 881
   },
   "rows": [
     {
@@ -3190,10 +3190,12 @@
         "src/PdfBox.Net.Examples/Signature/CreateSignature.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net.Examples/Signature/CreateSignature.cs"
+        "src/PdfBox.Net.Examples/Signature/CreateSignature.cs",
+        "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net.Examples/Signature/CreateSignature.cs"
+        "src/PdfBox.Net.Examples/Signature/CreateSignature.cs",
+        "tests/PdfBox.Net.Examples.Tests/PDModel/TestCreateSignature.cs"
       ],
       "gap_category": "none"
     },
@@ -3310,10 +3312,16 @@
         "src/PdfBox.Net.Examples/Signature/SigUtils.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net.Examples/Signature/SigUtils.cs"
+        "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/Issue957LatestSignatureTest.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/Issue957UtilityTest.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/TestSigUtils.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net.Examples/Signature/SigUtils.cs"
+        "src/PdfBox.Net.Examples/Signature/SigUtils.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/Issue957LatestSignatureTest.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/Issue957UtilityTest.cs",
+        "tests/PdfBox.Net.Examples.Tests/Signature/TestSigUtils.cs"
       ],
       "gap_category": "none"
     },
@@ -4451,16 +4459,19 @@
       "family": "cmap",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net.FontBox/FontBox/CMap/CMap.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/CMap/CMap.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net.FontBox/FontBox/CMap/CMap.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/cmap/CMapParser.java",
@@ -4617,6 +4628,26 @@
       "gap_category": "none"
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/BytecodeStream.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/BytecodeStream.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/BytecodeStream.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/BytecodeStream.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/CFFTable.java",
       "module": "fontbox",
       "family": "ttf",
@@ -4685,6 +4716,46 @@
       "gap_category": "missing-traceability-row"
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueProgramTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueProgramTable.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueProgramTable.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueProgramTable.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueTable.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueTable.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ControlValueTable.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/DigitalSignatureTable.java",
       "module": "fontbox",
       "family": "ttf",
@@ -4700,6 +4771,66 @@
         "src/PdfBox.Net.FontBox/FontBox/TTF/DigitalSignatureTable.cs"
       ],
       "gap_category": "missing-traceability-row"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionContext.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionContext.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionContext.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionContext.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionTracer.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionTracer.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionTracer.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/ExecutionTracer.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/Fixed.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Fixed.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Fixed.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Fixed.cs"
+      ],
+      "gap_category": "none"
     },
     {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontHeaders.java",
@@ -4722,21 +4853,84 @@
       "gap_category": "none"
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FontProgramTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/FontProgramTable.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/FontProgramTable.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/FontProgramTable.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/FunctionDef.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/FunctionDef.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/FunctionDef.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/FunctionDef.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GaspTable.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GaspTable.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GaspTable.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GaspTable.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeComp.java",
       "module": "fontbox",
       "family": "ttf",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeComp.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeComp.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net.FontBox/FontBox/TTF/GlyfCompositeComp.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyfCompositeDescript.java",
@@ -4827,21 +5021,44 @@
       "gap_category": "missing-traceability-row"
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphHinter.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphHinter.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphHinter.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphHinter.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphRenderer.java",
       "module": "fontbox",
       "family": "ttf",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphRenderer.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphRenderer.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net.FontBox/FontBox/TTF/GlyphRenderer.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphSubstitutionTable.java",
@@ -4878,6 +5095,26 @@
       "gap_category": "missing-traceability-row"
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/GraphicsState.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GraphicsState.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GraphicsState.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/GraphicsState.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HeaderTable.java",
       "module": "fontbox",
       "family": "ttf",
@@ -4894,6 +5131,26 @@
       ],
       "target_paths": [
         "src/PdfBox.Net.FontBox/FontBox/TTF/HeaderTable.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/HintingException.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/HintingException.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/HintingException.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/HintingException.cs"
       ],
       "gap_category": "none"
     },
@@ -5337,6 +5594,46 @@
       "gap_category": "none"
     },
     {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeInterpreter.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeInterpreter.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeInterpreter.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/TrueTypeInterpreter.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/UnitVector.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/UnitVector.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/UnitVector.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/UnitVector.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/VerticalHeaderTable.java",
       "module": "fontbox",
       "family": "ttf",
@@ -5403,6 +5700,26 @@
         "src/PdfBox.Net.FontBox/FontBox/TTF/WGL4Names.cs"
       ],
       "gap_category": "missing-traceability-row"
+    },
+    {
+      "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/Zone.java",
+      "module": "fontbox",
+      "family": "ttf",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Zone.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Zone.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net.FontBox/FontBox/TTF/Zone.cs"
+      ],
+      "gap_category": "none"
     },
     {
       "source_path": "fontbox/src/main/java/org/apache/fontbox/ttf/gsub/CompoundCharacterTokenizer.java",
@@ -6373,16 +6690,19 @@
       "family": "io",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net.IO/IO/IOUtils.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net.IO/IO/IOUtils.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net.IO/IO/IOUtils.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "io/src/main/java/org/apache/pdfbox/io/MemoryUsageSetting.java",
@@ -6507,6 +6827,7 @@
         "src/PdfBox.Net.IO/IO/RandomAccessReadBuffer.cs"
       ],
       "traceability_target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadBuffer.cs",
         "src/PdfBox.Net/IO/RandomAccessReadBuffer.cs"
       ],
       "target_paths": [
@@ -6528,6 +6849,7 @@
         "src/PdfBox.Net.IO/IO/RandomAccessReadBufferedFile.cs"
       ],
       "traceability_target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadBufferedFile.cs",
         "src/PdfBox.Net/IO/RandomAccessReadBufferedFile.cs"
       ],
       "target_paths": [
@@ -6591,6 +6913,7 @@
         "src/PdfBox.Net.IO/IO/RandomAccessReadWriteBuffer.cs"
       ],
       "traceability_target_paths": [
+        "src/PdfBox.Net.IO/IO/RandomAccessReadWriteBuffer.cs",
         "src/PdfBox.Net/IO/RandomAccessReadWriteBuffer.cs"
       ],
       "target_paths": [
@@ -7760,16 +8083,19 @@
       "family": "contentstream",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/State/Concatenate.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/State/Concatenate.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/State/Concatenate.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/state/EmptyGraphicsStackException.java",
@@ -8014,16 +8340,19 @@
       "family": "contentstream",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/BeginText.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Text/BeginText.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/BeginText.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/EndText.java",
@@ -8031,16 +8360,19 @@
       "family": "contentstream",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/EndText.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Text/EndText.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/EndText.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/MoveText.java",
@@ -8235,16 +8567,19 @@
       "family": "contentstream",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextAdjusted.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextAdjusted.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextAdjusted.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/ShowTextLine.java",
@@ -8252,16 +8587,19 @@
       "family": "contentstream",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextLine.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextLine.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/ContentStream/Operator/Text/ShowTextLine.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/ShowTextLineAndSpace.java",
@@ -8968,16 +9306,19 @@
       "family": "filter",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Filter/Filter.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Filter/Filter.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Filter/Filter.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FilterFactory.java",
@@ -9303,10 +9644,12 @@
         "src/PdfBox.Net/MultiPdf/Splitter.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/MultiPdf/Splitter.cs"
+        "src/PdfBox.Net/MultiPdf/Splitter.cs",
+        "tests/PdfBox.Net.Tests/Issue957LatestCoreTest.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net/MultiPdf/Splitter.cs"
+        "src/PdfBox.Net/MultiPdf/Splitter.cs",
+        "tests/PdfBox.Net.Tests/Issue957LatestCoreTest.cs"
       ],
       "gap_category": "none"
     },
@@ -9323,6 +9666,7 @@
         "src/PdfBox.Net/PdfParser/BaseParser.cs"
       ],
       "traceability_target_paths": [
+        "src/PdfBox.Net/PdfParser/BaseParser.cs",
         "src/PdfBox.Net/PdfParser/COSParser.cs"
       ],
       "target_paths": [
@@ -9509,6 +9853,26 @@
       "gap_category": "none"
     },
     {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java",
+      "module": "pdfbox",
+      "family": "pdfparser",
+      "mapped": true,
+      "mapping_sources": [
+        "provenance",
+        "traceability"
+      ],
+      "provenance_target_paths": [
+        "src/PdfBox.Net/PdfParser/TrailerParser.cs"
+      ],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PdfParser/TrailerParser.cs"
+      ],
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/TrailerParser.cs"
+      ],
+      "gap_category": "none"
+    },
+    {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
       "module": "pdfbox",
       "family": "pdfparser",
@@ -9680,9 +10044,13 @@
         "src/PdfBox.Net/PdfWriter/COSWriter.cs"
       ],
       "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocument.cs",
+        "src/PdfBox.Net/PdfParser/PDFParser.cs",
         "src/PdfBox.Net/PdfWriter/COSWriter.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocument.cs",
+        "src/PdfBox.Net/PdfParser/PDFParser.cs",
         "src/PdfBox.Net/PdfWriter/COSWriter.cs"
       ],
       "gap_category": "none"
@@ -10067,16 +10435,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/PDDocumentNameDictionary.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocumentNameDictionary.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/PDDocumentNameDictionary.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDEmbeddedFilesNameTreeNode.java",
@@ -12983,7 +13354,8 @@
         "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs"
+        "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
+        "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs"
       ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
@@ -13045,7 +13417,9 @@
         "src/PdfBox.Net/PDModel/Font/PDFont.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs"
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDDictionaryFont.cs",
+        "src/PdfBox.Net/PDModel/Font/PDFont.cs"
       ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
@@ -13179,7 +13553,8 @@
         "src/PdfBox.Net/PDModel/Font/PDSimpleFont.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs"
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDSimpleFont.cs"
       ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
@@ -13200,7 +13575,8 @@
         "src/PdfBox.Net/PDModel/Font/PDTrueTypeFont.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net/PDModel/Font/FontStubs.cs"
+        "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
+        "src/PdfBox.Net/PDModel/Font/PDTrueTypeFont.cs"
       ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/FontStubs.cs",
@@ -13254,16 +13630,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Font/PDType1CFont.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDType1CFont.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/PDType1CFont.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -13330,16 +13709,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Font/PDType3Font.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDType3Font.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/PDType3Font.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDVectorFont.java",
@@ -13347,16 +13729,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Font/PDVectorFont.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDVectorFont.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Font/PDVectorFont.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java",
@@ -13843,16 +14228,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDCalGray.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDCalGray.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDCalGray.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCalRGB.java",
@@ -13860,16 +14248,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDCalRGB.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDCalRGB.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDCalRGB.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDColor.java",
@@ -13894,18 +14285,22 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpace.cs",
         "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpaceFactory.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpace.cs",
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpaceFactory.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpace.cs",
         "src/PdfBox.Net/PDModel/Graphics/Color/PDColorSpaceFactory.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDDeviceCMYK.java",
@@ -14081,16 +14476,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDIndexed.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDIndexed.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDIndexed.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDJPXColorSpace.java",
@@ -14118,16 +14516,19 @@
       "family": "pdmodel",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDLab.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Graphics/Color/PDLab.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/PDModel/Graphics/Color/PDLab.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDOutputIntent.java",
@@ -18341,16 +18742,19 @@
       "family": "printing",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Printing/PDFPageable.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Printing/PDFPageable.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Printing/PDFPageable.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/PDFPrintable.java",
@@ -18358,16 +18762,19 @@
       "family": "printing",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Printing/PDFPrintable.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Printing/PDFPrintable.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Printing/PDFPrintable.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/printing/Scaling.java",
@@ -18392,16 +18799,19 @@
       "family": "rendering",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Rendering/GlyphCache.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Rendering/GlyphCache.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Rendering/GlyphCache.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/GroupGraphics.java",
@@ -18443,16 +18853,19 @@
       "family": "rendering",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Rendering/PDFRenderer.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Rendering/PDFRenderer.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Rendering/PDFRenderer.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
@@ -18483,16 +18896,19 @@
       "family": "rendering",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Rendering/PageDrawerParameters.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Rendering/PageDrawerParameters.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Rendering/PageDrawerParameters.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/RenderDestination.java",
@@ -18648,16 +19064,19 @@
       "family": "text",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Text/TextPosition.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Text/TextPosition.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Text/TextPosition.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/TextPositionComparator.java",
@@ -18699,16 +19118,19 @@
       "family": "util",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Util/Hex.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Util/Hex.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Util/Hex.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/IterativeMergeSort.java",
@@ -18907,16 +19329,21 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/DecompressObjectstreams.cs"
       ],
-      "traceability_target_paths": [],
-      "target_paths": [
-        "src/PdfBox.Net/Tools/DecompressObjectstreams.cs"
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/DecompressObjectstreams.cs",
+        "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "target_paths": [
+        "src/PdfBox.Net/Tools/DecompressObjectstreams.cs",
+        "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs"
+      ],
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/Decrypt.java",
@@ -18964,16 +19391,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ExportFDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ExportFDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ExportFDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExportXFDF.java",
@@ -18981,16 +19411,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ExportXFDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ExportXFDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ExportXFDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractImages.java",
@@ -18998,16 +19431,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ExtractImages.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ExtractImages.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ExtractImages.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractText.java",
@@ -19015,16 +19451,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ExtractText.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ExtractText.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ExtractText.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ExtractXMP.java",
@@ -19032,16 +19471,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ExtractXMP.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ExtractXMP.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ExtractXMP.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImageToPDF.java",
@@ -19049,16 +19491,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ImageToPDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ImageToPDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ImageToPDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImportFDF.java",
@@ -19066,16 +19511,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ImportFDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ImportFDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ImportFDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/ImportXFDF.java",
@@ -19083,16 +19531,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/ImportXFDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/ImportXFDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/ImportXFDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/OverlayPDF.java",
@@ -19100,16 +19551,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/OverlayPDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/OverlayPDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/OverlayPDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFBox.java",
@@ -19117,16 +19571,21 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/PDFBox.cs"
       ],
-      "traceability_target_paths": [],
-      "target_paths": [
-        "src/PdfBox.Net/Tools/PDFBox.cs"
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/PDFBox.cs",
+        "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "target_paths": [
+        "src/PdfBox.Net/Tools/PDFBox.cs",
+        "tests/PdfBox.Net.Tests/Issue957ToolsTest.cs"
+      ],
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFMerger.java",
@@ -19151,16 +19610,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/PDFSplit.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/PDFSplit.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/PDFSplit.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PDFText2HTML.java",
@@ -19205,16 +19667,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/PDFToImage.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/PDFToImage.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/PDFToImage.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/PrintPDF.java",
@@ -19222,16 +19687,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/PrintPDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/PrintPDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/PrintPDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/TextToPDF.java",
@@ -19239,16 +19707,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/TextToPDF.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/TextToPDF.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/TextToPDF.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/Version.java",
@@ -19273,16 +19744,19 @@
       "family": "tools",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Tools/WriteDecodedDoc.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Tools/WriteDecodedDoc.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Tools/WriteDecodedDoc.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "tools/src/main/java/org/apache/pdfbox/tools/imageio/ImageIOUtil.java",
@@ -20771,10 +21245,12 @@
         "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs"
       ],
       "traceability_target_paths": [
-        "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs"
+        "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs",
+        "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs"
       ],
       "target_paths": [
-        "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs"
+        "src/PdfBox.Net.XmpBox/XmpBox/Xml/PdfaExtensionHelper.cs",
+        "tests/PdfBox.Net.XmpBox.Tests/XmpRegressionFixturesTest.cs"
       ],
       "gap_category": "none"
     },

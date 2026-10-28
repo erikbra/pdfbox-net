@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-27T12:54:38.350Z",
+  "generated_at_utc": "2026-10-28T06:08:47.928Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "excluded_upstream_modules": [
@@ -8,12 +8,12 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
-  "tracked_parity_baseline_commit": "046747da99a870902217efabf1c41297de157059",
+  "upstream_head": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+  "tracked_parity_baseline_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1091,
-  "mapped": 1075,
-  "missing": 16,
+  "mapped": 1091,
+  "missing": 0,
   "modules": [
     {
       "module": "benchmark",
@@ -39,9 +39,9 @@
     {
       "module": "fontbox",
       "java_files": 158,
-      "mapped": 143,
-      "missing": 15,
-      "pct": 90.5
+      "mapped": 158,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "io",
@@ -53,9 +53,9 @@
     {
       "module": "pdfbox",
       "java_files": 624,
-      "mapped": 623,
-      "missing": 1,
-      "pct": 99.8
+      "mapped": 624,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "module": "pdfbox-layout-awt",
@@ -146,9 +146,9 @@
     {
       "family": "fontbox:ttf",
       "java_files": 98,
-      "mapped": 83,
-      "missing": 15,
-      "pct": 84.7
+      "mapped": 98,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "fontbox:type1",
@@ -209,9 +209,9 @@
     {
       "family": "pdfbox:pdfparser",
       "java_files": 19,
-      "mapped": 18,
-      "missing": 1,
-      "pct": 94.7
+      "mapped": 19,
+      "missing": 0,
+      "pct": 100.0
     },
     {
       "family": "pdfbox:pdfwriter",
@@ -299,31 +299,10 @@
     }
   ],
   "traceability_status_counts": {
-    "total_rows": 833,
-    "in-sync": 833,
+    "total_rows": 911,
+    "in-sync": 911,
     "partially-in-sync": 0,
     "partial": 0
   },
-  "top_missing_modules": {
-    "fontbox": [
-      "fontbox/src/main/java/org/apache/fontbox/ttf/BytecodeStream.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueProgramTable.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/ControlValueTable.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionContext.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/ExecutionTracer.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/Fixed.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/FontProgramTable.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/FunctionDef.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/GaspTable.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/GlyphHinter.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/GraphicsState.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/HintingException.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/TrueTypeInterpreter.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/UnitVector.java",
-      "fontbox/src/main/java/org/apache/fontbox/ttf/Zone.java"
-    ],
-    "pdfbox": [
-      "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java"
-    ]
-  }
+  "top_missing_modules": {}
 }
