@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -221,6 +221,8 @@ public class PDFMergerUtility
 
         PDDocumentCatalog destinationCatalog = destination.GetDocumentCatalog();
         MergeAcroForm(cloner, destinationCatalog, sourceCatalog);
+        MergePageLabels(destination, sourceCatalog, destinationCatalog, cloner);
+        MergeMarkInfo(sourceCatalog, destinationCatalog);
         MergeCatalogDictionaries(cloner, destinationCatalog, sourceCatalog);
 
         foreach (PDPage page in source.GetPages())
@@ -241,6 +243,66 @@ public class PDFMergerUtility
 
             destination.AddPage(newPage);
         }
+    }
+
+    private static void MergePageLabels(PDDocument destination, PDDocumentCatalog sourceCatalog,
+        PDDocumentCatalog destinationCatalog, PDFCloneUtility cloner)
+    {
+        COSDictionary? sourceLabels = ((COSDictionary)sourceCatalog.GetCOSObject()).GetCOSDictionary(COSName.PAGE_LABELS);
+        if (sourceLabels is null)
+        {
+            return;
+        }
+        int destinationPageCount = destination.GetNumberOfPages();
+        COSDictionary? destinationLabels = ((COSDictionary)destinationCatalog.GetCOSObject()).GetCOSDictionary(COSName.PAGE_LABELS);
+        if (destinationLabels is null)
+        {
+            // PDFBOX-6277: page labels must have an entry for page zero.
+            PDPageLabels labels = new(destination);
+            PDPageLabelRange range = new();
+            range.SetStyle(PDPageLabelRange.STYLE_DECIMAL);
+            labels.SetLabelItem(0, range);
+            destinationCatalog.SetPageLabels(labels);
+            destinationLabels = ((COSDictionary)destinationCatalog.GetCOSObject()).GetCOSDictionary(COSName.PAGE_LABELS)!;
+        }
+        COSArray? destinationNumbers = destinationLabels.GetCOSArray(COSName.NUMS);
+        COSArray? sourceNumbers = sourceLabels.GetCOSArray(COSName.NUMS);
+        if (sourceNumbers is null || destinationNumbers is null)
+        {
+            return;
+        }
+        int startSize = destinationNumbers.Size();
+        for (int i = 0; i < sourceNumbers.Size(); i += 2)
+        {
+            COSBase? value = sourceNumbers.GetObject(i);
+            if (value is not COSNumber labelIndex)
+            {
+                LOG.LogError("page labels ignored, index {Index} should be a number, but is {Value}", i, value);
+                while (destinationNumbers.Size() > startSize)
+                {
+                    destinationNumbers.Remove(startSize);
+                }
+                break;
+            }
+            destinationNumbers.Add(COSInteger.Get((long)labelIndex.IntValue() + destinationPageCount));
+            destinationNumbers.Add(cloner.CloneForNewDocument(sourceNumbers.GetObject(i + 1)));
+        }
+    }
+
+    private static void MergeMarkInfo(PDDocumentCatalog sourceCatalog, PDDocumentCatalog destinationCatalog)
+    {
+        var source = sourceCatalog.GetMarkInfo();
+        var destination = destinationCatalog.GetMarkInfo();
+        if (source is null && destination is null)
+        {
+            return;
+        }
+        source ??= new();
+        destination ??= new();
+        destination.SetMarked(source.IsMarked() || destination.IsMarked());
+        destination.SetSuspect(source.IsSuspect() || destination.IsSuspect());
+        destination.SetUserProperties(source.UsesUserProperties() || destination.UsesUserProperties());
+        destinationCatalog.SetMarkInfo(destination);
     }
 
     private void MergeAcroForm(PDFCloneUtility cloner, PDDocumentCatalog destinationCatalog, PDDocumentCatalog sourceCatalog)
@@ -344,7 +406,7 @@ public class PDFMergerUtility
         MergeCloneOrMergeDictionary(source, destination, COSName.DESTS, cloner);
         MergeCloneIfMissing(source, destination, COSName.OUTLINES, cloner);
         MergeCloneIfMissing(source, destination, COSName.PAGE_MODE, cloner);
-        MergeCloneIfMissing(source, destination, COSName.PAGE_LABELS, cloner);
+
         MergeCloneIfMissing(source, destination, COSName.METADATA, cloner);
         MergeCloneOrMergeDictionary(source, destination, COSName.GetPDFName("OCProperties"), cloner);
         MergeCloneOrAppendArray(source, destination, COSName.OUTPUT_INTENTS, cloner);

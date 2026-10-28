@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/util/Hex.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -133,7 +133,8 @@ public sealed class Hex
         // we do not need to use an encoder to convert the string to its byte representation.
         char[] hex = new char[text.Length * 4];
 
-        for (int stringIdx = 0, charIdx = 0; stringIdx < text.Length; stringIdx++)
+        int charIdx = 0;
+        for (int stringIdx = 0; stringIdx < text.Length; stringIdx++)
         {
             char c = text[stringIdx];
             hex[charIdx++] = HexChars[(c >> 12) & 0x0F];

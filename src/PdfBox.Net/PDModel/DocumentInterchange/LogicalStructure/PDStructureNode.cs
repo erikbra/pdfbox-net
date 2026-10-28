@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureNode.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -90,7 +90,7 @@ public abstract class PDStructureNode : COSObjectable
     public string? GetTypeName() => GetCOSObject().GetNameAsString(COSName.TYPE);
 
     /// <summary>
-    /// Returns the kids (K) as a list of typed kid objects.
+    /// Returns the kids (K) as a list of typed kid objects. See <see cref="CreateObject"/> for possible types.
     /// </summary>
     public List<object> GetKids()
     {

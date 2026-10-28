@@ -62,6 +62,13 @@ public sealed class PDFParser
         _decryptionMaterial = decryptionMaterial;
     }
 
+    internal PDFParser(byte[] data, COSDocument document)
+    {
+        _data = data;
+        _document = document;
+        _objectPool = document.GetObjectPool();
+    }
+
     /// <summary>
     /// Parses a PDF file and returns a document.
     /// </summary>
@@ -85,6 +92,29 @@ public sealed class PDFParser
 
     public ParsedPDFDocument Parse()
     {
+        TrailerParser trailerParser = new(_document, this);
+        COSDictionary trailer = trailerParser.RetrieveTrailerValues();
+        float headerVersion = _document.GetVersion();
+
+        LoadIndirectObjectsFromXref();
+        PrepareDecryption(trailer);
+        DecryptLoadedIndirectObjects();
+        LoadCompressedObjects();
+        BindTrailerReferences(trailer);
+        RecoverPageTreeCounts(trailer);
+        _document.SetTrailer(trailer);
+        if (_securityHandler is not null)
+        {
+            _document.SetDecrypted();
+        }
+
+        _document.GetDocumentState().SetParsing(false);
+
+        return new ParsedPDFDocument(_document, trailer, headerVersion, _securityHandler?.GetCurrentAccessPermission());
+    }
+
+    internal COSDictionary ReadTrailerValues()
+    {
         ParserBootstrapState bootstrap = PDFDocumentParser.ParseDocumentStart(_data);
         float headerVersion = bootstrap.HeaderVersion;
         long startXref = bootstrap.StartXrefOffset;
@@ -107,21 +137,7 @@ public sealed class PDFParser
             _objectPool.TryAdd(key, new COSObject(key));
         }
 
-        LoadIndirectObjectsFromXref();
-        PrepareDecryption(trailer);
-        DecryptLoadedIndirectObjects();
-        LoadCompressedObjects();
-        BindTrailerReferences(trailer);
-        RecoverPageTreeCounts(trailer);
-        _document.SetTrailer(trailer);
-        if (_securityHandler is not null)
-        {
-            _document.SetDecrypted();
-        }
-
-        _document.GetDocumentState().SetParsing(false);
-
-        return new ParsedPDFDocument(_document, trailer, headerVersion, _securityHandler?.GetCurrentAccessPermission());
+        return trailer;
     }
 
     private void PrepareDecryption(COSDictionary trailer)

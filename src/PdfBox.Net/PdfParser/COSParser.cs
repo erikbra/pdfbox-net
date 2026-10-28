@@ -12,7 +12,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java
  * PDFBOX_SOURCE_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -62,6 +62,29 @@ public sealed class COSParser
     public COSParser(Stream input)
     {
         _input = input ?? throw new ArgumentNullException(nameof(input));
+    }
+
+    /// <summary>Returns the trailing byte range searched for the EOF marker.</summary>
+    public int GetEOFLookupRange() => 2048;
+
+    internal byte[] CopySourceBytes()
+    {
+        if (!_input.CanSeek)
+        {
+            throw new IOException("Trailer parsing requires a seekable input.");
+        }
+        long position = _input.Position;
+        try
+        {
+            _input.Position = 0;
+            using MemoryStream buffer = new();
+            _input.CopyTo(buffer);
+            return buffer.ToArray();
+        }
+        finally
+        {
+            _input.Position = position;
+        }
     }
 
     public static COSBase Parse(Stream input)

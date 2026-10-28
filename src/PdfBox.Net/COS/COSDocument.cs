@@ -4,8 +4,8 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -51,7 +51,7 @@ public partial class COSDocument : COSBase, IDisposable
     /// <summary>
     /// Maps object and generation id to object byte offsets.
     /// </summary>
-    private readonly Dictionary<COSObjectKey, long> _xrefTable = new();
+    private readonly Dictionary<COSObjectKey, long> _xrefTable = new(XrefKeyComparer.Instance);
 
     /// <summary>
     /// List containing all streams which are created when creating a new pdf.
@@ -577,4 +577,28 @@ public partial class COSDocument : COSBase, IDisposable
     {
         return _documentState;
     }
+    /// <summary>
+    /// Internal PDFBox use only. Returns the key instance held by the live xref table, including
+    /// its object stream index, or null if no entry has the given object and generation number.
+    /// </summary>
+    public COSObjectKey? GetXrefKey(long num, int gen)
+    {
+        return _xrefTable.GetAlternateLookup<long>().TryGetValue(
+            COSObjectKey.ComputeInternalHash(num, gen), out COSObjectKey? key, out _) ? key : null;
+    }
+
+    // PORT-LOCAL-START: .NET alternate-key lookup preserves the existing public Dictionary API
+    // and supports every live mutation without maintaining a second, potentially stale index.
+    private sealed class XrefKeyComparer : IEqualityComparer<COSObjectKey>,
+        IAlternateEqualityComparer<long, COSObjectKey>
+    {
+        internal static readonly XrefKeyComparer Instance = new();
+        public bool Equals(COSObjectKey? x, COSObjectKey? y) => Equals((object?)x, y);
+        public int GetHashCode(COSObjectKey key) => key.GetHashCode();
+        public bool Equals(long hash, COSObjectKey key) => hash == key.GetInternalHash();
+        public int GetHashCode(long hash) => hash.GetHashCode();
+        public COSObjectKey Create(long hash) => new((long)((ulong)hash >> 16), (int)(hash & 0xffff));
+    }
+    // PORT-LOCAL-END
+
 }

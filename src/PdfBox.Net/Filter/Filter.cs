@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/filter/Filter.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -38,6 +38,9 @@ public abstract class Filter
 
     public const string SyspropDeflateLevel = "org.apache.pdfbox.filter.deflatelevel";
     public const string SyspropCcittFaxMaxBytes = "org.apache.pdfbox.filter.ccittmaxbytes";
+
+    /// <summary>Maximum predictor row length, computed as (columns * colors * bitsPerComponent + 7) / 8.</summary>
+    public const string SyspropPredictorMaxRowLength = "org.apache.pdfbox.filter.predictormaxrowlength";
 
     public abstract DecodeResult Decode(Stream input, Stream output, COSDictionary parameters, int index, DecodeOptions options);
 
@@ -82,7 +85,9 @@ public abstract class Filter
         for (int i = 0; i < filters.Count; i++)
         {
             Filter filter = filters[i];
-            RandomAccessReadWriteBuffer nextBuffer = new();
+            long length = currentBuffer?.Length() ?? (input.CanSeek ? input.Length - input.Position : 0);
+            int chunkSize = length <= 0 ? 4096 : (int)(Math.Min(length, (1 << 20) / 4) * 4);
+            RandomAccessReadWriteBuffer nextBuffer = new(chunkSize);
             using (RandomAccessOutputStream output = new(nextBuffer))
             {
                 DecodeResult result = filter.Decode(currentInput, output, parameters, i, options);

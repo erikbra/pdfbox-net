@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNameTreeNode.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -272,4 +272,23 @@ public abstract partial class PDNameTreeNode<T> : COSObjectable where T : COSObj
 
         return arr;
     }
+    /// <summary>Returns a flattened recursive map of values on all levels, never null.</summary>
+    public Dictionary<string, T> GetTreeAsMap()
+    {
+        IReadOnlyDictionary<string, T>? values = GetNames();
+        Dictionary<string, T> result = values is null ? new() : new(values);
+        IList<PDNameTreeNode<T>>? kids = GetKids();
+        if (kids is not null)
+        {
+            foreach (PDNameTreeNode<T> kid in kids)
+            {
+                foreach (var entry in kid.GetTreeAsMap())
+                {
+                    result[entry.Key] = entry.Value;
+                }
+            }
+        }
+        return result;
+    }
+
 }

@@ -36,10 +36,7 @@ public sealed class PDFDocumentParser
 {
     private static ILogger<PDFDocumentParser> LOG => PdfBoxLogging.CreateLogger<PDFDocumentParser>();
 
-    private const int DefaultTrailByteCount = 2048;
     private static readonly byte[] PdfHeaderBytes = Encoding.ASCII.GetBytes("%PDF-");
-    private static readonly byte[] EofMarkerBytes = Encoding.ASCII.GetBytes("%%EOF");
-    private static readonly byte[] StartXrefBytes = Encoding.ASCII.GetBytes("startxref");
 
     private readonly byte[] _data;
 
@@ -59,7 +56,7 @@ public sealed class PDFDocumentParser
     internal static ParserBootstrapState ParseDocumentStart(byte[] data)
     {
         float headerVersion = ParseHeaderVersion(data);
-        (long startXrefOffset, long startXrefKeywordOffset) = FindStartXref(data);
+        (long startXrefOffset, long startXrefKeywordOffset) = TrailerParser.FindStartXref(data);
         return new ParserBootstrapState(headerVersion, startXrefOffset, startXrefKeywordOffset);
     }
 
@@ -157,50 +154,6 @@ public sealed class PDFDocumentParser
         return float.TryParse(versionToken, NumberStyles.Float, CultureInfo.InvariantCulture, out version);
     }
 
-    private static (long startXrefOffset, long startXrefKeywordOffset) FindStartXref(byte[] data)
-    {
-        int trailingByteCount = Math.Min(data.Length, DefaultTrailByteCount);
-        int trailingStart = data.Length - trailingByteCount;
-
-        int eofInTrailing = LastIndexOf(data, EofMarkerBytes, trailingStart, data.Length);
-        if (eofInTrailing < 0)
-        {
-            LOG.LogDebug("Missing end of file marker '{EndOfFileMarker}'", Encoding.ASCII.GetString(EofMarkerBytes));
-        }
-        int searchEndExclusive = eofInTrailing >= 0 ? eofInTrailing : data.Length;
-
-        int startXrefIndex = LastIndexOf(data, StartXrefBytes, trailingStart, searchEndExclusive);
-        if (startXrefIndex < 0)
-        {
-            throw new IOException("startxref marker not found.");
-        }
-
-        int cursor = startXrefIndex + StartXrefBytes.Length;
-        while (cursor < data.Length && IsWhiteSpace(data[cursor]))
-        {
-            cursor++;
-        }
-
-        int offsetStart = cursor;
-        while (cursor < data.Length && data[cursor] is >= (byte)'0' and <= (byte)'9')
-        {
-            cursor++;
-        }
-
-        if (cursor == offsetStart)
-        {
-            throw new IOException("startxref marker does not contain an offset.");
-        }
-
-        string token = Encoding.ASCII.GetString(data, offsetStart, cursor - offsetStart);
-        if (!long.TryParse(token, NumberStyles.Integer, CultureInfo.InvariantCulture, out long startXrefOffset))
-        {
-            throw new IOException("Invalid startxref value.");
-        }
-
-        return (startXrefOffset, startXrefIndex);
-    }
-
     private static IOException MissingVersionInfo()
     {
         LOG.LogWarning("Error: Header doesn't contain versioninfo");
@@ -231,33 +184,7 @@ public sealed class PDFDocumentParser
         return -1;
     }
 
-    private static int LastIndexOf(byte[] source, byte[] pattern, int startInclusive, int endExclusive)
-    {
-        for (int i = endExclusive - pattern.Length; i >= startInclusive; i--)
-        {
-            bool matched = true;
-            for (int j = 0; j < pattern.Length; j++)
-            {
-                if (source[i + j] != pattern[j])
-                {
-                    matched = false;
-                    break;
-                }
-            }
 
-            if (matched)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
-    private static bool IsWhiteSpace(int value)
-    {
-        return value is 0 or 9 or 10 or 12 or 13 or 32;
-    }
 }
 
 public sealed record ParserBootstrapState(float HeaderVersion, long StartXrefOffset, long StartXrefKeywordOffset);

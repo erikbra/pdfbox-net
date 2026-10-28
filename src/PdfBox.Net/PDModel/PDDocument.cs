@@ -99,7 +99,7 @@ public sealed partial class PDDocument : IDisposable
     {
         _document = document ?? throw new ArgumentNullException(nameof(document));
         _trailer = _document.GetTrailer() ?? throw new IOException("Document trailer dictionary is missing.");
-        _nextObjectNumber = GetNextObjectNumber(_trailer);
+        _nextObjectNumber = Math.Max(GetNextObjectNumber(_trailer), _trailer.GetLong(COSName.SIZE));
         _accessPermission = permission;
         _sourceBytes = source is null ? null : CopyRandomAccessRead(source);
         EnsureIndirectRootObjects();
@@ -1312,12 +1312,12 @@ public sealed partial class PDDocument : IDisposable
                         out int ctOffset,
                         out int ctLen);
 
-                    if (brOffset >= 0)
+                    if (brOffset >= 0 && pendingSigCosDict!.GetDictionaryObject(COSName.GetPDFName("ByteRange")) is COSArray)
                     {
                         sigByteRangeValueOffset = objOffset + objHeader.Length + brOffset;
                     }
 
-                    if (ctOffset >= 0)
+                    if (ctOffset >= 0 && pendingSigCosDict!.GetDictionaryObject(COSName.CONTENTS) is COSString)
                     {
                         sigContentsHexOffset = objOffset + objHeader.Length + ctOffset;
                         sigContentsHexLen = ctLen;
@@ -1342,7 +1342,7 @@ public sealed partial class PDDocument : IDisposable
         long newMaxObj = objectsToWrite.Count > 0
             ? objectsToWrite.Max(x => x.Key.GetNumber())
             : 0;
-        int trailerSize = (int)Math.Max(origMaxObj, newMaxObj) + 1;
+        int trailerSize = checked((int)Math.Max(_trailer.GetLong(COSName.SIZE), Math.Max(origMaxObj, newMaxObj) + 1));
 
         WriteIncrementalTrailer(buffer, xrefOffset, trailerSize);
     }

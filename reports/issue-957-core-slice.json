@@ -1,0 +1,934 @@
+{
+  "issue": 957,
+  "scope": "core",
+  "upstream_repository": "apache/pdfbox",
+  "previous_commit": "046747da99a870902217efabf1c41297de157059",
+  "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+  "rows": [
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSDocument.java",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSDocument.cs"
+      ],
+      "target_path": "src/PdfBox.Net/COS/COSDocument.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 1,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Adds O(1) lookup of the stored key instance via .NET Dictionary alternate-key comparer. Public live Dictionary API and all mutation routes remain intact. Java null-key HashMap entries are unsupported by the existing .NET Dictionary surface.",
+      "note": "Adds O(1) lookup of the stored key instance via .NET Dictionary alternate-key comparer. Public live Dictionary API and all mutation routes remain intact. Java null-key HashMap entries are unsupported by the existing .NET Dictionary surface.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSName.cs"
+      ],
+      "target_path": "src/PdfBox.Net/COS/COSName.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Adds AN and SPAN names.",
+      "note": "Adds AN and SPAN names.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSUpdateState.java",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSUpdateState.cs"
+      ],
+      "target_path": "src/PdfBox.Net/COS/COSUpdateState.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Mechanically ports explicit LIFO stack traversal (PDFBOX-6200), skipping states already bound, preserving lazy dereference and update flags; mixed 150001-node cyclic graph and lazy dereference regressions pass.",
+      "note": "Mechanically ports explicit LIFO stack traversal (PDFBOX-6200), skipping states already bound, preserving lazy dereference and update flags; mixed 150001-node cyclic graph and lazy dereference regressions pass.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Filter.java",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/Filter.cs"
+      ],
+      "target_path": "src/PdfBox.Net/Filter/Filter.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Ports capped 4x encoded-size chunk estimation (maximum 1 MiB) and predictor maximum-row property; existing Stream adapters retained.",
+      "note": "Ports capped 4x encoded-size chunk estimation (maximum 1 MiB) and predictor maximum-row property; existing Stream adapters retained.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/FlateFilterDecoderStream.java",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/FlateFilterDecoderStream.cs"
+      ],
+      "target_path": "src/PdfBox.Net/Filter/FlateFilterDecoderStream.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Java synchronized mark/reset overrides have no .NET counterpart: CanSeek remains false and Seek throws NotSupportedException; no mutable mark/reset implementation exists to lock.",
+      "note": "Java synchronized mark/reset overrides have no .NET counterpart: CanSeek remains false and Seek throws NotSupportedException; no mutable mark/reset implementation exists to lock.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/Predictor.cs"
+      ],
+      "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Ports default 10000000-byte row limit with positive environment-property override; .NET checked long calculation also rejects multiplication overflow before allocating.",
+      "note": "Ports default 10000000-byte row limit with positive environment-property override; .NET checked long calculation also rejects multiplication overflow before allocating.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/PDFMergerUtility.cs"
+      ],
+      "target_path": "src/PdfBox.Net/MultiPdf/PDFMergerUtility.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Ports mandatory page-zero label entry and shifted label indexes, as well as Marked/Suspect/UserProperties OR merge. Flattened map helper APIs now belong to tree types. Existing port has no structure-tree merge; upstream structure-tree merge assertion expansions remain deferred.",
+      "note": "Ports mandatory page-zero label entry and shifted label indexes, as well as Marked/Suspect/UserProperties OR merge. Flattened map helper APIs now belong to tree types. Existing port has no structure-tree merge; upstream structure-tree merge assertion expansions remain deferred.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
+      "target_paths": [
+        "src/PdfBox.Net/MultiPdf/Splitter.cs"
+      ],
+      "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Ports named destination trees and legacy Root/Dests dictionaries, copying only destinations for pages included in each split and rebinding references to cloned pages. Existing direct page clone preserves named link strings. Pre-existing structure-tree split functionality remains absent; related upstream flattened-helper substitutions have no equivalent call site.",
+      "note": "Ports named destination trees and legacy Root/Dests dictionaries, copying only destinations for pages included in each split and rebinding references to cloned pages. Existing direct page clone preserves named link strings. Pre-existing structure-tree split functionality remains absent; related upstream flattened-helper substitutions have no equivalent call site.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/BaseParser.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PdfParser/BaseParser.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Adds six protected source forwarding operations using the established Stream adapter. Escaped closing-parenthesis behavior already matches new PDFBOX-6167 semantics in COSParser and PDFParser; focused literal regression included.",
+      "note": "Adds six protected source forwarding operations using the established Stream adapter. Escaped closing-parenthesis behavior already matches new PDFBOX-6167 semantics in COSParser and PDFParser; focused literal regression included.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BruteForceParser.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/BruteForceParser.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PdfParser/BruteForceParser.cs",
+      "previous_sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Source-access forwarding refactor only; current wrapper already centralizes input ownership in PDFParser. Existing .NET parser has no upstream-equivalent malformed-trailer brute-force recovery; no new capability is claimed.",
+      "note": "Source-access forwarding refactor only; current wrapper already centralizes input ownership in PDFParser. Existing .NET parser has no upstream-equivalent malformed-trailer brute-force recovery; no new capability is claimed.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/COSParser.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Exposes default GetEOFLookupRange; actual trailer bootstrap moved to new TrailerParser and routed into PDFParser. Removed unused Java UTF8/Windows1252 decoder had no port equivalent. Existing token parser does not own upstream lazy-object logic.",
+      "note": "Exposes default GetEOFLookupRange; actual trailer bootstrap moved to new TrailerParser and routed into PDFParser. Removed unused Java UTF8/Windows1252 decoder had no port equivalent. Existing token parser does not own upstream lazy-object logic.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/TrailerParser.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/TrailerParser.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PdfParser/TrailerParser.cs",
+      "previous_sync_commit": null,
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "New real trailer owner handles EOF/startxref scan and delegates xref resolution to existing eager PDFParser engine. Public constructor and live xref getter are usable. Existing eager parser has no brute-force trailer rebuild and TrailerWasRebuild is false; malformed xrefs still raise. This is an explicit existing parser architecture adaptation, not new recovery parity.",
+      "note": "New real trailer owner handles EOF/startxref scan and delegates xref resolution to existing eager PDFParser engine. Public constructor and live xref getter are usable. Existing eager parser has no brute-force trailer rebuild and TrailerWasRebuild is false; malformed xrefs still raise. This is an explicit existing parser architecture adaptation, not new recovery parity.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/XrefParser.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
+      "previous_sync_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Java source-access forwarding refactor only. The existing .NET wrapper delegates the complete parse to PDFParser; its centralized byte source requires no per-call source replacement.",
+      "note": "Java source-access forwarding refactor only. The existing .NET wrapper delegates the complete parse to PDFParser; its centralized byte source requires no per-call source replacement.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
+      "target_paths": [
+        "src/PdfBox.Net/PdfWriter/COSWriter.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PdfWriter/COSWriter.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Incremental trailer Size reservation and typed signature-placeholder checks are applied in PDDocument, the established .NET document serializer. The incremental signature serializer already writes unencrypted placeholder bytes; no Java willEncrypt state exists. Existing encryption/signing limitations are unchanged.",
+      "note": "Incremental trailer Size reservation and typed signature-placeholder checks are applied in PDDocument, the established .NET document serializer. The incremental signature serializer already writes unencrypted placeholder bytes; no Java willEncrypt state exists. Existing encryption/signing limitations are unchanged.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentNameDictionary.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocumentNameDictionary.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/PDDocumentNameDictionary.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Upstream named destinations XML summary wording synchronized.",
+      "note": "Upstream named destinations XML summary wording synchronized.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageTree.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDPageTree.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/PDPageTree.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Already equivalent: every Get call allocates a local visited set, so failed lookups cannot leak state to subsequent calls. New failed-then-valid lookup test and no-argument root test pass.",
+      "note": "Already equivalent: every Get call allocates a local visited set, so failed lookups cannot leak state to subsequent calls. New failed-then-valid lookup test and no-argument root test pass.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNameTreeNode.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDNameTreeNode.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/PDNameTreeNode.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Ports recursive GetTreeAsMap with a mutable copy and all child maps; preserves Java traversal and duplicate key overwrite behavior.",
+      "note": "Ports recursive GetTreeAsMap with a mutable copy and all child maps; preserves Java traversal and duplicate key overwrite behavior.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDNumberTreeNode.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/PDNumberTreeNode.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Ports recursive GetTreeAsMap with a mutable copy and all child maps; preserves Java traversal and duplicate key overwrite behavior.",
+      "note": "Ports recursive GetTreeAsMap with a mutable copy and all child maps; preserves Java traversal and duplicate key overwrite behavior.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDPageLabels.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/PDPageLabels.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Narrows concrete GetCOSObject return to COSDictionary; explicit COSObjectable bridge preserves interface contract.",
+      "note": "Narrows concrete GetCOSObject return to COSDictionary; explicit COSObjectable bridge preserves interface contract.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRange.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/PDRange.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/PDRange.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Already equivalent: nonnumeric min/max entries return zero. Updated XML docs state fallback.",
+      "note": "Already equivalent: nonnumeric min/max entries return zero. Updated XML docs state fallback.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunction.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunction.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunction.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Missing domain/range returns zero ranges and zero input count; null backing dictionary now fails with NotSupportedException. Diagnostic ToString no longer calls type accessor. Retains existing public GetFunctionType compatibility API though removed upstream.",
+      "note": "Missing domain/range returns zero ranges and zero input count; null backing dictionary now fails with NotSupportedException. Diagnostic ToString no longer calls type accessor. Retains existing public GetFunctionType compatibility API though removed upstream.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType0.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType0.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType0.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "GetSize already returns an empty COSArray if absent. Existing GetFunctionType retained solely for source compatibility.",
+      "note": "GetSize already returns an empty COSArray if absent. Existing GetFunctionType retained solely for source compatibility.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType2.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType2.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType2.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API.",
+      "note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType3.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType3.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType3.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API.",
+      "note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionType4.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType4.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionType4.cs",
+      "previous_sync_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API.",
+      "note": "Upstream removes GetFunctionType; retained as existing .NET compatibility API.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunctionTypeIdentity.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/Function/PDFunctionTypeIdentity.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Common/Function/PDFunctionTypeIdentity.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Base dictionary absence now follows upstream NotSupportedException; existing GetFunctionType unsupported compatibility API retained; Eval and diagnostic string preserved.",
+      "note": "Base dictionary absence now follows upstream NotSupportedException; existing GetFunctionType unsupported compatibility API retained; Eval and diagnostic string preserved.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureNode.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureNode.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStructureNode.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "XML documentation links CreateObject for possible typed children.",
+      "note": "XML documentation links CreateObject for possible typed children.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDExportFormatAttributeObject.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDExportFormatAttributeObject.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Ports missing GetHeaders/SetHeaders prerequisite using the corrected base string-array helpers; XML summary documents absent headers as null. Real production API exercised by header regression.",
+      "note": "Ports missing GetHeaders/SetHeaders prerequisite using the corrected base string-array helpers; XML summary documents absent headers as null. Real production API exercised by header regression.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDStandardAttributeObject.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDStandardAttributeObject.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Reads COSString array values with GetString, logs malformed entries and retains null slots as upstream, replacing invalid COSName casts.",
+      "note": "Reads COSString array values with GetString, logs malformed entries and retains null slots as upstream, replacing invalid COSName casts.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDTableAttributeObject.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/LogicalStructure/PDTableAttributeObject.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Current adapted IList getter already reads COSString values. Preserves its existing empty-list/malformed-element-skip contract rather than introducing unrelated public API change; return docs reflect that adaptation.",
+      "note": "Current adapted IList getter already reads COSString values. Preserves its existing empty-list/malformed-element-skip contract rather than introducing unrelated public API change; return docs reflect that adaptation.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/StandardStructureTypes.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/TaggedPdf/StandardStructureTypes.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Adds upstream FIGURE constant; retains prior Figure alias for source compatibility.",
+      "note": "Adds upstream FIGURE constant; retains prior Figure alias for source compatibility.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/PDEncryption.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Encryption/PDEncryption.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Encryption/PDEncryption.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Checked Java throws IOException declarations and their JavaDoc removed upstream; .NET signatures already have no throws declarations and corresponding stale exception docs are absent.",
+      "note": "Checked Java throws IOException declarations and their JavaDoc removed upstream; .NET signatures already have no throws declarations and corresponding stale exception docs are absent.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFDictionary.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFDictionary.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Java checked IOException declaration/documentation removed; current .NET method already matches.",
+      "note": "Java checked IOException declaration/documentation removed; current .NET method already matches.",
+      "upstream_test_parity": "covered by existing suite or documentation-only delta; see note"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationWidget.java",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationWidget.cs"
+      ],
+      "target_path": "src/PdfBox.Net/PDModel/Interactive/Annotation/PDAnnotationWidget.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Only sets subtype when it differs, preserving clean update state for parsed widget dictionaries; upstream no-dirty regression converted.",
+      "note": "Only sets subtype when it differs, preserving clean update state for parsed widget dictionaries; upstream no-dirty regression converted.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/util/Hex.java",
+      "target_paths": [
+        "src/PdfBox.Net/Util/Hex.cs"
+      ],
+      "target_path": "src/PdfBox.Net/Util/Hex.cs",
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Moves charIdx initialization outside loop as upstream; uneven-nibble regression converted.",
+      "note": "Moves charIdx initialization outside loop as upstream; uneven-nibble regression converted.",
+      "upstream_test_parity": "adapted focused regressions"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/COSDocumentTest.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Adapted xref live-mutation/stored-key checks converted. Java null-key map fixture is unsupported by .NET Dictionary. View removal/clone cases adapt to .NET Remove/Clear/copy operations; no separate index exists.",
+      "note": "Adapted xref live-mutation/stored-key checks converted. Java null-key map fixture is unsupported by .NET Dictionary. View removal/clone cases adapt to .NET Remove/Clear/copy operations; no separate index exists.",
+      "upstream_test_parity": "converted/adapted"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/cos/TestCOSUpdateInfo.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Deep structure converted and expanded to 50000 mixed dictionary/array/dereferenced-object levels with cycle; lazy dereference regression checks unchanged flags.",
+      "note": "Deep structure converted and expanded to 50000 mixed dictionary/array/dereferenced-object levels with cycle; lazy dereference regression checks unchanged flags.",
+      "upstream_test_parity": "converted/adapted"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PDFMergerUtilityTest.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "needs-manual-sync",
+      "result_status": "needs-manual-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Page-label zero-entry and both named-destination split cases converted as synthetic regressions. Expanded upstream structure-tree merge/split orphan checks and rendering fixture assertions deferred: established .NET merger/splitter lacks full upstream structure-tree copying.",
+      "note": "Page-label zero-entry and both named-destination split cases converted as synthetic regressions. Expanded upstream structure-tree merge/split orphan checks and rendering fixture assertions deferred: established .NET merger/splitter lacks full upstream structure-tree copying.",
+      "upstream_test_parity": "partially converted/deferred (see note)"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PageExtractorTest.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "needs-manual-sync",
+      "result_status": "needs-manual-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Upstream test-extraction/refactoring changes exercise pre-existing extractor fixtures. No new production PageExtractor change. Fixture-based upstream parity is deferred; existing .NET extractor tests included in full suite.",
+      "note": "Upstream test-extraction/refactoring changes exercise pre-existing extractor fixtures. No new production PageExtractor change. Fixture-based upstream parity is deferred; existing .NET extractor tests included in full suite.",
+      "upstream_test_parity": "partially converted/deferred (see note)"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfparser/TestCOSParser.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Escaped closing parenthesis regression PDFBOX-6167 converted. PDFBOX-276 single-token parsing fixture is represented through existing .NET COS parsing tests; standalone token-prefix read differs from Parse whole-object API.",
+      "note": "Escaped closing parenthesis regression PDFBOX-6167 converted. PDFBOX-276 single-token parsing fixture is represented through existing .NET COS parsing tests; standalone token-prefix read differs from Parse whole-object API.",
+      "upstream_test_parity": "converted/adapted"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/TestPDPageTree.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Failed-index then valid-index test and standalone page-tree root checks converted; existing per-call visited set needs no production change.",
+      "note": "Failed-index then valid-index test and standalone page-tree root checks converted; existing per-call visited set needs no production change.",
+      "upstream_test_parity": "converted/adapted"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDStructureElementTest.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "needs-manual-sync",
+      "result_status": "needs-manual-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Synthetic header COSString/malformed array regression covers changed primitive. Full class-map/21 attribute revision traversal of new PDFBOX-6261 fixture deferred (existing adapted attribute/class-map APIs differ); no full fixture-equivalence claim.",
+      "note": "Synthetic header COSString/malformed array regression covers changed primitive. Full class-map/21 attribute revision traversal of new PDFBOX-6261 fixture deferred (existing adapted attribute/class-map APIs differ); no full fixture-equivalence claim.",
+      "upstream_test_parity": "partially converted/deferred (see note)"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/interactive/annotation/PDAnnotationWidgetTest.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "No-dirty construction test converted for correctly typed parsed widget, plus wrong-subtype correction.",
+      "note": "No-dirty construction test converted for correctly typed parsed widget, plus wrong-subtype correction.",
+      "upstream_test_parity": "converted/adapted"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/util/TestHexUtil.java",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "Uneven hex input test converted.",
+      "note": "Uneven hex input test converted.",
+      "upstream_test_parity": "converted/adapted"
+    },
+    {
+      "source_path": "pdfbox/src/test/resources/org/apache/pdfbox/pdmodel/documentinterchange/logicalstructure/PDFBOX-6261-085992.pdf",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "source_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "port_mode": "adapted",
+      "status": "needs-manual-sync",
+      "result_status": "needs-manual-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-10-28T05:51:57.448184+00:00",
+      "sync_note": "New PDFBOX-6261 binary fixture belongs to deferred full class-map traversal test; kept in upstream checkout only, no misleading port fixture/test claim.",
+      "note": "New PDFBOX-6261 binary fixture belongs to deferred full class-map traversal test; kept in upstream checkout only, no misleading port fixture/test claim.",
+      "upstream_test_parity": "partially converted/deferred (see note)"
+    }
+  ],
+  "qa": {
+    "source_similarity": "Mechanical iterative COS update traversal and new tree helpers; remaining areas preserve explicitly described existing .NET adapters.",
+    "report_row_gaps": "Shared conversion/normalization/traceability reports are integrated by parent; this slice enumerates every owned changed source path.",
+    "test_gaps": "Full upstream structure-tree merge/split, class-map fixture traversal, null-key HashMap and Java clone/view APIs explicitly deferred. Existing eager parser lacks brute-force trailer recovery; API extraction does not assert new recovery parity."
+  },
+  "validation": [
+    {
+      "command": "dotnet build tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false",
+      "result": "Compiled; touched core source has no new warnings. Existing Cryptography obsolete BouncyCastle API warning appeared on cold dependency build."
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false --filter FullyQualifiedName~Issue957CoreTest",
+      "result": "14 passed, 0 failed, 0 skipped",
+      "log": "/private/tmp/957-core-focused-final3.log"
+    },
+    {
+      "command": "dotnet test tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj --no-restore --disable-build-servers -m:1 -p:UseSharedCompilation=false",
+      "result": "1404 passed, 1 failed, 2 skipped. Failure: existing DeviceN identity-function setter calls GetCOSObject after newly ported guard; rendering-slice owner is adapting its owned PDDeviceN/PDSeparation setters. Integrated suite must verify.",
+      "log": "/private/tmp/957-core-full.log"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ]
+}

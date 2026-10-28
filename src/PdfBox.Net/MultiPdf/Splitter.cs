@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -27,6 +27,7 @@
 
 using PdfBox.Net.COS;
 using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Interactive.DocumentNavigation.Destination;
 using Microsoft.Extensions.Logging;
 using PdfBox.Net.Logging;
 
@@ -94,13 +95,14 @@ public class Splitter
         int effectiveEnd = Math.Min(_endPage == int.MaxValue ? numberOfPages : _endPage, numberOfPages);
 
         List<PDDocument> destinations = new();
+        Dictionary<COSDictionary, (PDDocument Document, COSDictionary Page)> pageMap = new(ReferenceEqualityComparer.Instance);
 
         if (effectiveStart > effectiveEnd)
         {
             return destinations;
         }
 
-        PDFCloneUtility cloner = new(CreateNewDocument());
+        PDFCloneUtility? cloner = null;
         PDDocument? current = null;
         int pagesInCurrent = 0;
 
@@ -122,11 +124,12 @@ public class Splitter
 
                 PDPage sourcePage = document.GetPage(pageNumber - 1);
                 COSDictionary pageDictionary = (COSDictionary)sourcePage.GetCOSObject();
-                COSDictionary cloned = cloner.CloneForNewDocument(pageDictionary)
+                COSDictionary cloned = cloner!.CloneForNewDocument(pageDictionary)
                     ?? throw new IOException($"Unable to clone page dictionary for page {pageNumber}.");
 
                 cloned.RemoveItem(COSName.PARENT);
                 current.AddPage(new PDPage(cloned));
+                pageMap[pageDictionary] = (current, cloned);
                 pagesInCurrent++;
             }
 
@@ -147,7 +150,92 @@ public class Splitter
             throw;
         }
 
+        FixNameDestinations(document, destinations, pageMap);
         return destinations;
+    }
+
+    /// <summary>
+    /// PDFBOX-6283: clone named destinations only into the split document that contains their page.
+    /// Handles both the /Names/Dests tree and the legacy /Dests dictionary.
+    /// </summary>
+    private static void FixNameDestinations(PDDocument source, IList<PDDocument> destinations,
+        Dictionary<COSDictionary, (PDDocument Document, COSDictionary Page)> pageMap)
+    {
+        var sourceCatalog = source.GetDocumentCatalog();
+        PDDestinationNameTreeNode? tree = sourceCatalog.GetNames()?.GetDests();
+        Dictionary<PDDocument, Dictionary<string, PDPageDestination>> trees = new();
+        if (tree is not null)
+        {
+            foreach (var entry in tree.GetTreeAsMap())
+            {
+                if (CloneDestination(entry.Value, pageMap) is { } clone)
+                {
+                    if (!trees.TryGetValue(clone.Document, out var names))
+                    {
+                        names = new(StringComparer.Ordinal);
+                        trees[clone.Document] = names;
+                    }
+                    names[entry.Key] = clone.Destination;
+                }
+            }
+            foreach (var entry in trees)
+            {
+                PDDocumentCatalog catalog = entry.Key.GetDocumentCatalog();
+                PDDocumentNameDictionary names = new(catalog);
+                PDDestinationNameTreeNode destinationTree = new();
+                destinationTree.SetNames(entry.Value);
+                names.SetDests(destinationTree);
+                catalog.SetNames(names);
+            }
+        }
+        PDDocumentNameDestinationDictionary? legacy = sourceCatalog.GetDests();
+        if (legacy is null)
+        {
+            return;
+        }
+        foreach (COSName key in legacy.GetCOSObject().KeySet())
+        {
+            PDDestination? destination = legacy.GetDestination(key.GetName());
+            if (destination is PDPageDestination pageDestination)
+            {
+                if (CloneDestination(pageDestination, pageMap) is { } clone)
+                {
+                    COSDictionary catalog = (COSDictionary)clone.Document.GetDocumentCatalog().GetCOSObject();
+                    COSDictionary destinationDictionary = catalog.GetCOSDictionary(COSName.DESTS) ?? new();
+                    destinationDictionary.SetItem(key, clone.Destination);
+                    catalog.SetItem(COSName.DESTS, destinationDictionary);
+                }
+            }
+            else if (destination is not null)
+            {
+                foreach (PDDocument document in destinations)
+                {
+                    COSDictionary catalog = (COSDictionary)document.GetDocumentCatalog().GetCOSObject();
+                    COSDictionary destinationDictionary = catalog.GetCOSDictionary(COSName.DESTS) ?? new();
+                    destinationDictionary.SetItem(key, destination);
+                    catalog.SetItem(COSName.DESTS, destinationDictionary);
+                }
+            }
+        }
+    }
+
+    private static (PDDocument Document, PDPageDestination Destination)? CloneDestination(
+        PDPageDestination? source,
+        Dictionary<COSDictionary, (PDDocument Document, COSDictionary Page)> pageMap)
+    {
+        if (source?.GetPage() is not PDPage page ||
+            !pageMap.TryGetValue((COSDictionary)page.GetCOSObject(), out var target))
+        {
+            return null;
+        }
+        COSArray array = new();
+        foreach (COSBase? value in (COSArray)source.GetCOSObject())
+        {
+            array.Add(value);
+        }
+        PDPageDestination clone = (PDPageDestination)PDDestination.Create(array)!;
+        clone.SetPage(new PDPage(target.Page));
+        return (target.Document, clone);
     }
 
     /// <summary>

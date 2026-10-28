@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/function/PDFunction.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -49,15 +49,12 @@ public abstract class PDFunction : COSObjectable
         {
             _functionDictionary = dictionary;
         }
-        else
-        {
-            _functionDictionary = new COSDictionary();
-        }
     }
 
     public abstract int GetFunctionType();
 
-    public COSDictionary GetCOSObject() => _functionStream?.GetCOSObject() ?? _functionDictionary!;
+    public COSDictionary GetCOSObject() => _functionStream?.GetCOSObject() ?? _functionDictionary
+        ?? throw new NotSupportedException($"No dictionary available in {GetType().Name}");
 
     COSBase COSObjectable.GetCOSObject() => GetCOSObject();
 
@@ -100,8 +97,8 @@ public abstract class PDFunction : COSObjectable
 
     public PDRange GetRangeForOutput(int n)
     {
-        COSArray rangeValues = GetRangeValues() ?? throw new IOException("Range missing in function");
-        return new PDRange(rangeValues, n);
+        COSArray? rangeValues = GetRangeValues();
+        return rangeValues is null ? ZeroRange() : new PDRange(rangeValues, n);
     }
 
     public void SetRangeValues(COSArray rangeValues)
@@ -114,8 +111,8 @@ public abstract class PDFunction : COSObjectable
     {
         if (_numberOfInputValues == -1)
         {
-            COSArray array = GetDomainValues();
-            _numberOfInputValues = array.Size() / 2;
+            COSArray? array = GetDomainValues();
+            _numberOfInputValues = array is null ? 0 : array.Size() / 2;
         }
 
         return _numberOfInputValues;
@@ -123,7 +120,8 @@ public abstract class PDFunction : COSObjectable
 
     public PDRange GetDomainForInput(int n)
     {
-        return new PDRange(GetDomainValues(), n);
+        COSArray? domainValues = GetDomainValues();
+        return domainValues is null ? ZeroRange() : new PDRange(domainValues, n);
     }
 
     public void SetDomainValues(COSArray domainValues)
@@ -185,9 +183,19 @@ public abstract class PDFunction : COSObjectable
         return yRangeMin + (((x - xRangeMin) * (yRangeMax - yRangeMin)) / (xRangeMax - xRangeMin));
     }
 
-    private COSArray GetDomainValues()
+    private COSArray? GetDomainValues()
     {
-        _domain ??= GetCOSObject().GetCOSArray(COSName.GetPDFName("Domain")) ?? throw new IOException("Domain missing in function");
+        _domain ??= GetCOSObject().GetCOSArray(COSName.GetPDFName("Domain"));
         return _domain;
     }
+
+    private static PDRange ZeroRange()
+    {
+        COSArray array = new();
+        array.Add(COSInteger.ZERO);
+        array.Add(COSInteger.ZERO);
+        return new PDRange(array);
+    }
+
+    public override string ToString() => $"PDFunction{{functionStream={_functionStream}, functionDictionary={_functionDictionary}, domain={_domain}, range={_range}, numberOfInputValues={_numberOfInputValues}, numberOfOutputValues={_numberOfOutputValues}}}";
 }

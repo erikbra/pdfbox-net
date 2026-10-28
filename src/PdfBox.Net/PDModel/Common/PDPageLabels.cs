@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -69,7 +69,9 @@ public class PDPageLabels : COSObjectable
         _labels[startPage] = item ?? throw new ArgumentNullException(nameof(item));
     }
 
-    public COSBase GetCOSObject()
+    COSBase COSObjectable.GetCOSObject() => GetCOSObject();
+
+    public COSDictionary GetCOSObject()
     {
         COSArray arr = new();
         foreach (KeyValuePair<int, PDPageLabelRange> kvp in _labels)

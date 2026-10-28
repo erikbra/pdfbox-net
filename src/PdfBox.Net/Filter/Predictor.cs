@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -48,6 +48,16 @@ internal static class Predictor
             return data;
         }
 
+        long maxRowLength = 10_000_000L;
+        if (long.TryParse(Environment.GetEnvironmentVariable(Filter.SyspropPredictorMaxRowLength), out long parsed) && parsed > 0)
+        {
+            maxRowLength = parsed;
+        }
+        if (rowLength > maxRowLength)
+        {
+            throw new IOException($"Calculated row length is too high: {rowLength} (colors: {colors}, bitsPerComponent: {bitsPerComponent}, columns: {columns})");
+        }
+
         using MemoryStream output = new(data.Length);
         byte[] currentRow = new byte[rowLength];
         byte[] previousRow = new byte[rowLength];
@@ -86,8 +96,20 @@ internal static class Predictor
 
     private static int CalculateRowLength(int colors, int bitsPerComponent, int columns)
     {
-        int bitsPerPixel = colors * bitsPerComponent;
-        return (columns * bitsPerPixel + 7) / 8;
+        long rowLength;
+        try
+        {
+            rowLength = checked(((long)columns * colors * bitsPerComponent + 7) / 8);
+        }
+        catch (OverflowException exception)
+        {
+            throw new IOException("Calculated row length is too high.", exception);
+        }
+        if (rowLength < 0 || rowLength > int.MaxValue)
+        {
+            throw new IOException($"Calculated row length is invalid: {rowLength}");
+        }
+        return (int)rowLength;
     }
 
     private static void DecodePredictorRow(int predictor, int colors, int bitsPerComponent, int columns, byte[] actline, byte[] lastline)

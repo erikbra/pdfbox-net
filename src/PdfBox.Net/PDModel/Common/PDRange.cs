@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDRange.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -57,6 +57,7 @@ public partial class PDRange : COSObjectable
 
     public COSArray GetCOSArray() => _rangeArray;
 
+    /// <summary>Returns the minimum range value, or zero for a nonnumeric entry.</summary>
     public float GetMin()
     {
         return _rangeArray.GetObject(_startingIndex * 2) is COSNumber min ? min.FloatValue() : 0f;
@@ -67,6 +68,7 @@ public partial class PDRange : COSObjectable
         _rangeArray.Set(_startingIndex * 2, new COSFloat(min));
     }
 
+    /// <summary>Returns the maximum range value, or zero for a nonnumeric entry.</summary>
     public float GetMax()
     {
         return _rangeArray.GetObject((_startingIndex * 2) + 1) is COSNumber max ? max.FloatValue() : 0f;
