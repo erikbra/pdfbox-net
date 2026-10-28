@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java
  * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -297,9 +297,31 @@ public partial class PDType0Font : PDVectorFont
         if (CodepointToEncodingMap.TryGetValue(unicode, out byte[]? cached)) return cached;
         if (_descendantFont is not PDCIDFontType2 type2)
             return base.Encode(unicode);
-        int cid;
+        int cid = -1;
         string? cmapName = _cMap?.Name;
-        if (!type2.IsEmbedded() && cmapName?.StartsWith("Uni", StringComparison.Ordinal) == true && _cMapUcs2 is not null)
+        if (type2.IsEmbedded())
+        {
+            if (cmapName?.StartsWith("Identity-", StringComparison.Ordinal) == true)
+            {
+                if (type2.GetTrueTypeFont().GetUnicodeCmapLookup(false) is CmapLookup cmap)
+                    cid = cmap.GetGlyphId(unicode);
+            }
+            else if (_cMapUcs2 is not null)
+            {
+                cid = _cMapUcs2.ToCID(unicode);
+            }
+            if (cid == -1)
+            {
+                byte[]? codes = GetToUnicodeCMap()?.GetCodesFromUnicode(((char)unicode).ToString());
+                if (codes is not null)
+                {
+                    CodepointToEncodingMap[unicode] = codes;
+                    return codes;
+                }
+                cid = 0;
+            }
+        }
+        else if (cmapName?.StartsWith("Uni", StringComparison.Ordinal) == true && _cMapUcs2 is not null)
             cid = unicode; // Predefined Uni CMap codes are raw UTF-16BE Unicode values.
         else
             cid = type2.GetTrueTypeFont().GetUnicodeCmapLookup(false)?.GetGlyphId(unicode) ?? 0;

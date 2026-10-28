@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -502,10 +502,9 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
         base.BeginMarkedContentSequence(tag, properties);
         PDMarkedContent markedContent = PDMarkedContent.Create(tag, properties);
         _currentMarkedContents.Push(markedContent);
-        string? actualText = markedContent.GetActualText();
-        if (!string.IsNullOrEmpty(actualText))
+        _actualText = markedContent.GetActualText();
+        if (_actualText is not null)
         {
-            _actualText = actualText;
             _firstActualTextPosition = true;
         }
     }

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/text/BeginText.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -49,6 +49,7 @@ public sealed class BeginText : OperatorProcessor
     public override void Process(Operator op, IList<COSBase> operands)
     {
         Context.SetTextMatrices(new Matrix(), new Matrix());
+        Context.SetTextObjectActive(true);
         Context.BeginText();
     }
 }

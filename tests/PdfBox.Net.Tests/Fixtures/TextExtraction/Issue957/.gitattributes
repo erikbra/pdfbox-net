@@ -1,0 +1,2 @@
+# Preserve exact Java extraction reference output, including trailing layout spaces.
+*.pdf.txt whitespace=-blank-at-eol

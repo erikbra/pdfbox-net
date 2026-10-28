@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/Standard14Fonts.java
  * PDFBOX_SOURCE_COMMIT: a78a7b7ef65bb22200d7d3aa86cea033b9bf431e
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: a78a7b7ef65bb22200d7d3aa86cea033b9bf431e
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*

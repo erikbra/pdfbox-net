@@ -1,0 +1,9 @@
+{
+  "upstream_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+  "source_manifest": "apache/pdfbox pdfbox/pom.xml",
+  "fixtures": [
+    {"path": "PDFBOX-5250-pattern-reduced3.pdf", "source_url": "https://issues.apache.org/jira/secure/attachment/13073765/PDFBOX-5250-pattern-reduced3.pdf", "sha512": "fef1da8db49531a3bf017c6872b2032cac2d3c7e431f5529a80f87886b2d06455d086c9228ad35aee80d824ffb9e65e5ea302327b7feada001ede66f83199101", "test_status": "explicitly skipped: existing Type7 tensor-product mesh rasterization is deferred"},
+    {"path": "PDFBOX-5960-reduced1.pdf", "source_url": "https://issues.apache.org/jira/secure/attachment/13074906/PDFJS-19527-reduced1.pdf", "sha512": "cd6d92c643108cdcf2b4c6a4ae4cc5a15d848e3335f6c8a135a5438d691eb982d11cfd8f26d11839321e06a364126d9b0c9732b4a19785821b844fe0ec94d525", "test_status": "passed: GID90 for code71"},
+    {"path": "PDFBOX-5079-PDF2.0imagewithBPC.pdf", "source_url": "https://issues.apache.org/jira/secure/attachment/13018679/PDF2.0imagewithBPC.pdf", "sha512": "f3d0934c9d0babedd76431565bdb1cc1bf6d9f0a5ace7656a9ded53fb1e701dd0d12c784a58ae87098793f57ba5b98cbfb657e047e27d5464b26634511162264", "test_status": "passed: calibrated red image pixel"}
+  ]
+}

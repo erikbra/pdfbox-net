@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDVectorFont.java
  * PDFBOX_SOURCE_COMMIT: 977c0fe181d112446967becaf143764e8d9dea8a
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 977c0fe181d112446967becaf143764e8d9dea8a
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -37,7 +37,15 @@ public abstract partial class PDVectorFont : PDFont
     {
     }
 
-    /// <summary>Returns a grid-fitted normalized glyph outline at the requested pixels per em, or null when hinting does not apply.</summary>
+    /// <summary>
+    /// Returns the grid-fitted (TrueType-hinted) normalized glyph path for the given PDF character code
+    /// at the given pixels per em, or null if hinting does not apply. The result is normalized to the
+    /// 1000-unit square, like <see cref="GetNormalizedPath"/>. The default implementation returns null.
+    /// </summary>
+    /// <param name="code">Character code in a PDF, not Unicode.</param>
+    /// <param name="ppem">The pixels per em at which the glyph will be rendered.</param>
+    /// <returns>The hinted normalized glyph path, or null to use the unhinted path.</returns>
+    /// <exception cref="IOException">If the font could not be read.</exception>
     public virtual GeneralPath? GetHintedNormalizedPath(int code, int ppem) => null;
 
     public abstract bool HasGlyph(int code);

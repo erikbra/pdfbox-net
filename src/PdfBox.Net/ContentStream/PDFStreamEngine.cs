@@ -4,8 +4,8 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -86,6 +86,10 @@ public class PDFStreamEngine
     private Matrix _textMatrix = new();
     private Matrix _textLineMatrix = new();
     private Matrix _initialMatrix = new();
+    // The .NET matrix API is non-nullable; track Java's null text-matrix state separately.
+    // A stand-alone operator engine starts with its existing identity-matrix state.
+    internal bool IsTextObjectActive { get; private set; } = true;
+    internal void SetTextObjectActive(bool active) => IsTextObjectActive = active;
     private (float X, float Y)? _currentPoint;
     private int? _pendingClipWindingRule;
     private int _compatibilitySectionDepth;
@@ -121,6 +125,7 @@ public class PDFStreamEngine
     public virtual void ProcessPage(PDPage page)
     {
         _currentPage = page;
+        IsTextObjectActive = false;
         _currentGraphicsState = new PDGraphicsState(page.GetCropBox());
         _graphicsStateStack.Clear();
         _textMatrix = new Matrix();
@@ -476,7 +481,7 @@ public class PDFStreamEngine
     /// </summary>
     internal void ShowStringGlyphs(byte[] bytes)
     {
-        if (bytes is null || bytes.Length == 0) return;
+        if (!IsTextObjectActive || bytes is null || bytes.Length == 0) return;
 
         PDTextState textState = _currentGraphicsState.GetTextState();
         float fontSize = textState.GetFontSize();

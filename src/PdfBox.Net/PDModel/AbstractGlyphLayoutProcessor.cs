@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/AbstractGlyphLayoutProcessor.java
  * PDFBOX_SOURCE_COMMIT: 29924536e079f20086049ade35adb5bfd6f29677
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 1187c45f9dcee38ed5ac12bc15df04913b348875
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*

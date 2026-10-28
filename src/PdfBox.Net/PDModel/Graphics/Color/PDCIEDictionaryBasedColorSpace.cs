@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/graphics/color/PDCIEDictionaryBasedColorSpace.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -84,14 +84,6 @@ public abstract partial class PDCIEDictionaryBasedColorSpace : PDCIEBasedColorSp
         }
         FillWhitePointCache(GetWhitepoint());
     }
-
-    /// <summary>
-    /// Returns true if the cached whitepoint is the D50 illuminant (1, 1, 1).
-    /// </summary>
-    protected bool IsWhitePoint() =>
-        MathF.Abs(WpX - 1f) < float.Epsilon &&
-        MathF.Abs(WpY - 1f) < float.Epsilon &&
-        MathF.Abs(WpZ - 1f) < float.Epsilon;
 
     private void FillWhitePointCache(PDTristimulus whitepoint)
     {

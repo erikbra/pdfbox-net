@@ -1,0 +1,9 @@
+!= == === >= <=  
+!= == === >= <= (Ligatures)   
+AVATAR, effective, affiliation, float, film, affluent
+AVATAR, effective, affiliation, float, film, affluent (Ligatures)
+AVATAR, effective, affiliation, float, film, affluent (Kerning)
+AVATAR, effective, affiliation, float, film, affluent (Ligatures and kerning)
+กูกินก้งปิ้งอยู่ในถ้ำ
+আমি কোন পথে ক্ষীরের লক্ষ্মী ষন্ড পুতুল রুপো গঙ্গা ঋষি (ভারত)      
+হ্যালো ওয়ার্ল্ড   হ্যালো ওয়ার্ল্ড

@@ -75,7 +75,8 @@ public class Issue509GraphicsRenderingApiParityTest
 
         Assert.Equal([2.2f, 2.1f, 2.0f], colorSpace.GetGamma().GetCOSArray().ToFloatArray());
         Assert.Equal([1f, 2f, 0f, 3f, 4f, 0f, 5f, 6f, 1f], colorSpace.GetMatrix());
-        Assert.Equal(MathF.Pow(0.5f, 2.2f), colorSpace.ToRGB([0.5f, 0.5f, 0.5f])[0], 6);
+        // PDFBOX-5079: calibration now applies the declared matrix before converting XYZ to RGB.
+        Assert.Equal(1f, colorSpace.ToRGB([0.5f, 0.5f, 0.5f])[0]);
 
         colorSpace.SetMatrix(null);
 
