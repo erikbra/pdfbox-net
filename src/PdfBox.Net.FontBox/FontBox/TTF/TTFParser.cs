@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: fontbox/src/main/java/org/apache/fontbox/ttf/TTFParser.java
  * PDFBOX_SOURCE_COMMIT: 7e9effef313cb0ff091e741d7d4aa58c3b1ecdbf
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 046747da99a870902217efabf1c41297de157059
+ * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
  */
 
 /*
@@ -331,6 +331,18 @@ public class TTFParser
                 break;
             case GlyphSubstitutionTable.TAG:
                 table = new GlyphSubstitutionTable();
+                break;
+            case ControlValueTable.TAG:
+                table = new ControlValueTable();
+                break;
+            case FontProgramTable.TAG:
+                table = new FontProgramTable();
+                break;
+            case ControlValueProgramTable.TAG:
+                table = new ControlValueProgramTable();
+                break;
+            case GaspTable.TAG:
+                table = new GaspTable();
                 break;
             default:
                 table = ReadTable(tag);
