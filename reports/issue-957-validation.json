@@ -220,7 +220,22 @@
     "total_category_budget_before": 365,
     "total_category_budget_after": 365,
     "tolerances_or_status_limits_changed": false,
-    "evidence": "reports/issue-957-runtime-category-redistribution.json"
+    "evidence": "reports/issue-957-runtime-category-redistribution.json",
+    "common_caps_validation": {
+      "macos": {
+        "comparison_rows": 691,
+        "all_rows_match": true,
+        "ratchet_failures": [],
+        "strict_gate_failures": []
+      },
+      "ubuntu": {
+        "comparison_rows": 691,
+        "all_rows_match": true,
+        "ratchet_failures": [],
+        "strict_gate_failures": []
+      }
+    },
+    "ubuntu_initial_ci": "Build/tests/API passed; runtime all691match but category counter failed. Evidence-backed redistribution fixes the counter; new-head CI must pass before merge."
   },
   "coverage": {
     "upstream_production_files": 1091,

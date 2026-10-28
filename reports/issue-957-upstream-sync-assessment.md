@@ -52,8 +52,9 @@ the custom CMap and optional-Type signature defects. The runtime gate then expos
 and verified the CFF spacing prerequisite. No image tolerance, known-failure or
 unexpected allowance, or API ratchet was increased. The runtime category budget is
 redistributed after independently reviewed improvements: visual 72 to 73 and the
-weaker glyph-raster category 5 to 4, preserving total budget 365. Every Java reference
-image hash is unchanged and both changed .NET renderings improve all pixel metrics.
+weaker glyph-raster category 5 to 3 and foreground-shape 37 to 38, preserving total
+budget 365 across macOS and Ubuntu. Reference hashes for all transitioned fixtures
+are unchanged and their .NET renderings improve every recorded pixel metric.
 The original all-matching run exited 1 solely on the visual category counter; this
 reviewed correction and the subsequent successful gate are recorded separately in
 `issue-957-runtime-category-redistribution.json`.
@@ -109,3 +110,15 @@ The accepted PDFBOX-6200 iterative traversal closes #881. A generated mixed grap
 with 150,001 update-state nodes, cycles, lazy dereferencing and update flags is
 covered alongside the upstream Java reference test. Other tracking issues remain
 open; this batch does not claim to resolve their outstanding fixture/design gaps.
+
+## Ubuntu CI category evidence
+
+The first PR run passed build/tests/API and all 691 runtime rows matched, but the
+foreground count 38 exceeded 37. Direct comparison with the previous successful main
+CI found three improvements: 3038 and 3062 move from glyph-raster to foreground, and
+custom-render-demo moves from foreground to visual. All three Java references are
+byte-identical and every recorded pixel difference improves. Common caps visual 73,
+foreground 38, glyph 3 preserve original total category budget 365 and all other
+limits/tolerances. Both complete host summaries pass the existing ratchet and strict
+validators. ZIP hashes/metrics and exact run IDs are recorded in the redistribution
+report. No source behavior or harness classification was changed for this follow-up.
