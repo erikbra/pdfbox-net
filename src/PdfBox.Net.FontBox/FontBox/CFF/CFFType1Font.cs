@@ -129,6 +129,10 @@ public sealed class CFFType1Font : CFFFont, EncodedFont
             case double doubleValue:
                 number = (int)doubleValue;
                 return true;
+            case IList<float> operands when operands.Count == 1:
+                // CFF DICT entries parsed by CFFParser retain their operand-list shape.
+                number = (int)operands[0];
+                return true;
             default:
                 number = 0;
                 return false;
