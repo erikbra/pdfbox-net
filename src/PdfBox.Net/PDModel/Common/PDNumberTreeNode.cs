@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -174,7 +174,7 @@ public partial class PDNumberTreeNode : COSObjectable
         }
         catch (Exception exception)
         {
-            throw new IOException($"Error while trying to create value in number tree: {exception.Message}", exception);
+            throw new IOException($"Error while trying to create {_valueType.Name}-typed value in number tree: {exception.Message}", exception);
         }
     }
 

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -30,13 +30,16 @@ using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Form;
 using PdfBox.Net.PDModel.Resources;
+using PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure;
+using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Graphics.Image;
 using Microsoft.Extensions.Logging;
 using PdfBox.Net.Logging;
 
 namespace PdfBox.Net.MultiPdf;
 
 /// <summary>
-/// Merges multiple PDF documents into one destination document.
+/// Merges multiple PDF documents into one destination document. The class is not thread-safe.
 /// </summary>
 public class PDFMergerUtility
 {
@@ -134,18 +137,24 @@ public class PDFMergerUtility
     }
 
     /// <summary>
-    /// Merges configured sources and writes to the configured destination.
+    /// Merges the source documents, saving the result in the configured destination.
+    /// The source list is not reset after the merge. To merge one document at a time, use
+    /// <see cref="AppendDocument"/>.
     /// </summary>
+    /// <exception cref="IOException">If there is an error saving the document.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// If neither destination filename nor stream has been set, including when the source list is empty.
+    /// </exception>
     public void MergeDocuments()
     {
+        if (DestinationStream is null && string.IsNullOrWhiteSpace(DestinationFileName))
+        {
+            throw new InvalidOperationException("Neither destination filename nor stream has been set");
+        }
+
         if (_sources.Count == 0)
         {
             return;
-        }
-
-        if (DestinationStream is null && string.IsNullOrWhiteSpace(DestinationFileName))
-        {
-            throw new InvalidOperationException("Either DestinationStream or DestinationFileName must be set.");
         }
 
         using PDDocument destination = new();
@@ -221,9 +230,32 @@ public class PDFMergerUtility
 
         PDDocumentCatalog destinationCatalog = destination.GetDocumentCatalog();
         MergeAcroForm(cloner, destinationCatalog, sourceCatalog);
-        MergePageLabels(destination, sourceCatalog, destinationCatalog, cloner);
+        MergePageLabels(source, destination, sourceCatalog, destinationCatalog, cloner);
         MergeMarkInfo(sourceCatalog, destinationCatalog);
         MergeCatalogDictionaries(cloner, destinationCatalog, sourceCatalog);
+
+        PDStructureTreeRoot? sourceStructure = sourceCatalog.GetStructureTreeRoot();
+        PDStructureTreeRoot? destinationStructure = destinationCatalog.GetStructureTreeRoot();
+        if (destinationStructure is null && sourceStructure is not null)
+        {
+            destinationStructure = new();
+            destinationStructure.SetParentTree(new PDNumberTreeNode(typeof(PDParentTreeValue)));
+            destinationCatalog.SetStructureTreeRoot(destinationStructure);
+            foreach (PDPage page in destination.GetPages())
+            {
+                RemoveStructParentEntries(page);
+            }
+        }
+        var destinationParentTree = GetParentTreeValues(destinationStructure);
+        var sourceParentTree = GetParentTreeValues(sourceStructure);
+        bool mergeStructureTree = destinationParentTree is not null && sourceParentTree?.Count > 0;
+        int parentTreeOffset = destinationStructure?.GetCOSObject().GetInt(COSName.GetPDFName("ParentTreeNextKey"), -1) ?? -1;
+        if (parentTreeOffset < 0 && destinationParentTree is not null)
+        {
+            parentTreeOffset = destinationParentTree.Count == 0 ? 0 : destinationParentTree.Keys.Max() + 1;
+        }
+        Dictionary<COSDictionary, COSDictionary> objectMapping = new(ReferenceEqualityComparer.Instance);
+        HashSet<COSDictionary> visitedXObjects = new(ReferenceEqualityComparer.Instance);
 
         foreach (PDPage page in source.GetPages())
         {
@@ -241,52 +273,294 @@ public class PDFMergerUtility
                 ? new PDResources()
                 : new PDResources(cloner.CloneForNewDocument(resources.GetCOSObject())!));
 
+            if (mergeStructureTree)
+            {
+                UpdateStructParentEntries(page, newPage, parentTreeOffset, objectMapping, visitedXObjects);
+            }
+            else
+            {
+                RemoveStructParentEntries(newPage);
+            }
             destination.AddPage(newPage);
+        }
+        if (mergeStructureTree)
+        {
+            MergeStructureTree(cloner, sourceStructure!, destinationStructure!, sourceParentTree!,
+                destinationParentTree!, parentTreeOffset, objectMapping);
         }
     }
 
-    private static void MergePageLabels(PDDocument destination, PDDocumentCatalog sourceCatalog,
-        PDDocumentCatalog destinationCatalog, PDFCloneUtility cloner)
+    private static Dictionary<int, COSObjectable?>? GetParentTreeValues(PDStructureTreeRoot? structure)
     {
-        COSDictionary? sourceLabels = ((COSDictionary)sourceCatalog.GetCOSObject()).GetCOSDictionary(COSName.PAGE_LABELS);
-        if (sourceLabels is null)
+        // The port's convenience parent-tree node exposes structure elements only. A merger
+        // needs the upstream value wrapper, which also preserves arrays of structure elements.
+        COSDictionary? dictionary = structure?.GetCOSObject().GetCOSDictionary(COSName.GetPDFName("ParentTree"));
+        return dictionary is null ? null : new PDNumberTreeNode(dictionary, typeof(PDParentTreeValue)).GetTreeAsMap();
+    }
+
+    private static void RemoveStructParentEntries(PDPage page)
+    {
+        ((COSDictionary)page.GetCOSObject()).RemoveItem(COSName.STRUCT_PARENTS);
+        foreach (var annotation in page.GetAnnotations())
         {
-            return;
+            ((COSDictionary)annotation.GetCOSObject()).RemoveItem(COSName.GetPDFName("StructParent"));
         }
-        int destinationPageCount = destination.GetNumberOfPages();
-        COSDictionary? destinationLabels = ((COSDictionary)destinationCatalog.GetCOSObject()).GetCOSDictionary(COSName.PAGE_LABELS);
-        if (destinationLabels is null)
+    }
+
+    /// <summary>Updates the StructParents and StructParent values in a page.</summary>
+    /// <param name="oldPage">The old page.</param>
+    /// <param name="newPage">The new page.</param>
+    /// <param name="offset">The offset to apply.</param>
+    /// <param name="objectMapping">Mapping between old and new references.</param>
+    /// <param name="visited">XObjects already updated in this append operation.</param>
+    private static void UpdateStructParentEntries(PDPage oldPage, PDPage newPage, int offset,
+        Dictionary<COSDictionary, COSDictionary> objectMapping, HashSet<COSDictionary> visited)
+    {
+        COSDictionary newDictionary = (COSDictionary)newPage.GetCOSObject();
+        int structParents = newDictionary.GetInt(COSName.STRUCT_PARENTS, -1);
+        if (structParents >= 0)
         {
-            // PDFBOX-6277: page labels must have an entry for page zero.
-            PDPageLabels labels = new(destination);
-            PDPageLabelRange range = new();
-            range.SetStyle(PDPageLabelRange.STYLE_DECIMAL);
-            labels.SetLabelItem(0, range);
-            destinationCatalog.SetPageLabels(labels);
-            destinationLabels = ((COSDictionary)destinationCatalog.GetCOSObject()).GetCOSDictionary(COSName.PAGE_LABELS)!;
+            newDictionary.SetInt(COSName.STRUCT_PARENTS, structParents + offset);
         }
-        COSArray? destinationNumbers = destinationLabels.GetCOSArray(COSName.NUMS);
-        COSArray? sourceNumbers = sourceLabels.GetCOSArray(COSName.NUMS);
-        if (sourceNumbers is null || destinationNumbers is null)
+        var oldAnnotations = oldPage.GetAnnotations();
+        var newAnnotations = newPage.GetAnnotations();
+        for (int i = 0; i < newAnnotations.Count; i++)
         {
-            return;
-        }
-        int startSize = destinationNumbers.Size();
-        for (int i = 0; i < sourceNumbers.Size(); i += 2)
-        {
-            COSBase? value = sourceNumbers.GetObject(i);
-            if (value is not COSNumber labelIndex)
+            COSDictionary annotation = (COSDictionary)newAnnotations[i].GetCOSObject();
+            int structParent = annotation.GetInt(COSName.GetPDFName("StructParent"), -1);
+            if (structParent >= 0)
             {
-                LOG.LogError("page labels ignored, index {Index} should be a number, but is {Value}", i, value);
-                while (destinationNumbers.Size() > startSize)
-                {
-                    destinationNumbers.Remove(startSize);
-                }
-                break;
+                annotation.SetInt(COSName.GetPDFName("StructParent"), structParent + offset);
             }
-            destinationNumbers.Add(COSInteger.Get((long)labelIndex.IntValue() + destinationPageCount));
-            destinationNumbers.Add(cloner.CloneForNewDocument(sourceNumbers.GetObject(i + 1)));
+            objectMapping[(COSDictionary)oldAnnotations[i].GetCOSObject()] = annotation;
         }
+        objectMapping[(COSDictionary)oldPage.GetCOSObject()] = newDictionary;
+        UpdateStructParentEntries(oldPage.GetResources(), newPage.GetResources(), offset, objectMapping, visited);
+    }
+
+    private static void UpdateStructParentEntries(PDResources? oldResources, PDResources? newResources,
+        int offset, Dictionary<COSDictionary, COSDictionary> objectMapping, HashSet<COSDictionary> visited)
+    {
+        if (oldResources is null || newResources is null)
+        {
+            return;
+        }
+        foreach (COSName name in newResources.GetXObjectNames())
+        {
+            var newXObject = newResources.GetXObject(name);
+            var oldXObject = oldResources.GetXObject(name);
+            if (oldXObject?.GetCOSObject() is not COSStream oldDictionary || !visited.Add(oldDictionary))
+            {
+                continue;
+            }
+            if (newXObject is PDImageXObject && newXObject.GetCOSObject() is COSStream image)
+            {
+                int structParent = image.GetInt(COSName.GetPDFName("StructParent"), -1);
+                if (structParent >= 0)
+                {
+                    image.SetInt(COSName.GetPDFName("StructParent"), structParent + offset);
+                    objectMapping[oldDictionary] = image;
+                }
+            }
+            else if (newXObject is PDFormXObject form && form.GetCOSObject() is COSStream formDictionary)
+            {
+                int structParents = formDictionary.GetInt(COSName.STRUCT_PARENTS, -1);
+                if (structParents >= 0)
+                {
+                    formDictionary.SetInt(COSName.STRUCT_PARENTS, structParents + offset);
+                    objectMapping[oldDictionary] = formDictionary;
+                }
+                UpdateStructParentEntries(((PDFormXObject)oldXObject).GetResources(), form.GetResources(),
+                    offset, objectMapping, visited);
+            }
+        }
+    }
+
+    private static void MergeStructureTree(PDFCloneUtility cloner, PDStructureTreeRoot source,
+        PDStructureTreeRoot destination, Dictionary<int, COSObjectable?> sourceNumbers,
+        Dictionary<int, COSObjectable?> destinationNumbers, int offset,
+        Dictionary<COSDictionary, COSDictionary> objectMapping)
+    {
+        int maximumSourceKey = -1;
+        foreach (var entry in sourceNumbers)
+        {
+            maximumSourceKey = Math.Max(maximumSourceKey, entry.Key);
+            if (entry.Value is not null)
+            {
+                COSBase clone = cloner.CloneForNewDocument(entry.Value.GetCOSObject())!;
+                UpdatePageReferences(clone, objectMapping, new HashSet<COSBase>(ReferenceEqualityComparer.Instance));
+                destinationNumbers[offset + entry.Key] = clone switch
+                {
+                    COSArray array => new PDParentTreeValue(array),
+                    COSDictionary dictionary => new PDParentTreeValue(dictionary),
+                    _ => throw new IOException("Invalid parent-tree value")
+                };
+            }
+        }
+        PDNumberTreeNode parentTree = new(typeof(PDParentTreeValue));
+        parentTree.SetNumbers(destinationNumbers);
+        destination.SetParentTree(parentTree);
+        destination.SetParentTreeNextKey(offset + maximumSourceKey + 1);
+        MergeKEntries(cloner, source, destination);
+        // Role-map and ID-tree entries keep the destination's existing definitions.
+        COSDictionary sourceDictionary = source.GetCOSObject();
+        COSDictionary destinationDictionary = destination.GetCOSObject();
+        COSDictionary? sourceRoles = sourceDictionary.GetCOSDictionary(COSName.GetPDFName("RoleMap"));
+        if (sourceRoles is not null)
+        {
+            COSDictionary destinationRoles = destinationDictionary.GetCOSDictionary(COSName.GetPDFName("RoleMap")) ?? new();
+            MergeInto(sourceRoles, destinationRoles, cloner, new HashSet<COSName>());
+            destinationDictionary.SetItem(COSName.GetPDFName("RoleMap"), destinationRoles);
+        }
+        var sourceIDs = source.GetIDTree();
+        if (sourceIDs is not null)
+        {
+            var ids = destination.GetIDTree()?.GetTreeAsMap() ?? new();
+            foreach (var entry in sourceIDs.GetTreeAsMap())
+            {
+                if (!ids.ContainsKey(entry.Key) && entry.Value is not null)
+                {
+                    ids[entry.Key] = new PDStructureElement(cloner.CloneForNewDocument(entry.Value.GetCOSObject())!);
+                }
+            }
+            PDStructureElementNameTreeNode tree = new();
+            tree.SetNames(ids);
+            destination.SetIDTree(tree);
+        }
+    }
+
+    /// <summary>Updates Pg and Obj references to the new (merged) objects.</summary>
+    private static void UpdatePageReferences(COSBase value,
+        Dictionary<COSDictionary, COSDictionary> objectMapping, HashSet<COSBase> visited)
+    {
+        if (!visited.Add(value))
+        {
+            return;
+        }
+        if (value is COSArray array)
+        {
+            foreach (COSBase? item in array)
+            {
+                if (item is not null)
+                {
+                    UpdatePageReferences(item is COSObject obj ? obj.GetObject()! : item, objectMapping, visited);
+                }
+            }
+        }
+        else if (value is COSDictionary dictionary)
+        {
+            // Cloning already maps source objects to the same destination instances. Keep the
+            // explicit mapping as well for direct references supplied by the parent-tree model.
+            foreach (COSName key in new[] { COSName.GetPDFName("Pg"), COSName.GetPDFName("Obj") })
+            {
+                if (dictionary.GetCOSDictionary(key) is COSDictionary reference &&
+                    objectMapping.TryGetValue(reference, out COSDictionary? replacement))
+                {
+                    dictionary.SetItem(key, replacement);
+                }
+            }
+            if (dictionary.GetDictionaryObject(COSName.K) is COSBase kids)
+            {
+                UpdatePageReferences(kids, objectMapping, visited);
+            }
+        }
+    }
+
+    private static COSArray AsStructureArray(COSBase? value)
+    {
+        if (value is COSArray array)
+        {
+            return new COSArray(array.ToList());
+        }
+        COSArray result = new();
+        if (value is COSDictionary dictionary)
+        {
+            result.Add(dictionary);
+        }
+        return result;
+    }
+
+    private static void MergeKEntries(PDFCloneUtility cloner, PDStructureTreeRoot source, PDStructureTreeRoot destination)
+    {
+        COSArray sourceKids = AsStructureArray(cloner.CloneForNewDocument(source.GetK()));
+        if (sourceKids.Size() == 0)
+        {
+            return;
+        }
+        COSArray destinationKids = AsStructureArray(destination.GetK());
+        if (destinationKids.Size() == 1 && destinationKids.GetObject(0) is COSDictionary top &&
+            top.GetCOSName(COSName.S)?.GetName() == "Document" && top.GetCOSArray(COSName.K) is COSArray levelOne &&
+            HasOnlyDocumentsOrParts(levelOne))
+        {
+            foreach (COSBase? kid in sourceKids) levelOne.Add(kid);
+            UpdateParentEntry(levelOne, top, COSName.GetPDFName("Part"));
+            return;
+        }
+        if (destinationKids.Size() == 0)
+        {
+            UpdateParentEntry(sourceKids, destination.GetCOSObject(), null);
+            destination.SetK(sourceKids);
+            return;
+        }
+        foreach (COSBase? kid in sourceKids) destinationKids.Add(kid);
+        COSDictionary levelZero = new();
+        UpdateParentEntry(destinationKids, levelZero, HasOnlyDocumentsOrParts(destinationKids) ? COSName.GetPDFName("Part") : null);
+        levelZero.SetItem(COSName.K, destinationKids);
+        levelZero.SetItem(COSName.P, destination);
+        levelZero.SetItem(COSName.S, COSName.GetPDFName("Document"));
+        destination.SetK(levelZero);
+    }
+
+    private static bool HasOnlyDocumentsOrParts(COSArray kids)
+    {
+        for (int i = 0; i < kids.Size(); i++)
+        {
+            if (kids.GetObject(i) is not COSDictionary dictionary || dictionary.GetNameAsString(COSName.S) is not ("Document" or "Part"))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void UpdateParentEntry(COSArray kids, COSDictionary parent, COSName? structureType)
+    {
+        for (int i = 0; i < kids.Size(); i++)
+        {
+            if (kids.GetObject(i) is COSDictionary dictionary)
+            {
+                dictionary.SetItem(COSName.P, parent);
+                if (structureType is not null) dictionary.SetItem(COSName.S, structureType);
+            }
+        }
+    }
+
+    private static void MergePageLabels(PDDocument source, PDDocument destination,
+        PDDocumentCatalog sourceCatalog, PDDocumentCatalog destinationCatalog, PDFCloneUtility cloner)
+    {
+        PDPageLabels? sourceLabels = sourceCatalog.GetPageLabels();
+        PDPageLabels? destinationLabels = destinationCatalog.GetPageLabels();
+        if (sourceLabels is null && destinationLabels is null)
+        {
+            return;
+        }
+        // Set default entries so that the documents don't influence each other, and
+        // that there is always a range at key 0 (seeded by the constructor).
+        sourceLabels ??= new PDPageLabels(source);
+        destinationLabels ??= new PDPageLabels(destination);
+        int destinationPageCount = destination.GetNumberOfPages();
+        foreach (int index in sourceLabels.GetPageIndices())
+        {
+            PDPageLabelRange? range = sourceLabels.GetPageLabelRange(index);
+            if (range is null)
+            {
+                LOG.LogWarning("page label range at {Index} ignored, null", index);
+                continue;
+            }
+            COSDictionary clone = cloner.CloneForNewDocument(range.GetCOSObject())!;
+            destinationLabels.SetLabelItem(index + destinationPageCount, new PDPageLabelRange(clone));
+        }
+        destinationCatalog.SetPageLabels(destinationLabels);
     }
 
     private static void MergeMarkInfo(PDDocumentCatalog sourceCatalog, PDDocumentCatalog destinationCatalog)
@@ -403,13 +677,41 @@ public class PDFMergerUtility
 
         MergeCloneOrAppendArray(source, destination, COSName.THREADS, cloner);
         MergeCloneOrMergeDictionary(source, destination, COSName.NAMES, cloner);
+        // Re-read after merging: the dictionary may only just have been created.
+        destination.GetCOSDictionary(COSName.NAMES)?.RemoveItem(COSName.ID_TREE);
         MergeCloneOrMergeDictionary(source, destination, COSName.DESTS, cloner);
         MergeCloneIfMissing(source, destination, COSName.OUTLINES, cloner);
         MergeCloneIfMissing(source, destination, COSName.PAGE_MODE, cloner);
+        if (destinationCatalog.GetLanguage() is null && sourceCatalog.GetLanguage() is string language)
+        {
+            destinationCatalog.SetLanguage(language);
+        }
+        MergeViewerPreferences(source, destination, cloner);
 
         MergeCloneIfMissing(source, destination, COSName.METADATA, cloner);
         MergeCloneOrMergeDictionary(source, destination, COSName.GetPDFName("OCProperties"), cloner);
         MergeCloneOrAppendArray(source, destination, COSName.OUTPUT_INTENTS, cloner);
+    }
+
+    private static void MergeViewerPreferences(COSDictionary source, COSDictionary destination, PDFCloneUtility cloner)
+    {
+        COSDictionary? sourcePreferences = source.GetCOSDictionary(COSName.VIEWER_PREFERENCES);
+        if (sourcePreferences is null)
+        {
+            return;
+        }
+        COSDictionary destinationPreferences = destination.GetCOSDictionary(COSName.VIEWER_PREFERENCES) ?? new();
+        destination.SetItem(COSName.VIEWER_PREFERENCES, destinationPreferences);
+        MergeInto(sourcePreferences, destinationPreferences, cloner, new HashSet<COSName>());
+        // Check the booleans: set to true if either is true.
+        foreach (string name in new[] { "HideToolbar", "HideMenubar", "HideWindowUI", "FitWindow", "CenterWindow", "DisplayDocTitle" })
+        {
+            COSName key = COSName.GetPDFName(name);
+            if (sourcePreferences.GetBoolean(key, false) || destinationPreferences.GetBoolean(key, false))
+            {
+                destinationPreferences.SetBoolean(key, true);
+            }
+        }
     }
 
     private static void MergeCloneIfMissing(COSDictionary source, COSDictionary destination, COSName key, PDFCloneUtility cloner)

@@ -1,0 +1,247 @@
+{
+  "issue": 964,
+  "previous_upstream_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+  "upstream_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+  "upstream_commits_reviewed": 46,
+  "changed_upstream_paths": 16,
+  "build": {
+    "command": "DOTNET_CLI_HOME=/private/tmp/dotnet-cli NUGET_PACKAGES=/private/tmp/nuget-packages DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 dotnet build PdfBoxNet.slnx --configuration Release --no-restore --nologo",
+    "result": "passed",
+    "errors": 0,
+    "warnings": 16,
+    "note": "Existing package-advisory and obsolete-API warnings; no dependency version or warning policy changed. Subsequent edits were documentation/provenance only."
+  },
+  "focused_dotnet": {
+    "command": "DOTNET_CLI_HOME=/private/tmp/dotnet-cli NUGET_PACKAGES=/private/tmp/nuget-packages DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 dotnet test tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj --no-restore --configuration Release --filter 'FullyQualifiedName~Issue964|FullyQualifiedName~IdentityCJK|FullyQualifiedName~SubstituteSpaceWidth|FullyQualifiedName~ConversionError' --nologo",
+    "result": "passed",
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0
+  },
+  "solution_dotnet": {
+    "command": "DOTNET_CLI_HOME=/private/tmp/dotnet-cli NUGET_PACKAGES=/private/tmp/nuget-packages DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo",
+    "result": "passed",
+    "passed": 1963,
+    "failed": 0,
+    "skipped": 21,
+    "suites": {
+      "FontBox": {
+        "passed": 341,
+        "skipped": 5
+      },
+      "core": {
+        "passed": 1487,
+        "skipped": 3
+      },
+      "Examples": {
+        "passed": 80,
+        "skipped": 10
+      },
+      "other": {
+        "passed": 55,
+        "skipped": 3
+      }
+    },
+    "note": "Existing explicit skips include optional online/fixture/font/backend-dependent cases. No skip was added by this batch."
+  },
+  "focused_java": {
+    "working_directory": "Apache PDFBox at a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "command": "mvn -B -pl app -am '-Dtest=IdentityCJKSubstituteTest,SubstituteSpaceWidthTest,SplitterTest,PDFMergerUtilityTest' -Dsurefire.failIfNoSpecifiedTests=false package",
+    "result": "passed",
+    "passed": 44,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "api_gate": {
+    "command": "DOTNET_CLI_HOME=/private/tmp/dotnet-cli NUGET_PACKAGES=/private/tmp/nuget-packages DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 python3 tools/parity/generate_api_surface_report.py --upstream-root /private/tmp/pdfbox-upstream-957-latest --no-build --ratchet-baseline reports/api-surface-ratchet-baseline.json --fail-on-unreviewed",
+    "result": "passed",
+    "missing_types": 0,
+    "unreviewed_deltas": 0,
+    "reviewed_missing_members": 844,
+    "reviewed_arity_drifts": 43,
+    "reviewed_type_name_visibility_gaps": 8,
+    "ratchet_changed": false,
+    "note": "Existing reviewed API gaps remain; this is not a complete API parity claim."
+  },
+  "runtime_gate": {
+    "command": "DOTNET_CLI_HOME=/private/tmp/dotnet-cli NUGET_PACKAGES=/private/tmp/nuget-packages DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 DOTNET_CLI_TELEMETRY_OPTOUT=1 python3 tools/parity/runtime/run_runtime_parity.py --manifest tools/parity/runtime/corpus-manifest.txt --pdfbox-root /private/tmp/pdfbox-upstream-957-latest --java-home /opt/homebrew/Cellar/openjdk/26.0.2/libexec/openjdk.jdk/Contents/Home --java-classpath /private/tmp/pdfbox-upstream-957-latest/app/target/pdfbox-app-4.0.0-SNAPSHOT.jar --out-dir /private/tmp/pdfbox-964-runtime --ratchet-baseline tools/parity/runtime/ratchet-baseline.json --gate-mode ratchet --fail-on-unexpected",
+    "result": "passed",
+    "actual_comparison_rows": 691,
+    "all_rows_match": true,
+    "summary": {
+      "generatedAtUtc": "2026-11-01T21:05:08Z",
+      "manifest": "tools/parity/runtime/corpus-manifest.txt",
+      "pdfCount": 161,
+      "mergePairCount": 80,
+      "counts": {
+        "match": 1027,
+        "known": 0,
+        "unexpected": 0
+      },
+      "categories": {
+        "render-foreground-shape-equivalence-match": 36,
+        "save-structural-match": 148,
+        "merge-structural-match": 72,
+        "render-visual-equivalence-match": 73,
+        "render-form-widget-raster-equivalence-match": 3,
+        "render-glyph-raster-equivalence-match": 3,
+        "render-glyph-layout-equivalence-match": 2,
+        "render-jbig2-decoder-raster-equivalence-match": 1,
+        "render-java-optional-jpx-reader-missing-match": 3,
+        "render-rotation-overlay-shape-equivalence-match": 9,
+        "render-form-widget-bbox-clipping-equivalence-match": 1,
+        "text-semantic-math-linewrap-match": 1,
+        "text-semantic-punctuation-spacing-match": 1,
+        "render-sparse-equivalence-match": 1,
+        "render-pattern-transparency-raster-equivalence-match": 1
+      },
+      "corpusCategories": {
+        "annotations": {
+          "match": 4,
+          "known": 0,
+          "unexpected": 0,
+          "total": 4
+        },
+        "encryption": {
+          "match": 20,
+          "known": 0,
+          "unexpected": 0,
+          "total": 20
+        },
+        "filters/images": {
+          "match": 26,
+          "known": 0,
+          "unexpected": 0,
+          "total": 26
+        },
+        "fonts and subsetting": {
+          "match": 26,
+          "known": 0,
+          "unexpected": 0,
+          "total": 26
+        },
+        "forms": {
+          "match": 84,
+          "known": 0,
+          "unexpected": 0,
+          "total": 84
+        },
+        "malformed PDFs": {
+          "match": 28,
+          "known": 0,
+          "unexpected": 0,
+          "total": 28
+        },
+        "merge/split/save": {
+          "match": 41,
+          "known": 0,
+          "unexpected": 0,
+          "total": 41
+        },
+        "rendering": {
+          "match": 43,
+          "known": 0,
+          "unexpected": 0,
+          "total": 43
+        },
+        "text extraction": {
+          "match": 32,
+          "known": 0,
+          "unexpected": 0,
+          "total": 32
+        },
+        "uncategorized": {
+          "match": 387,
+          "known": 0,
+          "unexpected": 0,
+          "total": 387
+        }
+      },
+      "knownFailureBuckets": [],
+      "operations": {
+        "load": {
+          "javaOk": 150,
+          "javaFail": 11,
+          "dotnetOk": 150,
+          "dotnetFail": 11
+        },
+        "merge": {
+          "javaOk": 72,
+          "javaFail": 8,
+          "dotnetOk": 72,
+          "dotnetFail": 8
+        },
+        "render": {
+          "javaOk": 150,
+          "javaFail": 0,
+          "dotnetOk": 150,
+          "dotnetFail": 0
+        },
+        "save": {
+          "javaOk": 148,
+          "javaFail": 2,
+          "dotnetOk": 148,
+          "dotnetFail": 2
+        },
+        "text": {
+          "javaOk": 150,
+          "javaFail": 0,
+          "dotnetOk": 150,
+          "dotnetFail": 0
+        }
+      }
+    },
+    "ratchet_changed": false,
+    "note": "The existing harness reports match1027 because category match increments its counter again for exact comparisons; 691 distinct rows are present. Existing category policy is unchanged; this is not a byte-identical-output claim."
+  },
+  "fixtures": [
+    {
+      "path": "tests/PdfBox.Net.Tests/Fixtures/Fonts/NotoSansCJKsc-Regular-subset.otf",
+      "bytes": 109056,
+      "sha256": "78405c92cd72dbb3e550a5b3e62f205a68c9b39240dd6b2662362a591fb4c8d4",
+      "sha512": "eaa283faaeb38cca6a36796deabc0be3e2e1cef77289ce6cc8c0e7db54ce1d15db404633fa40a1db606f3fadec4e43dd9caa1d5b790cabab0f37587e17dcfe0a"
+    },
+    {
+      "path": "tests/PdfBox.Net.Tests/Fixtures/PDFBOX-6301-octopdf-sample.pdf",
+      "bytes": 471613,
+      "sha256": "e16026e03f0ad34f17301548a8d4022745c53860018c0994822fb77d2e7f9be6",
+      "sha512": "96341bf96b4832c7d1611cf5e64ee95edd46904102ee480b74f62c3b9320c298de9bb06c7a7ee8bce9c235b625ba52bbb64aaf3240e9f4a63210277f6ff135cb"
+    }
+  ],
+  "development_checks": {
+    "initial_compilation": "C# API/type normalization errors (missing COSName constants, annotation COSBase casts and GeneralPath bounds API) were corrected before executing tests.",
+    "first_executed_focused_run": {
+      "passed": 13,
+      "failed": 5,
+      "note": "Four fixture/assertion failures (unwritten synthetic streams, disposed-document getter checks twice, exact-type assertion on a transparency form) were corrected. The remaining failure exposed the required CFF outline prerequisite; the matching HasGlyph route and 2000-UPEM/cache regression were also added."
+    },
+    "subsequent_review": "Review found raw COSObject children skipped in K-tree parent updates; both loops now dereference GetObject(i), with an exact-fixture save/load-between-appends regression.",
+    "baseline_sensitivity": "Not executed. Optional command was aborted before creating its script or swapping any source. No baseline-failure or mutation-sensitivity claim is made.",
+    "initial_runtime_attempt": "Stopped before comparisons because the macOS javac shim lacked a JDK; final command selects Homebrew JDK explicitly."
+  },
+  "whitespace_and_provenance": {
+    "result": "passed",
+    "note": "git diff --check and final git diff --cached --check passed. Root verified Apache/source-path provenance on all five new C# files and synchronized metadata/traceability for all 13 touched production/helper/test targets."
+  },
+  "existing_limitations": "See issue-964-upstream-sync-assessment.md for older deferred merger/splitter fixture cases, full tagged splitting and the existing mode/cache API adaptation.",
+  "inventory": {
+    "command": "python3 tools/parity/generate_parity_inventory.py --upstream-root /private/tmp/pdfbox-upstream-957-latest --upstream-ref a9ae066a942c122c9dded9bfa1b08dfae4078ba4 --write-sync-state --update-tracked-commit",
+    "result": "passed",
+    "mapped_production_source_paths": 1091,
+    "missing_production_source_paths": 0,
+    "note": "The explicit snapshot ref is scanned reproducibly, then upstream_branch is restored to trunk in sync/coverage reports so the upstream watcher continues following new trunk commits."
+  },
+  "skill_h_pre_pr_review": {
+    "reviewer": "parent orchestrator",
+    "issue_closure": "pass: prepared PR body and commit close #964",
+    "scope": "pass: exact 46-commit/16-path issue snapshot plus required port prerequisites",
+    "parity_behavior": "pass: source comparison, exact Java fixtures and runtime gate",
+    "tests": "pass: focused20/full1963/Java44; explicit existing skips documented",
+    "new_stubs": "pass: no new stub or placeholder in delivered scope; existing deferred suites/API adaptations listed explicitly",
+    "reports": "pass: all changed upstream paths and touched target records accounted; watcher remains on trunk",
+    "description": "pass: prepared PR description includes concrete behavior, scope and validation",
+    "provenance": "pass: Apache/source provenance, exact Noto binary and retained OFL notice",
+    "final_pr_approval": "pending: parent reviews the created PR and remote checks before merge"
+  }
+}
