@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java
  * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -272,7 +272,13 @@ public partial class PDType0Font : PDVectorFont
         : _descendantFont?.GetWidthFromFont(CodeToCID(code)) ?? base.GetWidthFromFont(code);
     public override float GetWidth(int code) => _descendantFont?.GetWidth(CodeToCID(code)) ?? base.GetWidth(code);
     public override float GetAverageFontWidth() => _descendantFont?.GetAverageFontWidth() ?? base.GetAverageFontWidth();
-    public override float GetSpaceWidth() => _descendantFont?.GetSpaceWidth() ?? base.GetSpaceWidth();
+    protected override bool IsEncodedViaSubstitute()
+    {
+        // PDFBOX-6292: Identity CMap without ToUnicode: Encode returns the substitute's GIDs.
+        return !IsEmbedded() && _descendantFont is PDCIDFontType2 &&
+            _cMap?.Name?.StartsWith("Identity-", StringComparison.Ordinal) == true &&
+            !FontDictionary.ContainsKey(COSName.GetPDFName("ToUnicode"));
+    }
     public override PDFontDescriptor? GetFontDescriptor() => base.GetFontDescriptor() ?? _descendantFont?.GetFontDescriptor();
 
     public override float GetStringWidth(string text)
@@ -395,7 +401,9 @@ public partial class PDType0Font : PDVectorFont
         if (_descendantFont is PDCIDFontType2 type2)
         {
             int gid = type2.CodeToGID(code, this);
-            return type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid) != null;
+            return type2.GetTrueTypeFont() is OpenTypeFont otf && otf.IsPostScript
+                ? gid != 0
+                : type2.GetTrueTypeFont().GetGlyph()?.GetGlyph(gid) != null;
         }
 
         return false;

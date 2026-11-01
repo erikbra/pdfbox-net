@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: bd21bd44f5dd050fa716c9bb033adcf725b7ebd3
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -81,11 +81,22 @@ public class Splitter
     }
 
     /// <summary>
-    /// Splits the given document and returns a list of new documents.
-    /// The caller is responsible for saving and disposing each returned document.
+    /// Takes a document and splits it into several other documents.
     /// </summary>
+    /// <remarks>
+    /// This class is not thread-safe. Use one instance per thread, and do not access the source
+    /// document from other threads while it is being split.
+    /// All created documents are closed if the method throws. In that case the caller should
+    /// take care to close the source as well.
+    /// </remarks>
     /// <param name="document">The document to split.</param>
-    /// <returns>A list of split documents.</returns>
+    /// <returns>
+    /// All split documents. Save all of them before closing any document, including the source.
+    /// Perform further operations after reloading them to avoid problems due to resource sharing.
+    /// For the same reason, they should not be saved with encryption.
+    /// </returns>
+    /// <exception cref="IOException">If there is an I/O error.</exception>
+    /// <exception cref="ArgumentException">If the end page is smaller than the start page.</exception>
     public IList<PDDocument> Split(PDDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -106,6 +117,7 @@ public class Splitter
             return destinations;
         }
 
+        Dictionary<PDDocument, List<(PDPageDestination Destination, COSDictionary SourcePage)>> destinationsToFix = new();
         PDFCloneUtility? cloner = null;
         PDDocument? current = null;
         int pagesInCurrent = 0;
@@ -132,7 +144,9 @@ public class Splitter
                     ?? throw new IOException($"Unable to clone page dictionary for page {pageNumber}.");
 
                 cloned.RemoveItem(COSName.PARENT);
-                current.AddPage(new PDPage(cloned));
+                PDPage imported = new(cloned);
+                current.AddPage(imported);
+                PrepareLinkDestinations(sourcePage, imported, current, destinationsToFix);
                 pageMap[pageDictionary] = (current, cloned);
                 pagesInCurrent++;
             }
@@ -142,6 +156,7 @@ public class Splitter
                 destinations.Add(current);
                 current = null;
             }
+            FixLinkDestinations(destinationsToFix, pageMap);
             FixNameDestinations(document, destinations, pageMap);
         }
         catch
@@ -156,6 +171,79 @@ public class Splitter
         }
 
         return destinations;
+    }
+
+    /// <summary>
+    /// Prepares link destinations so that they don't pull pages of other split documents into
+    /// this one. The destinations are fixed or removed after all pages have been processed.
+    /// </summary>
+    private static void PrepareLinkDestinations(PDPage source, PDPage target, PDDocument destination,
+        Dictionary<PDDocument, List<(PDPageDestination Destination, COSDictionary SourcePage)>> destinationsToFix)
+    {
+        var sourceAnnotations = source.GetAnnotations();
+        var targetAnnotations = target.GetAnnotations();
+        for (int i = 0; i < sourceAnnotations.Count; i++)
+        {
+            COSDictionary sourceAnnotation = (COSDictionary)sourceAnnotations[i].GetCOSObject();
+            if (sourceAnnotation.GetNameAsString(COSName.SUBTYPE) != "Link")
+            {
+                continue;
+            }
+            COSDictionary targetAnnotation = (COSDictionary)targetAnnotations[i].GetCOSObject();
+            COSName key = COSName.DEST;
+            COSDictionary? action = sourceAnnotation.GetCOSDictionary(COSName.A);
+            if (action?.GetNameAsString(COSName.S) == "GoTo")
+            {
+                sourceAnnotation = action;
+                targetAnnotation = targetAnnotation.GetCOSDictionary(COSName.A)!;
+                key = COSName.D;
+            }
+            if (sourceAnnotation.GetDictionaryObject(key) is not COSArray array ||
+                PDDestination.Create(array) is not PDPageDestination pageDestination ||
+                pageDestination.GetPage() is not PDPage sourcePage)
+            {
+                continue;
+            }
+            COSArray clone = new();
+            foreach (COSBase? value in array)
+            {
+                clone.Add(value);
+            }
+            PDPageDestination clonedDestination = (PDPageDestination)PDDestination.Create(clone)!;
+            targetAnnotation.SetItem(key, clonedDestination);
+            if (!destinationsToFix.TryGetValue(destination, out var list))
+            {
+                list = new();
+                destinationsToFix[destination] = list;
+            }
+            list.Add((clonedDestination, (COSDictionary)sourcePage.GetCOSObject()));
+        }
+    }
+
+    /// <summary>
+    /// Replaces each source page in a link destination by the corresponding page of that split
+    /// document, or removes the page if it is not part of that document.
+    /// </summary>
+    private static void FixLinkDestinations(
+        Dictionary<PDDocument, List<(PDPageDestination Destination, COSDictionary SourcePage)>> destinationsToFix,
+        Dictionary<COSDictionary, (PDDocument Document, COSDictionary Page)> pageMap)
+    {
+        foreach (var entry in destinationsToFix)
+        {
+            foreach (var link in entry.Value)
+            {
+                if (pageMap.TryGetValue(link.SourcePage, out var target) && ReferenceEquals(target.Document, entry.Key))
+                {
+                    link.Destination.SetPage(new PDPage(target.Page));
+                }
+                else
+                {
+                    // SetPage's existing .NET signature is non-nullable; the PDF destination
+                    // array itself supports the null page required for a cross-document link.
+                    ((COSArray)link.Destination.GetCOSObject()).Set(0, (COSBase?)null);
+                }
+            }
+        }
     }
 
     /// <summary>

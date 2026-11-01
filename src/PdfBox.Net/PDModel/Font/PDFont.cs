@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java
  * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -231,6 +231,13 @@ public abstract class PDFont : PDFontLike
         return ToUnicodeFallback(code, glyphList);
     }
 
+    /// <summary>
+    /// Whether Encode derives codes from a substitute font program rather than from this font's
+    /// encoding, so that the codes need not exist in the PDF.
+    /// </summary>
+    /// <returns>True if encoded codes depend on the installed substitute.</returns>
+    protected virtual bool IsEncodedViaSubstitute() => false;
+
     public virtual float GetSpaceWidth()
     {
         if (_fontWidthOfSpace.CompareTo(-1f) != 0)
@@ -250,14 +257,18 @@ public abstract class PDFont : PDFontLike
             }
             else
             {
-                try
+                if (!IsEncodedViaSubstitute())
                 {
-                    _fontWidthOfSpace = GetStringWidth(" ");
-                }
-                catch (Exception ex)
-                {
-                    LOG.LogDebug(ex, "{ErrorMessage}", ex.Message);
-                    // Keep Java PDFBox's fallback path when a font cannot encode a space.
+                    try
+                    {
+                        // PDFBOX-5920: try with encoding, which gets the correct code.
+                        _fontWidthOfSpace = GetStringWidth(" ");
+                    }
+                    catch (Exception ex) when (ex is ArgumentException or NotSupportedException)
+                    {
+                        // Happens if space is not available in the font or encoding isn't implemented.
+                        LOG.LogDebug(ex, "{ErrorMessage}", ex.Message);
+                    }
                 }
 
                 if (_fontWidthOfSpace <= 0)

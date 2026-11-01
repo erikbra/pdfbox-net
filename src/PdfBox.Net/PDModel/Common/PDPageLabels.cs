@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -34,6 +34,10 @@ public class PDPageLabels : COSObjectable
     private readonly SortedDictionary<int, PDPageLabelRange> _labels;
     private readonly PDDocument _doc;
 
+    /// <summary>
+    /// Creates an empty page label dictionary with a page 0 entry for the given document.
+    /// The dictionary will not be automatically added to the document catalog.
+    /// </summary>
     public PDPageLabels(PDDocument document)
     {
         _doc = document ?? throw new ArgumentNullException(nameof(document));
@@ -43,6 +47,10 @@ public class PDPageLabels : COSObjectable
         _labels[0] = defaultRange;
     }
 
+    /// <summary>
+    /// Creates an empty page label dictionary with a page 0 entry for the given document, then
+    /// adds the information from the given COS dictionary.
+    /// </summary>
     public PDPageLabels(PDDocument document, COSDictionary? dict)
         : this(document)
     {

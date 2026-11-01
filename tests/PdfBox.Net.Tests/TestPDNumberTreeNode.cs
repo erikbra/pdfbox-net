@@ -91,6 +91,20 @@ public class TestPDNumberTreeNode
     }
 
     [Fact]
+    public void ConversionErrorIdentifiesRequestedValueTypeAndPreservesCause()
+    {
+        COSArray numbers = new();
+        numbers.Add(COSInteger.Get(1));
+        numbers.Add(new COSString("not an integer"));
+        COSDictionary dictionary = new();
+        dictionary.SetItem(COSName.NUMS, numbers);
+        PDNumberTreeNode node = new(dictionary, typeof(PDTest));
+        IOException exception = Assert.Throws<IOException>(() => node.GetNumbers());
+        Assert.StartsWith("Error while trying to create PDTest-typed value in number tree: ", exception.Message);
+        Assert.NotNull(exception.InnerException);
+    }
+
+    [Fact]
     public void Limits()
     {
         Assert.Equal(7, _node5.GetUpperLimit());

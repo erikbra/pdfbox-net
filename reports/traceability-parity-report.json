@@ -2831,12 +2831,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
     "target_path": "src/PdfBox.Net/MultiPdf/Splitter.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Ports named destination trees and legacy Root/Dests dictionaries, copying only destinations for pages included in each split and rebinding references to cloned pages. Existing direct page clone preserves named link strings. Pre-existing structure-tree split functionality remains absent; related upstream flattened-helper substitutions have no equivalent call site. Follow-up to current upstream: Moves cross-range validation to Split execution while each setter independently validates positive input. Split already uses per-invocation local state and groups from configured start; repeated-call regression verifies2/2/1 pages twice. Named-destination fixing now lies within exception cleanup scope; malformed name tree test proves all produced COSDocuments are closed. Existing port lacks upstream structure-tree copying, so source ParentTree cache/KCloner/orphan-map/RoleMap refactors have no equivalent path; this batch does not assert structure-tree clone parity. Existing public SplitAtPage property precludes same-named Java protected method; unchanged default grouping behavior remains exposed through that property."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Ports per-output-document link destination fixups for both direct and GoTo action links; source destinations remain unchanged. Existing local-variable per-call state and catch-all document cleanup satisfy lifecycle/reuse changes. Existing named destination cloning is already factored and does not reuse a shared scratch map. Full structure-tree/ID-tree splitting remains an explicitly existing limitation; upstream changes there are caching/refactoring only and do not introduce new supported behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/BaseParser.java",
@@ -3261,12 +3261,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDNumberTreeNode.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/PDNumberTreeNode.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Ports recursive GetTreeAsMap with a mutable copy and all child maps; preserves Java traversal and duplicate key overwrite behavior."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Conversion failure now names the requested value type and preserves the cause."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDObjectStream.java",
@@ -3291,12 +3291,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/PDPageLabels.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Narrows concrete GetCOSObject return to COSDictionary; explicit COSObjectable bridge preserves interface contract."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Constructor XML documentation follows updated upstream wording. FindLabels already ignores negative indexes and values that are not PDPageLabelRange; no new TODO marker is introduced for the existing serialization inefficiency."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/PDPageLabels.java",
@@ -4341,12 +4341,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFontType2.cs",
-    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Port embedded TrueType hinting, nonembedded predefined Uni-CMap Unicode encoding and CFF-OpenType identity case. Restore actual substitute TTF loading and parent-aware Unicode-to-glyph lookup required to exercise the source fix. Keep existing one-argument CID-to-GID compatibility API. Uses FontBox hinted path through common normalization helper."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Different-ROS Identity-ordered CID-keyed substitutes resolve glyphs through Unicode. The existing normalizer now handles CFF outlines with nonmutating UPEM scaling and parent/direct glyph checks use the CFF GID rule, prerequisites exposed by the exact upstream fixture. Explicit PDF DW now takes precedence over substitute advance, a prerequisite exposed by the exact space-width fixture; existing no-W/no-DW TTF fallback adaptation retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2Embedder.java",
@@ -4441,12 +4441,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
-    "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Port codepoint encoding/width caches, multibyte ReadCode width path and nullable descendant hinting dispatch. Encode follows exact CIDType2 branches: Identity cmap, predefined UCS2, reverse explicit ToUnicode fallback and nonembedded Uni raw UTF16BE. Supplementary-plane support remains native CmapLookup through Identity encoding."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Overrides substitute-encoding predicate for non-embedded Identity CIDFontType2 without ToUnicode. Removes descendant GetSpaceWidth delegation so the inherited parent-font algorithm observes this hook and the parent ToUnicode map."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -9011,12 +9011,12 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/PDFMergerUtility.java",
     "target_path": "src/PdfBox.Net/MultiPdf/PDFMergerUtility.cs",
-    "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Ports mandatory page-zero label entry and shifted label indexes, as well as Marked/Suspect/UserProperties OR merge. Flattened map helper APIs now belong to tree types. Existing port has no structure-tree merge; upstream structure-tree merge assertion expansions remain deferred."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Ports destination-before-empty validation, typed recursive/default page-label merge, untagged language/viewer preferences, refreshed Names/IDTree cleanup and nested/shared/cyclic XObject StructParent(s) offset/mapping. Includes parent-tree, root-K and role/ID integration needed to execute the new mapping behavior. Existing .NET field counter and source Threads copy already satisfy deltas. The adapted port has one merge mode and eager Stream input loading, with no Java StreamCacheCreateFunction or optimized-mode API; version propagation already occurs on every append. No new modes or cache API are claimed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/encryption/RC4Cipher.java",
@@ -10021,22 +10021,22 @@
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/TrueTypePathNormalizer.cs",
-    "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Port embedded TrueType hinting, nonembedded predefined Uni-CMap Unicode encoding and CFF-OpenType identity case. Restore actual substitute TTF loading and parent-aware Unicode-to-glyph lookup required to exercise the source fix. Keep existing one-argument CID-to-GID compatibility API. Uses FontBox hinted path through common normalization helper."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Different-ROS Identity-ordered CID-keyed substitutes resolve glyphs through Unicode. The existing normalizer now handles CFF outlines with nonmutating UPEM scaling and parent/direct glyph checks use the CFF GID rule, prerequisites exposed by the exact upstream fixture. Explicit PDF DW now takes precedence over substitute advance, a prerequisite exposed by the exact space-width fixture; existing no-W/no-DW TTF fallback adaptation retained."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFont.cs",
-    "source_commit": "b07158974a4dbbcebf0e33d3797b9f0655cc62d9",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Port concurrent-compatible codepoint encoding/width caches, Unicode scalar iteration and common single-byte ReadCode. Add source-shaped protected GetToUnicodeCMap for custom embedded encoding fallback; review counterexample custom0001->GID36 is tested."
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Adds protected IsEncodedViaSubstitute hook and skips installed-substitute encoding when choosing space width. Encoding fallback catches matching argument/unsupported exceptions."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
@@ -10737,5 +10737,55 @@
     "status": "in-sync",
     "last_checked_utc": "2026-10-28T06:17:46Z",
     "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PDFMergerUtilityTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue964MergerTest.cs",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Converts new default/minimal label-range and PDFBOX-6301 mapping assertions, retaining exact octopdf fixture. Adds adapted-branch regression cases for nested child labels, untagged language/preferences, Names/IDTree and source Threads. Splitter cases relocated upstream are accounted separately; old full merger fixture-suite gaps remain explicit."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/SplitterTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue964SplitterTest.cs",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Converts all four newly added link/lifecycle/reuse/out-of-range regressions; direct/action destinations and unchecked failure added as bounded verification. Named-destination/range cases moved from merger test remain covered by existing Issue957CoreTest. Moved older tagged-tree/ID-tree/Pg and popup fixture cases remain deferred with the pre-existing splitter adaptation."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/IdentityCJKFixture.java",
+    "target_path": "tests/PdfBox.Net.Tests/IdentityCJKFixture.cs",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Exact Noto subset and dictionary shape; narrow FontMapper adapter follows existing .NET interface. xUnit DisableParallelization collection replaces JVM @Isolated and disposal restores the mapper."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/IdentityCJKSubstituteTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/IdentityCJKSubstituteTest.cs",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Both CIDFontType0 and CIDFontType2 U+4E2D=GID9544 assertions and glyph bounds converted to one parameterized xUnit test against the exact Noto subset."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/font/SubstituteSpaceWidthTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/SubstituteSpaceWidthTest.cs",
+    "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "port_mode": "adapted",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-01T21:04:48Z",
+    "note": "Converts PDF width versus substitute-GID space regression. Exact bundled fixture replaces host-dependent assumption with an asserted GID precondition. Adds explicit parent ToUnicode space mapping regression."
   }
 ]

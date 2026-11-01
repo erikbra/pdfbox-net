@@ -8,8 +8,8 @@
     "pdfbox-layout-fop": 4
   },
   "upstream_head_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
-  "tracked_parity_baseline_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
-  "last_scan_utc": "2026-11-01T13:58:10.962Z",
+  "tracked_parity_baseline_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+  "last_scan_utc": "2026-11-01T21:05:53.084Z",
   "upstream_java_files_total": 1091,
   "mapped_java_files_total": 1091,
   "missing_java_files_total": 0,

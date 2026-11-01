@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java
  * PDFBOX_SOURCE_COMMIT: bf37c60dfa43cb9fb21497b44a667d091d809084
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -26,6 +26,7 @@
  */
 
 using PdfBox.Net.COS;
+using PdfBox.Net.FontBox.CFF;
 using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.PDModel.Font.Encoding;
 using PdfBox.Net.Util.Geometry;
@@ -46,6 +47,9 @@ public partial class PDCIDFontType2 : PDCIDFont
     private readonly CmapLookup? _unicodeCmap;
     private readonly int[]? _cidToGid;
     private readonly bool _isEmbedded;
+    // PDFBOX-6293: substitute is CID-keyed with a different ROS: this font's CIDs are meaningless
+    // in it; resolve glyphs via Unicode instead (only when ordering is Identity).
+    private readonly bool _isForeignCIDSubstitute;
 
     public PDCIDFontType2(COSDictionary dictionary, TrueTypeFont? trueTypeFont = null)
         : this(dictionary, trueTypeFont, null)
@@ -73,6 +77,19 @@ public partial class PDCIDFontType2 : PDCIDFont
         _trueTypeFont = trueTypeFont ?? new TrueTypeFont();
         _unicodeCmap = _trueTypeFont.GetUnicodeCmapLookup(false);
         _cidToGid = ReadCidToGidMap(dictionary);
+        _isForeignCIDSubstitute = !_isEmbedded && IsForeignCIDFont(_trueTypeFont as OpenTypeFont);
+    }
+
+    private bool IsForeignCIDFont(OpenTypeFont? substitute)
+    {
+        if (substitute is null || !substitute.IsPostScript ||
+            substitute.GetCFF().GetFont() is not CFFCIDFont cff)
+        {
+            return false;
+        }
+        PDCIDSystemInfo? ros = GetCIDSystemInfo();
+        return cff.Ordering == "Identity" && (ros is null ||
+            ros.Registry != cff.Registry || ros.Ordering != cff.Ordering);
     }
 
     internal static PDCIDFontType2 Load(COSDictionary dictionary)
@@ -211,7 +228,7 @@ public partial class PDCIDFontType2 : PDCIDFont
         string? unicode = parent.ToUnicode(code);
         if (!string.IsNullOrEmpty(unicode) && _unicodeCmap is not null)
         {
-            if (_trueTypeFont is OpenTypeFont otf && otf.IsPostScript) return cid;
+            if (_trueTypeFont is OpenTypeFont otf && otf.IsPostScript && !_isForeignCIDSubstitute) return cid;
             return _unicodeCmap.GetGlyphId(char.ConvertToUtf32(unicode, 0));
         }
         return 0;
@@ -255,7 +272,7 @@ public partial class PDCIDFontType2 : PDCIDFont
     /// </summary>
     public override float GetWidth(int code)
     {
-        if (HasExplicitCidWidth(code))
+        if (HasExplicitCidWidth(code) || FontDictionary.ContainsKey(COSName.GetPDFName("DW")))
         {
             return base.GetWidth(code);
         }
@@ -281,7 +298,9 @@ public partial class PDCIDFontType2 : PDCIDFont
     public bool HasGlyph(int code)
     {
         int gid = CodeToGID(code);
-        return _trueTypeFont.GetGlyph()?.GetGlyph(gid) != null;
+        return _trueTypeFont is OpenTypeFont otf && otf.IsPostScript
+            ? gid != 0
+            : _trueTypeFont.GetGlyph()?.GetGlyph(gid) != null;
     }
 
     public GeneralPath GetNormalizedPath(int code)

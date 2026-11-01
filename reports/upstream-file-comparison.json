@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-10-28T06:08:47.928Z",
+  "generated_at_utc": "2026-11-01T21:05:53.084Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "excluded_upstream_modules": [
@@ -8,8 +8,8 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
-  "tracked_parity_baseline_commit": "bd21bd44f5dd050fa716c9bb033adcf725b7ebd3",
+  "upstream_head": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+  "tracked_parity_baseline_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1091,
   "mapped": 1091,
@@ -10044,11 +10044,13 @@
         "src/PdfBox.Net/PdfWriter/COSWriter.cs"
       ],
       "traceability_target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SignatureDictionary.cs",
         "src/PdfBox.Net/PDModel/PDDocument.cs",
         "src/PdfBox.Net/PdfParser/PDFParser.cs",
         "src/PdfBox.Net/PdfWriter/COSWriter.cs"
       ],
       "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DigitalSignature/SignatureDictionary.cs",
         "src/PdfBox.Net/PDModel/PDDocument.cs",
         "src/PdfBox.Net/PdfParser/PDFParser.cs",
         "src/PdfBox.Net/PdfWriter/COSWriter.cs"

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType2.java
  * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
  */
 
 /*
@@ -36,12 +36,17 @@ internal static class TrueTypePathNormalizer
     {
         ArgumentNullException.ThrowIfNull(trueTypeFont);
 
-        if (gid == 0 && !drawGidZero)
+        OpenTypeFont? postScriptFont = trueTypeFont is OpenTypeFont otf && otf.IsPostScript ? otf : null;
+        if (gid == 0 && !drawGidZero && postScriptFont is null)
         {
             return new GeneralPath();
         }
 
-        GeneralPath path = trueTypeFont.GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
+        // CIDFontType2 may use a CFF-based OpenType substitute. Such a font has no glyf
+        // table; follow the upstream outline path before applying the shared UPEM scaling.
+        GeneralPath path = postScriptFont is not null
+            ? postScriptFont.GetCFF().GetFont()?.GetType2CharString(gid)?.GetPath() ?? new GeneralPath()
+            : trueTypeFont.GetGlyph()?.GetGlyph(gid)?.GetPath() ?? new GeneralPath();
         int unitsPerEm = Math.Max(1, trueTypeFont.GetUnitsPerEm());
         return unitsPerEm == 1000 ? path : Scale(path, 1000f / unitsPerEm);
     }

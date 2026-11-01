@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-10-28T06:17:46Z
-Apache PDFBox source commit: `bd21bd44f5dd050fa716c9bb033adcf725b7ebd3`
-PdfBox.Net commit: `c3fa6ebfc840f86ca8b00c6ba0848341370dc110`
+Generated (UTC): 2026-11-01T21:02:02Z
+Apache PDFBox source commit: `a9ae066a942c122c9dded9bfa1b08dfae4078ba4`
+PdfBox.Net commit: `391f1a90cdb7c6c81b7fa4e51095152ed5760282`
 
 ## Scope
 
@@ -22,13 +22,13 @@ PdfBox.Net commit: `c3fa6ebfc840f86ca8b00c6ba0848341370dc110`
 | Renamed public .NET replacements | 6 |
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
-| Java public/protected members | 6340 |
-| Matched members | 5453 |
+| Java public/protected members | 6341 |
+| Matched members | 5454 |
 | Arity-drift members | 43 |
 | Missing members | 844 |
-| Reflected .NET extra members on matched types | 1659 |
+| Reflected .NET extra members on matched types | 1658 |
 
-Member coverage by name/signature heuristic: **5496 / 6340 = 86.7%**.
+Member coverage by name/signature heuristic: **5497 / 6341 = 86.7%**.
 
 ## Review Disposition Backlog
 
@@ -64,7 +64,7 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 114 | 109 | 4 | 1 | 0 | 1050 | 1037 | 13 | 98.8% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 396 | 395 | 0 | 1 | 0 | 4217 | 3741 | 476 | 88.7% |
+| `pdfbox` | 396 | 395 | 0 | 1 | 0 | 4218 | 3742 | 476 | 88.7% |
 | `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 592 | 350 | 62.8% |
 
 ## Highest Missing-Member Types
@@ -85,7 +85,7 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 | 19 | 27 | `xmpbox` | `org.apache.xmpbox.schema.PDFAIdentificationSchema` | `PdfBox.Net.XmpBox.Schema.PDFAIdentificationSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java` |
 | 16 | 22 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDExportFormatAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDExportFormatAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDExportFormatAttributeObject.java` |
 | 14 | 40 | `xmpbox` | `org.apache.xmpbox.schema.TiffSchema` | `PdfBox.Net.XmpBox.Schema.TiffSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java` |
-| 12 | 48 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDType0Font` | `PdfBox.Net.PDModel.Font.PDType0Font` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java` |
+| 12 | 49 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDType0Font` | `PdfBox.Net.PDModel.Font.PDType0Font` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java` |
 | 12 | 23 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDType1Font` | `PdfBox.Net.PDModel.Font.PDType1Font` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java` |
 | 12 | 21 | `pdfbox` | `org.apache.pdfbox.pdmodel.font.PDType1CFont` | `PdfBox.Net.PDModel.Font.PDType1CFont` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1CFont.java` |
 | 12 | 16 | `pdfbox` | `org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDListAttributeObject` | `PdfBox.Net.PDModel.DocumentInterchange.LogicalStructure.PDListAttributeObject` | `pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/taggedpdf/PDListAttributeObject.java` |
