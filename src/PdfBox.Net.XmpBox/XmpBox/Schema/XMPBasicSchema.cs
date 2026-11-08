@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*

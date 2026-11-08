@@ -12,7 +12,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java
  * PDFBOX_SOURCE_COMMIT: a71c5679d69bc3fd3ab15e248b69441ee91dca6c
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*

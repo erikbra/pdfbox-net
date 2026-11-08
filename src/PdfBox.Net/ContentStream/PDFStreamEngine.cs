@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -35,6 +35,7 @@ using PdfBox.Net.COS;
 using PdfBox.Net.Filter;
 using PdfBox.Net.PDModel;
 using PdfBox.Net.PDModel.Common;
+using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Graphics.Color;
 using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Graphics;
@@ -598,26 +599,70 @@ public class PDFStreamEngine
 
     public virtual void XObject(PDXObject xobject)
     {
-        if (xobject is PDFormXObject form)
+        if (xobject is PDTransparencyGroup group)
         {
-            GraphicsStackSnapshot savedStack = SaveGraphicsStack();
-            PDResources? previousResources = _resources;
-            Matrix previousInitialMatrix = _initialMatrix;
-            _resources = form.GetResources() ?? previousResources;
-            try
-            {
-                ConcatenateMatrix(form.GetMatrix());
-                _initialMatrix = GetGraphicsState().GetCurrentTransformationMatrix();
-                ClipToRect(form.GetBBox());
-                using Stream content = form.GetContents();
-                ProcessStream(content);
-            }
-            finally
-            {
-                _resources = previousResources;
-                _initialMatrix = previousInitialMatrix;
-                RestoreGraphicsStack(savedStack);
-            }
+            ShowTransparencyGroup(group);
+        }
+        else if (xobject is PDFormXObject form)
+        {
+            ShowForm(form);
+        }
+    }
+
+    /// <summary>Processes a form XObject.</summary>
+    public virtual void ShowForm(PDFormXObject form)
+    {
+        ProcessChildStream(form.GetCOSObject(), form.GetResources(), form.GetMatrix(), form.GetBBox());
+    }
+
+    /// <summary>Processes a transparency group XObject.</summary>
+    public virtual void ShowTransparencyGroup(PDTransparencyGroup form)
+    {
+        ShowForm(form);
+    }
+
+    /// <summary>Processes an annotation appearance stream.</summary>
+    protected virtual void ProcessAnnotation(PDAnnotation annotation, PDAppearanceStream appearance)
+    {
+        ProcessChildStream(appearance.GetCOSObject(), appearance.GetResources(), appearance.GetMatrix(), appearance.GetBBox());
+    }
+
+    /// <summary>Processes a Type 3 glyph stream.</summary>
+    protected virtual void ProcessType3Stream(PDType3CharProc charProc, Matrix textRenderingMatrix)
+    {
+        ProcessChildStream(charProc.GetCOSObject(), charProc.GetResources(),
+            charProc.GetFont().GetFontMatrix().Multiply(textRenderingMatrix), charProc.GetGlyphBBox());
+    }
+
+    private void ProcessChildStream(COSStream? stream, PDResources? resources, Matrix matrix, PDRectangle? bbox)
+    {
+        if (stream is null)
+        {
+            return;
+        }
+        GraphicsStackSnapshot savedStack = SaveGraphicsStack();
+        PDResources? previousResources = _resources;
+        Matrix previousInitialMatrix = _initialMatrix;
+        Matrix previousTextMatrix = _textMatrix;
+        Matrix previousTextLineMatrix = _textLineMatrix;
+        bool previousTextObjectActive = IsTextObjectActive;
+        _resources = resources ?? previousResources;
+        try
+        {
+            ConcatenateMatrix(matrix);
+            _initialMatrix = GetGraphicsState().GetCurrentTransformationMatrix();
+            ClipToRect(bbox);
+            using Stream content = stream.CreateInputStream();
+            ProcessStream(content);
+        }
+        finally
+        {
+            _resources = previousResources;
+            _initialMatrix = previousInitialMatrix;
+            _textMatrix = previousTextMatrix;
+            _textLineMatrix = previousTextLineMatrix;
+            IsTextObjectActive = previousTextObjectActive;
+            RestoreGraphicsStack(savedStack);
         }
     }
 

@@ -1,8 +1,8 @@
 # PDFBox API Surface Parity Analysis
 
-Generated (UTC): 2026-11-01T21:02:02Z
-Apache PDFBox source commit: `a9ae066a942c122c9dded9bfa1b08dfae4078ba4`
-PdfBox.Net commit: `391f1a90cdb7c6c81b7fa4e51095152ed5760282`
+Generated (UTC): 2026-11-08T21:18:32Z
+Apache PDFBox source commit: `5b8f299279455a437488cf47ea67139a85a3b75f`
+PdfBox.Net commit: `4bf6edfe2e7bb7f79c81acc982a19964b3fe7f00`
 
 ## Scope
 
@@ -22,13 +22,13 @@ PdfBox.Net commit: `391f1a90cdb7c6c81b7fa4e51095152ed5760282`
 | Renamed public .NET replacements | 6 |
 | Mapped but non-public/replacement-marker types | 2 |
 | Missing mapped public .NET types | 0 |
-| Java public/protected members | 6341 |
-| Matched members | 5454 |
+| Java public/protected members | 6349 |
+| Matched members | 5463 |
 | Arity-drift members | 43 |
-| Missing members | 844 |
+| Missing members | 843 |
 | Reflected .NET extra members on matched types | 1658 |
 
-Member coverage by name/signature heuristic: **5497 / 6341 = 86.7%**.
+Member coverage by name/signature heuristic: **5506 / 6349 = 86.7%**.
 
 ## Review Disposition Backlog
 
@@ -36,19 +36,19 @@ Disposition ledger: `reports/api-surface-dispositions.json`
 
 | Delta kind | Raw | Reviewed | Unreviewed |
 |---|---:|---:|---:|
-| Missing members | 844 | 844 | 0 |
+| Missing members | 843 | 843 | 0 |
 | Arity-drift members | 43 | 43 | 0 |
 | Type-name/visibility gaps | 8 | 8 | 0 |
-| Total reviewable deltas | 895 | 895 | 0 |
+| Total reviewable deltas | 894 | 894 | 0 |
 
 | Disposition | Reviewed rows |
 |---|---:|
 | `behavior-covered` | 100 |
-| `intentional-dotnet-adaptation` | 697 |
+| `intentional-dotnet-adaptation` | 696 |
 | `internal-by-design` | 73 |
 | `not-applicable` | 25 |
 
-Unused disposition keys: **20**. See `review.unused_disposition_keys` in the JSON report.
+Unused disposition keys: **21**. See `review.unused_disposition_keys` in the JSON report.
 
 ## API Ratchet
 
@@ -64,8 +64,8 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | `fontbox` | 114 | 109 | 4 | 1 | 0 | 1050 | 1037 | 13 | 98.8% |
 | `io` | 15 | 15 | 0 | 0 | 0 | 131 | 126 | 5 | 96.2% |
-| `pdfbox` | 396 | 395 | 0 | 1 | 0 | 4218 | 3742 | 476 | 88.7% |
-| `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 592 | 350 | 62.8% |
+| `pdfbox` | 396 | 395 | 0 | 1 | 0 | 4226 | 3750 | 476 | 88.7% |
+| `xmpbox` | 65 | 63 | 2 | 0 | 0 | 942 | 593 | 349 | 63.0% |
 
 ## Highest Missing-Member Types
 
@@ -75,7 +75,7 @@ Ratchet baseline: `reports/api-surface-ratchet-baseline.json`
 | 78 | 100 | `xmpbox` | `org.apache.xmpbox.schema.PhotoshopSchema` | `PdfBox.Net.XmpBox.Schema.PhotoshopSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java` |
 | 60 | 80 | `xmpbox` | `org.apache.xmpbox.schema.XMPMediaManagementSchema` | `PdfBox.Net.XmpBox.Schema.XMPMediaManagementSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java` |
 | 49 | 83 | `xmpbox` | `org.apache.xmpbox.schema.DublinCoreSchema` | `PdfBox.Net.XmpBox.Schema.DublinCoreSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/DublinCoreSchema.java` |
-| 46 | 54 | `xmpbox` | `org.apache.xmpbox.schema.XMPSchema` | `PdfBox.Net.XmpBox.Schema.XMPSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java` |
+| 45 | 54 | `xmpbox` | `org.apache.xmpbox.schema.XMPSchema` | `PdfBox.Net.XmpBox.Schema.XMPSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java` |
 | 35 | 60 | `xmpbox` | `org.apache.xmpbox.schema.XMPBasicSchema` | `PdfBox.Net.XmpBox.Schema.XMPBasicSchema` | `xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java` |
 | 32 | 53 | `pdfbox` | `org.apache.pdfbox.pdfwriter.COSWriter` | `PdfBox.Net.PdfWriter.COSWriter` | `pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java` |
 | 31 | 35 | `pdfbox` | `org.apache.pdfbox.pdfparser.COSParser` | `PdfBox.Net.PdfParser.COSParser` | `pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java` |

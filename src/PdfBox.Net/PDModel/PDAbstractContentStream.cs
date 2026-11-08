@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java
  * PDFBOX_SOURCE_COMMIT: fee11b453d66725c2b3a28b6f862a8dc24d33177
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*

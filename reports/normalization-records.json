@@ -999,11 +999,12 @@
     "target_path": "src/PdfBox.Net/COS/COSName.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Adds AN and SPAN names."
+    "note": "Adds the upstream Stm name constant used by marked-content references."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
@@ -1417,15 +1418,16 @@
     "note": "Write the one-element ActualText dictionary inline, validate string type, and avoid resource allocation. PDPageContentStream and PDAppearanceContentStream receive the equivalent adaptation because .NET does not inherit them from this base."
   },
   {
-    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
-    "normalization_applied": false,
+    "normalization_applied": true,
     "change_categories": [
-      "Java runtime-specific static initializer difference accepted"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Upstream added a Java/Graal UnsatisfiedLinkError catch for missing AWT; no .NET code path is needed."
+    "note": "Adds public validated AddFontForSubsetting, deduplicated registration and save-time subset lifecycle. Required base PDFont hooks and page-writer registration/codepoint collection added. Existing PDType0Font full-font embedding remains explicit."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -2027,11 +2029,12 @@
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDMarkedContent.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Mechanical parity port with .NET adaptation for existing type system and nullability"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Updated Create factory to dispatch Artifact tag to PDArtifactMarkedContent subtype for tagged-PDF parity."
+    "note": "Adds StructParent getter/setter/default -1, XML documentation and ToString value."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDPropertyList.java",
@@ -4856,15 +4859,15 @@
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax leftovers -> C# syntax equivalents",
-      ".NET XML/collection adaptations for parity behavior"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "low",
     "behavior_change_risk": "low",
     "upstream_tests_added": false,
     "upstream_tests_pending": true,
     "compiles_after_change": true,
-    "note": "Adapted base schema abstraction for namespace/prefix identity, rdf:about handling, and description-element persistence used by parser/serializer registration flows."
+    "note": "Adds protected upstream-shaped InstantiateSimple helper forwarding to corrected TypeMapping API; adapted XML-backed schema setters remain."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
@@ -4990,11 +4993,12 @@
     "target_path": "src/PdfBox.Net/PDModel/PDPageContentStream.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+    "note": "Registers subset-capable fonts with the document and collects Unicode code points when writing text. Existing concrete PDType0Font still embeds a full font."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
@@ -5714,11 +5718,12 @@
     "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "The existing form-stream path already snapshots the initial matrix after concatenating the form matrix. Added explicit null-TJ diagnostic; no recursive Type3-charproc execution exists in the .NET backend (Unicode fallback is a pre-existing limitation). Exact ActualText form fixture exposed stale TJ operators after ET: track Java nullable text-matrix state with a boolean while preserving the non-nullable .NET matrix API; ignore text outside BT/ET during page processing."
+    "note": "Adds narrow form, transparency, annotation and Type3 child-stream hooks with graphics/resource/text state restoration, required by marked-content StructParent tracking. Existing automatic annotation/Type3 traversal limitations remain."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/CCITTFaxFilter.java",
@@ -5847,11 +5852,12 @@
     "target_path": "src/PdfBox.Net/Rendering/PageDrawer.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Add rotation-invariant device-ppem derivation and wire grid-fitting into the Skia backend using device transform composed with text/font matrix; no ppem work when disabled. Save/reload pixel test proves enabled outline changes and disabled determinism."
+    "note": "Overrides new base form/group hooks and preserves peer forwarding."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/SoftMask.java",
@@ -5869,11 +5875,12 @@
     "target_path": "src/PdfBox.Net/Text/PDFTextStripper.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Port ActualText provenance flag, retain logical Unicode and skip visual/word normalization for substituted strings. Match source BDC/EMC stack handling. All five exact AWT ActualText fixture extractions match Java under the upstream tests' layout-whitespace normalization."
+    "note": "Word separator uses singleton identity instead of null text-position state."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripperByArea.java",
@@ -6012,11 +6019,12 @@
     "target_path": "src/PdfBox.Net.SkiaSharp/Rendering/SkiaPageDrawerPeer.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
     "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Add rotation-invariant device-ppem derivation and wire grid-fitting into the Skia backend using device transform composed with text/font matrix; no ppem work when disabled. Save/reload pixel test proves enabled outline changes and disabled determinism."
+    "note": "Overrides new form/group hooks; direct base.ShowForm calls avoid virtual redispatch recursion while preserving rendering and annotation/soft-mask paths."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaint.java",
@@ -6254,11 +6262,12 @@
     "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "Ports default 10000000-byte row limit with positive environment-property override; .NET checked long calculation also rejects multiplication overflow before allocating."
+    "note": "Rejects nonpositive calculated predictor rows with IOException; removes the prior Columns clamp that silently accepted Columns 0. Checked row-size arithmetic and row limit adaptation remain."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/multipdf/Splitter.java",
@@ -6298,11 +6307,12 @@
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Upstream synchronization; C# syntax/type/runtime adaptations"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
-    "semantic_risk": "medium",
+    "semantic_risk": "low",
     "compiles_after_change": true,
-    "note": "PDFBOX-6289 prerequisite discovered by real encrypted signing test: retain parser-derived encryption key internally for incremental string/stream serialization, preserve Encrypt/ID in incremental trailer, exclude only signature Contents from encryption and decryption. Tests verify CMS, decrypted signer name and zero padding in both signing modes. Read-only review identified optional /Type signatures: shared internal predicate now matches upstream SecurityHandler.java lines634\u2013638, recognizing Sig/DocTimeStamp OR Contents(COSString)+ByteRange(COSArray). Reader/writer both use it."
+    "note": "Adds public validated AddFontForSubsetting, deduplicated registration and save-time subset lifecycle. Required base PDFont hooks and page-writer registration/codepoint collection added. Existing PDType0Font full-font embedding remains explicit."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSWriter.java",
@@ -6992,12 +7002,12 @@
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFont.cs",
     "normalization_applied": true,
     "change_categories": [
-      "Java syntax and collections -> C# equivalents",
-      "Existing .NET model/test adapter integration"
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
     ],
-    "semantic_risk": "low",
+    "semantic_risk": "medium",
     "compiles_after_change": true,
-    "note": "Adds protected IsEncodedViaSubstitute hook and skips installed-substitute encoding when choosing space width. Encoding fallback catches matching argument/unsupported exceptions."
+    "note": "Adds overridable Java-shaped AddToSubset/Subset/WillBeSubset contract needed by AddFontForSubsetting. Existing full-font types report false; unsupported operations throw rather than silently succeed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
@@ -8026,5 +8036,77 @@
     "semantic_risk": "low",
     "compiles_after_change": true,
     "note": "Converts PDF width versus substitute-GID space regression. Exact bundled fixture replaces host-dependent assumption with an asserted GID precondition. Adds explicit parent ToUnicode space mapping regression."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFMarkedContentExtractor.java",
+    "target_path": "src/PdfBox.Net/Text/PDFMarkedContentExtractor.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Captures page/form/transparency/annotation/Type3 container keys and restores/reset them as upstream specifies. Adds actual nested form traversal and upstream depth limit, supported by narrow base-engine child-stream hooks and rendering dispatch integration. Annotation/Type3 automatic entry-point traversal remains a pre-existing limitation; their hooks are exercised directly."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/filter/PredictorTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue966UpstreamSyncTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Converts new recursive (StructParent, MCID) ParentTree validation, page-versus-form MCR/Stm identity and form-key checks against exact original and twice-merged octopdf fixture. Older pre-existing merger-suite gaps remain deferred."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractStructuredType.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Uses corrected InstantiateSimpleField spelling."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ResourceRefType.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ResourceRefType.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Uses corrected InstantiateSimpleProperty spelling."
+  },
+  {
+    "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/TypeMapping.java",
+    "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/TypeMapping.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Renames the four public Instanciate methods to upstream Instantiate spellings and updates all mapped callers/tests."
+  },
+  {
+    "source_path": "xmpbox/src/test/java/org/apache/xmpbox/schema/SchemaTester.java",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs",
+    "normalization_applied": true,
+    "change_categories": [
+      "Java syntax/API to C# equivalents",
+      "Existing adapted document/stream integration"
+    ],
+    "semantic_risk": "low",
+    "compiles_after_change": true,
+    "note": "Native XmpTypeTest exercises the corrected construction API; the upstream test-local instanciate helper has no C# counterpart. Existing full reflection-driven derived-type matrix remains deferred."
   }
 ]

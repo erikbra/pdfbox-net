@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -1459,7 +1459,7 @@ public partial class PDFTextStripper : LegacyPDFStreamEngine
 
         public bool IsWordSeparator()
         {
-            return _textPosition == null;
+            return ReferenceEquals(this, WORD_SEPARATOR);
         }
     }
 

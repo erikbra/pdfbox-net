@@ -6,7 +6,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -783,14 +783,14 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         return form is PDTransparencyGroup || form.GetCOSObject()?.GetCOSDictionary(COSName.GetPDFName("Group")) is not null;
     }
 
-    public void ShowForm(PDFormXObject form)
+    public override void ShowForm(PDFormXObject form)
     {
         if (!IsContentRendered())
         {
             return;
         }
 
-        base.XObject(form);
+        base.ShowForm(form);
     }
 
     private void ShowAnnotationAppearance(PDAnnotation annotation, PDAppearanceStream appearance)
@@ -812,7 +812,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         try
         {
             GetGraphicsState().SetCurrentTransformationMatrix(placement);
-            base.XObject(appearance);
+            base.ShowForm(appearance);
         }
         finally
         {
@@ -860,7 +860,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
         return (minX, minY, maxX - minX, maxY - minY);
     }
 
-    public void ShowTransparencyGroup(PDTransparencyGroup form)
+    public override void ShowTransparencyGroup(PDTransparencyGroup form)
     {
         ShowTransparencyGroupOnGraphics(form, _graphics!);
     }
@@ -2793,7 +2793,7 @@ internal class SkiaPageDrawerPeer : PDFGraphicsStreamEngine, IPageDrawerPeer
                 graphicsState.SetNonStrokingColor(PDDeviceGray.Instance.GetInitialColor());
             }
 
-            base.XObject(form);
+            base.ShowForm(form);
         }
         finally
         {

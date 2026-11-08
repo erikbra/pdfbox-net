@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -176,12 +176,12 @@ public partial class PageDrawer : PDFGraphicsStreamEngine, IDisposable
         _peer.ShowAnnotation(annotation);
     }
 
-    public virtual void ShowForm(PDFormXObject form)
+    public override void ShowForm(PDFormXObject form)
     {
         _peer.ShowForm(form);
     }
 
-    public virtual void ShowTransparencyGroup(PDTransparencyGroup form)
+    public override void ShowTransparencyGroup(PDTransparencyGroup form)
     {
         _peer.ShowTransparencyGroup(form);
     }

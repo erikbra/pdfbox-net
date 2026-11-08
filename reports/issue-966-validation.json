@@ -1,0 +1,91 @@
+{
+  "issue": 966,
+  "previous_upstream_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+  "upstream_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+  "upstream_commits_reviewed": 27,
+  "changed_upstream_paths": 33,
+  "build": {
+    "command": "dotnet build PdfBoxNet.slnx --configuration Release --no-restore --nologo",
+    "result": "passed",
+    "errors": 0,
+    "warnings": 16,
+    "log": "/private/tmp/pdfbox-966-build.log",
+    "note": "Existing advisory and obsolete API warnings; no warning policy/dependency change."
+  },
+  "focused_dotnet": {
+    "command": "dotnet test tests/PdfBox.Net.Tests/PdfBox.Net.Tests.csproj --configuration Release --no-build --filter 'FullyQualifiedName~Issue966' --nologo",
+    "result": "passed",
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/private/tmp/pdfbox-966-focused.log"
+  },
+  "solution_dotnet": {
+    "command": "dotnet test PdfBoxNet.slnx --configuration Release --no-build --nologo",
+    "result": "passed",
+    "passed": 1973,
+    "failed": 0,
+    "skipped": 21,
+    "log": "/private/tmp/pdfbox-966-tests.log",
+    "note": "Full solution ran before final test-only assertion tightening; subsequent full build and focused run passed. No production semantic change followed full solution tests."
+  },
+  "focused_java": {
+    "working_directory": "Apache PDFBox at 5b8f299279455a437488cf47ea67139a85a3b75f",
+    "result": "passed",
+    "passed": 879,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "checks": [
+      {
+        "command": "mvn -B -pl pdfbox -am -Dtest=PredictorTest -Dsurefire.failIfNoSpecifiedTests=false test",
+        "passed": 3,
+        "log": "/private/tmp/issue-966-upstream-predictor-test.log"
+      },
+      {
+        "command": "mvn -B -pl xmpbox -am test",
+        "passed": 875,
+        "log": "/private/tmp/issue-966-upstream-xmpbox-test.log"
+      },
+      {
+        "command": "mvn -B -pl pdfbox -am -Dtest=PDFMergerUtilityTest#testMappingXObjects -Dsurefire.failIfNoSpecifiedTests=false test",
+        "passed": 1,
+        "log": "/private/tmp/issue-966-upstream-merger-test.log"
+      }
+    ],
+    "note": "These independent upstream checks were executed/reported by the parent orchestrator."
+  },
+  "api_gate": {
+    "command": "python3 tools/parity/generate_api_surface_report.py --upstream-root /private/tmp/pdfbox-upstream-966 --no-build --ratchet-baseline reports/api-surface-ratchet-baseline.json --fail-on-unreviewed",
+    "result": "passed",
+    "missing_types": 0,
+    "unreviewed_deltas": 0,
+    "reviewed_missing_members": 843,
+    "reviewed_arity_drifts": 43,
+    "reviewed_type_visibility_gaps": 8,
+    "ratchet_changed": false,
+    "dispositions_changed": false
+  },
+  "inventory": {
+    "command": "python3 tools/parity/generate_parity_inventory.py --upstream-root /private/tmp/pdfbox-upstream-966 --upstream-ref 5b8f299279455a437488cf47ea67139a85a3b75f --write-sync-state --update-tracked-commit",
+    "result": "passed",
+    "mapped_production_paths": 1091,
+    "missing_production_paths": 0,
+    "note": "Restored upstream_branch to trunk after reproducible pinned scan so the watcher continues tracking changes."
+  },
+  "runtime_gate": {
+    "result": "pending-pr-ci",
+    "note": "Full Java-vs-.NET runtime suite was not rerun locally; unchanged CI policy will evaluate the exact target."
+  },
+  "development_checks": {
+    "initial_compile": "Missing annotation dictionary cast, DecodeOptions factory spelling, and new base dispatch declarations normalized before passing build.",
+    "initial_executed_focused": "6 passed, 4 failed due to test setup: three missing Filter parameter cases and one deliberately swallowed missing-operand failure. Fixed before final 10/10.",
+    "final_focused": "Concrete IOException assertion plus every nested form key check passed.",
+    "baseline_sensitivity": "Not run; no old-source failure claim is made."
+  },
+  "whitespace": {
+    "result": "passed",
+    "command": "git diff --check"
+  },
+  "existing_limits": "See issue-966-upstream-sync-assessment.md for full-font Type0 embedding, documentless writer registration, automatic annotation/Type3 extraction and older full Java test suite gaps."
+}

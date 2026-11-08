@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -41,11 +41,12 @@ internal static class Predictor
 
         int colors = Math.Clamp(decodeParams.GetInt(COSName.COLORS, 1), 1, int.MaxValue);
         int bitsPerComponent = decodeParams.GetInt(COSName.BITS_PER_COMPONENT, 8);
-        int columns = Math.Clamp(decodeParams.GetInt(COSName.COLUMNS, 1), 1, int.MaxValue);
+        int columns = decodeParams.GetInt(COSName.COLUMNS, 1);
         int rowLength = CalculateRowLength(colors, bitsPerComponent, columns);
         if (rowLength <= 0)
         {
-            return data;
+            // Reject rows that cannot make progress, including /Columns 0 (PDFBOX-6304).
+            throw new IOException($"Calculated row length is not positive: {rowLength}");
         }
 
         long maxRowLength = 10_000_000L;

@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -48,6 +48,7 @@ public class PDMarkedContent
     private readonly List<TextPosition> _texts = new();
     private readonly List<PDXObject> _xobjects = new();
     private readonly List<object> _contents = new();
+    private int _structParent = -1;
 
     protected PDMarkedContent(COSName tag, COSDictionary? properties)
     {
@@ -120,8 +121,20 @@ public class PDMarkedContent
     /// <summary>Returns all content objects collected within this sequence.</summary>
     public List<object> GetContents() => _contents;
 
+    /// <summary>
+    /// Returns the StructParents key to which this content was associated (a page or form XObject),
+    /// or -1 if none. Type 3 glyph streams report -1; tiling patterns report the enclosing
+    /// container value.
+    /// </summary>
+    /// <returns>The StructParents key of the page or form XObject, or -1 if none.</returns>
+    public int GetStructParent() => _structParent;
+
+    /// <summary>Sets the StructParents key to which this content was associated, or -1 if none.</summary>
+    /// <param name="structParent">The StructParents key of the page or form XObject, or -1 if none.</param>
+    public void SetStructParent(int structParent) => _structParent = structParent;
+
     public override string ToString()
     {
-        return $"tag={Tag}, properties={Properties}, contents={string.Join(", ", _contents)}";
+        return $"tag={Tag}, properties={Properties}, contents={string.Join(", ", _contents)}, structParent={_structParent}";
     }
 }

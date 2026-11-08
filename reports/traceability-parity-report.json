@@ -1911,11 +1911,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/PDFStreamEngine.java",
     "target_path": "src/PdfBox.Net/ContentStream/PDFStreamEngine.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "The existing form-stream path already snapshots the initial matrix after concatenating the form matrix. Added explicit null-TJ diagnostic; no recursive Type3-charproc execution exists in the .NET backend (Unicode fallback is a pre-existing limitation). Exact ActualText form fixture exposed stale TJ operators after ET: track Java nullable text-matrix state with a boolean while preserving the non-nullable .NET matrix API; ignore text outside BT/ET during page processing."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Adds narrow form, transparency, annotation and Type3 child-stream hooks with graphics/resource/text state restoration, required by marked-content StructParent tracking. Existing automatic annotation/Type3 traversal limitations remain."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/contentstream/operator/DrawObject.java",
@@ -2532,11 +2532,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
     "target_path": "src/PdfBox.Net/COS/COSName.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Adds AN and SPAN names."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Adds the upstream Stm name constant used by marked-content references."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSNull.java",
@@ -2782,11 +2782,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
     "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Ports default 10000000-byte row limit with positive environment-property override; .NET checked long calculation also rejects multiplication overflow before allocating."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Rejects nonpositive calculated predictor rows with IOException; removes the prior Columns clamp that silently accepted Columns 0. Checked row-size arithmetic and row limit adaptation remain."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/RunLengthDecodeFilter.java",
@@ -2862,11 +2862,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
     "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Exposes default GetEOFLookupRange; actual trailer bootstrap moved to new TrailerParser and routed into PDFParser. Removed unused Java UTF8/Windows1252 decoder had no port equivalent. Existing token parser does not own upstream lazy-object logic."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "The upstream removed redundant decryption IOException catch is absent in the adapted parser. Existing catches add dictionary/array diagnostics and remain required."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/EndstreamFilterStream.java",
@@ -2932,11 +2932,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
     "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
     "source_commit": "a71c5679d69bc3fd3ab15e248b69441ee91dca6c",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Java source-access forwarding refactor only. The existing .NET wrapper delegates the complete parse to PDFParser; its centralized byte source requires no per-call source replacement."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java-only removal of checked exception declarations; C# already has unchecked exceptions and no obsolete throws documentation in this scope."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfwriter/COSStandardOutputStream.java",
@@ -3022,21 +3022,21 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
     "source_commit": "fee11b453d66725c2b3a28b6f862a8dc24d33177",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Write the one-element ActualText dictionary inline, validate string type, and avoid resource allocation. PDPageContentStream and PDAppearanceContentStream receive the equivalent adaptation because .NET does not inherit them from this base."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "The adapted base writes font resource names without document ownership. Font-object selection lives in PDPageContentStream; that writer now uses validated AddFontForSubsetting. Other writer ownership/API limitations remain unchanged."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
     "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
     "source_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
-    "sync_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
-    "port_mode": "mechanical",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-07-18T09:23:30Z",
-    "note": "Reviewed upstream Graal/AWT UnsatisfiedLinkError and NoClassDefFoundError catches. The .NET port performs no AWT class loading, so no runtime change is applicable."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Adds public validated AddFontForSubsetting, deduplicated registration and save-time subset lifecycle. Required base PDFont hooks and page-writer registration/codepoint collection added. Existing PDType0Font full-font embedding remains explicit."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocumentCatalog.java",
@@ -3362,11 +3362,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDEmbeddedFile.java",
     "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDEmbeddedFile.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-24T20:48:52Z",
-    "note": "Adapted embedded-file stream port using DateTimeOffset-backed embedded date helpers."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Removed Java checked date exceptions have no C# declaration/documentation counterpart; date accessors already match the updated behavior."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDFileSpecification.java",
@@ -3672,11 +3672,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java",
     "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDMarkedContent.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-25T14:10:22Z",
-    "note": "Marked-content model now includes Artifact subtype dispatch via PDMarkedContent.Create while preserving MCID/language/alternate/expanded text accessors and hierarchical content capture."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Adds StructParent getter/setter/default -1, XML documentation and ToString value."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDPropertyList.java",
@@ -3892,11 +3892,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
     "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-28T04:38:47Z",
-    "note": "PDModel FDF milestone closeout parity row for issue #72."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Removed Java checked creation-date exception has no C# declaration/documentation counterpart."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotationCaret.java",
@@ -4322,11 +4322,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
     "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Add nullable hinted-outline virtual method with no-hint default. Existing width dictionary is already keyed directly by CID with O(1) lookup; source extra code-width cache adds no observable result to this adaptation."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java computeIfAbsent rewrite is behavior-preserving. Existing adapted CID width dictionary/direct lookup retained; no algorithm change or new parent overload is claimed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFontType0.java",
@@ -4392,11 +4392,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
     "source_commit": "bf37c60dfa43cb9fb21497b44a667d091d809084",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Upstream byte-array initializer simplification has no runtime change; current C# header bytes already equivalent."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java-only removal of checked exception declarations; no C# signature change is needed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDPanose.java",
@@ -4442,11 +4442,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
     "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
-    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-11-01T21:04:48Z",
-    "note": "Overrides substitute-encoding predicate for non-embedded Identity CIDFontType2 without ToUnicode. Removes descendant GetSpaceWidth delegation so the inherited parent-font algorithm observes this hook and the parent ToUnicode map."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java-only removal of checked fetchCMapUCS2 exception declaration. The pre-existing documented full-font embedding adaptation remains; actual PDType0 subsetting is not claimed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType1Font.java",
@@ -6272,11 +6272,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDNamedDestination.java",
     "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDNamedDestination.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-27T20:07:24Z",
-    "note": "Interactive milestone closeout: mapping validated with regression coverage in issue #68."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Removed Java checked exception and import have no C# signature/documentation counterpart."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDPageDestination.java",
@@ -7092,21 +7092,21 @@
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAIdentificationSchema.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:30:00Z",
-    "note": "Adapted PDF/A identification schema class shell with preferred namespace/prefix constructors for typed registration parity."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PhotoshopSchema.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:30:00Z",
-    "note": "Adapted Photoshop schema class shell with preferred namespace/prefix constructors for typed registration parity."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/TiffSchema.java",
@@ -7132,21 +7132,21 @@
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicSchema.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:30:00Z",
-    "note": "Adapted XMP basic schema class shell with preferred namespace/prefix constructors for typed registration parity."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPMediaManagementSchema.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:30:00Z",
-    "note": "Adapted XMP media management schema class shell with preferred namespace/prefix constructors for typed registration parity."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPPageTextSchema.java",
@@ -7162,21 +7162,21 @@
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPRightsManagementSchema.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:30:00Z",
-    "note": "Adapted XMP rights management schema class shell with preferred namespace/prefix constructors for typed registration parity."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:30:00Z",
-    "note": "Adapted base schema abstraction for namespace/prefix identity, rdf:about handling, and description-element persistence used by parser/serializer registration flows."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Adds protected upstream-shaped InstantiateSimple helper forwarding to corrected TypeMapping API; adapted XML-backed schema setters remain."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchemaFactory.java",
@@ -7232,11 +7232,11 @@
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractStructuredType.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T08:00:00Z",
-    "note": "Ported the abstract structured-type base with reflection-driven property helpers and namespace metadata."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Uses corrected InstantiateSimpleField spelling."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AgentNameType.java",
@@ -7602,11 +7602,11 @@
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ResourceRefType.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ResourceRefType.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T08:00:00Z",
-    "note": "Mechanical port of ResourceRefType from Apache PDFBox xmpbox type model."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Uses corrected InstantiateSimpleProperty spelling."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/StructuredType.java",
@@ -7642,11 +7642,11 @@
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/TypeMapping.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/TypeMapping.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T08:00:00Z",
-    "note": "Ported the central XmpBox type mapping registry, reflection scanners, and property/structured factory helpers."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Renames the four public Instanciate methods to upstream Instantiate spellings and updates all mapped callers/tests."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/Types.java",
@@ -7712,11 +7712,11 @@
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
     "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-05-29T05:05:40Z",
-    "note": "Issue #78 slice entry point: adapted secure DOM parser pipeline with strict/lenient xpacket handling."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Existing adapted parser constructs and validates XML directly without the renamed Java helpers; no obsolete spelling remains in this parser."
   },
   {
     "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/PdfaExtensionHelper.java",
@@ -8682,11 +8682,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java",
     "target_path": "src/PdfBox.Net/PDModel/PDPageContentStream.cs",
     "source_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
-    "sync_commit": "56575fd583792844b6bd182d67739d26568b1d01",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Issue #957 prerequisite adapter or regression; corresponding upstream behavior, adaptations and test limits are documented in the slice assessments."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Registers subset-capable fonts with the document and collects Unicode code points when writing text. Existing concrete PDType0Font still embeds a full font."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAppearanceContentStream.java",
@@ -9052,11 +9052,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
     "target_path": "src/PdfBox.Net/Rendering/PageDrawer.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Add rotation-invariant device-ppem derivation and wire grid-fitting into the Skia backend using device transform composed with text/font matrix; no ppem work when disabled. Save/reload pixel test proves enabled outline changes and disabled determinism."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Overrides new base form/group hooks and preserves peer forwarding."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/SoftMask.java",
@@ -9072,21 +9072,21 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java",
     "target_path": "src/PdfBox.Net/Text/PDFTextStripper.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Port ActualText provenance flag, retain logical Unicode and skip visual/word normalization for substituted strings. Match source BDC/EMC stack handling. All five exact AWT ActualText fixture extractions match Java under the upstream tests' layout-whitespace normalization."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Word separator uses singleton identity instead of null text-position state."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripperByArea.java",
     "target_path": "src/PdfBox.Net/Text/PDFTextStripperByArea.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "046747da99a870902217efabf1c41297de157059",
-    "port_mode": "adapted",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "port_mode": "mechanical",
     "status": "in-sync",
-    "last_checked_utc": "2026-09-05T21:50:54Z",
-    "note": "Issue #954: Removed eager HasContents condition and always dispatch ProcessPage, matching upstream page-selection behavior. Upstream-test parity: converted: Issue954TextPageTraversalTest.ExtractRegions_ProcessesEmptyPage."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Java-only removal of constructor checked exception; no C# signature/documentation counterpart."
   },
   {
     "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdmodel/fdf/FDFUtilsTest.java",
@@ -9202,11 +9202,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/PageDrawer.java",
     "target_path": "src/PdfBox.Net.SkiaSharp/Rendering/SkiaPageDrawerPeer.cs",
     "source_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
-    "sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-10-28T06:17:46Z",
-    "note": "Add rotation-invariant device-ppem derivation and wire grid-fitting into the Skia backend using device transform composed with text/font matrix; no ppem work when disabled. Save/reload pixel test proves enabled outline changes and disabled determinism."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Overrides new form/group hooks; direct base.ShowForm calls avoid virtual redispatch recursion while preserving rendering and annotation/soft-mask paths."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/rendering/TilingPaint.java",
@@ -10032,11 +10032,11 @@
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
     "target_path": "src/PdfBox.Net/PDModel/Font/PDFont.cs",
     "source_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
-    "sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
     "port_mode": "adapted",
     "status": "in-sync",
-    "last_checked_utc": "2026-11-01T21:04:48Z",
-    "note": "Adds protected IsEncodedViaSubstitute hook and skips installed-substitute encoding when choosing space width. Encoding fallback catches matching argument/unsupported exceptions."
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Adds overridable Java-shaped AddToSubset/Subset/WillBeSubset contract needed by AddFontForSubsetting. Existing full-font types report false; unsupported operations throw rather than silently succeed."
   },
   {
     "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java",
@@ -10787,5 +10787,55 @@
     "status": "in-sync",
     "last_checked_utc": "2026-11-01T21:04:48Z",
     "note": "Converts PDF width versus substitute-GID space regression. Exact bundled fixture replaces host-dependent assumption with an asserted GID precondition. Adds explicit parent ToUnicode space mapping regression."
+  },
+  {
+    "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFMarkedContentExtractor.java",
+    "target_path": "src/PdfBox.Net/Text/PDFMarkedContentExtractor.cs",
+    "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "port_mode": "adapted",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Captures page/form/transparency/annotation/Type3 container keys and restores/reset them as upstream specifies. Adds actual nested form traversal and upstream depth limit, supported by narrow base-engine child-stream hooks and rendering dispatch integration. Annotation/Type3 automatic entry-point traversal remains a pre-existing limitation; their hooks are exercised directly."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/filter/PredictorTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue966UpstreamSyncTest.cs",
+    "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "port_mode": "adapted",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Converts the new nonpositive-row regression through the public FlateFilter path, with additional PNG and zero-bit cases."
+  },
+  {
+    "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PDFMergerUtilityTest.java",
+    "target_path": "tests/PdfBox.Net.Tests/Issue966UpstreamSyncTest.cs",
+    "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "port_mode": "adapted",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Converts new recursive (StructParent, MCID) ParentTree validation, page-versus-form MCR/Stm identity and form-key checks against exact original and twice-merged octopdf fixture. Older pre-existing merger-suite gaps remain deferred."
+  },
+  {
+    "source_path": "xmpbox/src/test/java/org/apache/xmpbox/schema/SchemaTester.java",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs",
+    "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "port_mode": "adapted",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Native XmpTypeTest exercises corrected simple-field/property/structured/defined construction. The older full Java reflection-based schema harness remains deferred under the existing XML-backed XmpBox adaptation."
+  },
+  {
+    "source_path": "xmpbox/src/test/java/org/apache/xmpbox/type/TestDerivedType.java",
+    "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs",
+    "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "port_mode": "adapted",
+    "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+    "status": "in-sync",
+    "last_checked_utc": "2026-11-08T21:21:31Z",
+    "note": "Native XmpTypeTest exercises the corrected construction API; the upstream test-local instanciate helper has no C# counterpart. Existing full reflection-driven derived-type matrix remains deferred."
   }
 ]

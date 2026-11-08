@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java
  * PDFBOX_SOURCE_COMMIT: a2ca944312187dd809c4b203001d4b782fd5b0b0
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: a2ca944312187dd809c4b203001d4b782fd5b0b0
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -31,6 +31,7 @@ using PdfBox.Net.FontBox.TTF;
 using PdfBox.Net.IO;
 using PdfBox.Net.MultiPdf;
 using PdfBox.Net.PDModel.Encryption;
+using PdfBox.Net.PDModel.Font;
 using PdfBox.Net.PDModel.Common;
 using PdfBox.Net.PDModel.Interactive.Annotation;
 using PdfBox.Net.PDModel.Interactive.DigitalSignature;
@@ -71,6 +72,7 @@ public sealed partial class PDDocument : IDisposable
     private AccessPermission? _accessPermission;
     private long? _documentId;
     private readonly HashSet<TrueTypeFont> _fontsToClose = [];
+    private readonly HashSet<PDFont> _fontsToSubset = [];
     private bool _signatureAdded;
     private SignatureInterface? _signInterface;
     private PDSignature? _pendingSignature;
@@ -282,6 +284,12 @@ public sealed partial class PDDocument : IDisposable
     {
         ArgumentNullException.ThrowIfNull(output);
         EnsureNotDisposed();
+        foreach (PDFont font in _fontsToSubset)
+        {
+            font.Subset();
+        }
+        _fontsToSubset.Clear();
+
         PDEncryption? encryption = GetEncryption();
         SecurityHandler<ProtectionPolicy>? securityHandler = null;
         bool willEncrypt = false;
@@ -1791,6 +1799,20 @@ public sealed partial class PDDocument : IDisposable
         ArgumentNullException.ThrowIfNull(ttf);
         EnsureNotDisposed();
         _fontsToClose.Add(ttf);
+    }
+
+    /// <summary>Adds the given font to the list of fonts for subsetting.</summary>
+    /// <param name="font">The font to add to the list of fonts for subsetting.</param>
+    /// <exception cref="ArgumentException">The font does not support subsetting.</exception>
+    public void AddFontForSubsetting(PDFont font)
+    {
+        ArgumentNullException.ThrowIfNull(font);
+        EnsureNotDisposed();
+        if (!font.WillBeSubset())
+        {
+            throw new ArgumentException($"The font {font.GetName()} doesn't support subsetting", nameof(font));
+        }
+        _fontsToSubset.Add(font);
     }
 
     private void EnsureNotDisposed()
