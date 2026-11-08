@@ -4,8 +4,8 @@
  *
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/text/PDFMarkedContentExtractor.java
  * PDFBOX_SOURCE_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
- * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: aba442860ed4f9f99f9e52e78e34bb23570c2390
+ * PORT_MODE: adapted
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -28,6 +28,11 @@
 using PdfBox.Net.ContentStream.Operator;
 using PdfBox.Net.ContentStream.Operator.MarkedContent;
 using PdfBox.Net.COS;
+using PdfBox.Net.PDModel;
+using PdfBox.Net.PDModel.Font;
+using PdfBox.Net.PDModel.Graphics.Form;
+using PdfBox.Net.PDModel.Interactive.Annotation;
+using PdfBox.Net.Util;
 using PdfBox.Net.PDModel.DocumentInterchange.MarkedContent;
 using PdfBox.Net.PDModel.Graphics;
 
@@ -35,7 +40,10 @@ namespace PdfBox.Net.Text;
 
 public class PDFMarkedContentExtractor : LegacyPDFStreamEngine
 {
+    private static ILogger<PDFMarkedContentExtractor> LOG => PdfBoxLogging.CreateLogger<PDFMarkedContentExtractor>();
     private bool _suppressDuplicateOverlappingText = true;
+    private int _currentStructParent = -1;
+    private int _formLevel;
     private readonly List<PDMarkedContent> _markedContents = new();
     private readonly Stack<PDMarkedContent> _currentMarkedContents = new();
     private readonly Dictionary<string, List<TextPosition>> _characterListMapping = new();
@@ -73,6 +81,7 @@ public class PDFMarkedContentExtractor : LegacyPDFStreamEngine
     public override void BeginMarkedContentSequence(COSName tag, COSDictionary? properties)
     {
         PDMarkedContent markedContent = PDMarkedContent.Create(tag, properties);
+        markedContent.SetStructParent(_currentStructParent);
         if (_currentMarkedContents.Count == 0)
         {
             _markedContents.Add(markedContent);
@@ -103,6 +112,24 @@ public class PDFMarkedContentExtractor : LegacyPDFStreamEngine
         if (_currentMarkedContents.TryPeek(out PDMarkedContent? currentMarkedContent))
         {
             currentMarkedContent.AddXObject(xobject);
+        }
+
+        if (xobject is PDFormXObject)
+        {
+            try
+            {
+                _formLevel++;
+                if (_formLevel > 50)
+                {
+                    LOG.LogError("recursion is too deep, skipping form XObject");
+                    return;
+                }
+                base.XObject(xobject);
+            }
+            finally
+            {
+                _formLevel--;
+            }
         }
     }
 
@@ -149,4 +176,66 @@ public class PDFMarkedContentExtractor : LegacyPDFStreamEngine
     {
         return _markedContents;
     }
+
+    public override void ShowForm(PDFormXObject form)
+    {
+        int savedStructParent = _currentStructParent;
+        _currentStructParent = form.GetStructParents();
+        try
+        {
+            base.ShowForm(form);
+        }
+        finally
+        {
+            _currentStructParent = savedStructParent;
+        }
+    }
+
+    public override void ShowTransparencyGroup(PDTransparencyGroup form)
+    {
+        int savedStructParent = _currentStructParent;
+        _currentStructParent = form.GetStructParents();
+        try
+        {
+            base.ShowTransparencyGroup(form);
+        }
+        finally
+        {
+            _currentStructParent = savedStructParent;
+        }
+    }
+
+    public override void ProcessPage(PDPage page)
+    {
+        _currentStructParent = page.GetStructParents();
+        base.ProcessPage(page);
+    }
+
+    protected override void ProcessAnnotation(PDAnnotation annotation, PDAppearanceStream appearance)
+    {
+        _currentStructParent = ((COSDictionary)annotation.GetCOSObject()).GetInt(COSName.GetPDFName("StructParent"), -1);
+        try
+        {
+            base.ProcessAnnotation(annotation, appearance);
+        }
+        finally
+        {
+            _currentStructParent = -1;
+        }
+    }
+
+    protected override void ProcessType3Stream(PDType3CharProc charProc, Matrix textRenderingMatrix)
+    {
+        int savedStructParent = _currentStructParent;
+        _currentStructParent = -1;
+        try
+        {
+            base.ProcessType3Stream(charProc, textRenderingMatrix);
+        }
+        finally
+        {
+            _currentStructParent = savedStructParent;
+        }
+    }
+
 }

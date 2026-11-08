@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: 5206dee5bfe0f435609f6506e3fccccbc46a95cc
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -204,6 +204,7 @@ public sealed class COSName : COSBase, IComparable<COSName>
     public static readonly COSName SMASK = GetPDFName("SMask");
     public static readonly COSName SMASK_IN_DATA = GetPDFName("SMaskInData");
     public static readonly COSName ST = GetPDFName("St");
+    public static readonly COSName STM = GetPDFName("Stm");
     public static readonly COSName STRUCT_PARENTS = GetPDFName("StructParents");
     public static readonly COSName SUBTYPE = GetPDFName("Subtype");
     public static readonly COSName SUBJECT = GetPDFName("Subject");

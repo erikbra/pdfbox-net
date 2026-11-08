@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: n/a
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -86,10 +86,15 @@ public class XmpTypeTest
         XMPMetadata metadata = XMPMetadata.CreateXMPMetadata();
         TypeMapping mapping = metadata.GetTypeMapping();
 
-        AbstractStructuredType structured = mapping.InstanciateStructuredType(Types.Thumbnail, XMPBasicSchema.THUMBNAILS);
+        AbstractStructuredType structured = mapping.InstantiateStructuredType(Types.Thumbnail, XMPBasicSchema.THUMBNAILS);
         PropertyTypeAttribute? schemaProperty = mapping.GetSpecifiedPropertyType((XMPBasicSchema.NamespaceUri, XMPBasicSchema.THUMBNAILS), null);
         PropertyTypeAttribute? dcTitle = mapping.GetSpecifiedPropertyType((DublinCoreSchema.NamespaceUri, DublinCoreSchema.TITLE), null);
 
+        AbstractSimpleProperty simple = mapping.InstantiateSimpleProperty(null, "test", "value", "text", Types.Text);
+        Assert.Equal("text", Assert.IsType<TextType>(simple).GetStringValue());
+        AbstractSimpleProperty field = mapping.InstantiateSimpleField(typeof(XMPBasicSchema), null, "xmp", XMPBasicSchema.CREATORTOOL, "tool");
+        Assert.Equal("tool", Assert.IsType<AgentNameType>(field).GetStringValue());
+        Assert.IsType<DefinedStructuredType>(mapping.InstantiateDefinedType("custom", "urn:custom"));
         Assert.IsType<ThumbnailType>(structured);
         Assert.Equal(XMPBasicSchema.THUMBNAILS, structured.GetPropertyName());
         Assert.True(mapping.IsStructuredTypeNamespace(ThumbnailTypeAttribute.Namespace));

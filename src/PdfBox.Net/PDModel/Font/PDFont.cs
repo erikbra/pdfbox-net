@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFont.java
  * PDFBOX_SOURCE_COMMIT: b07158974a4dbbcebf0e33d3797b9f0655cc62d9
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: a9ae066a942c122c9dded9bfa1b08dfae4078ba4
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -83,6 +83,16 @@ public abstract class PDFont : PDFontLike
     public virtual bool IsVertical() => false;
 
     public virtual bool IsEmbedded() => false;
+
+    /// <summary>Adds the given Unicode code point to the subset.</summary>
+    /// <param name="codePoint">Unicode code point.</param>
+    public virtual void AddToSubset(int codePoint) => throw new NotSupportedException("This font does not support subsetting.");
+
+    /// <summary>Replaces this font with a subset containing only the selected Unicode characters.</summary>
+    public virtual void Subset() => throw new NotSupportedException("This font does not support subsetting.");
+
+    /// <summary>Returns true if this font will be subset when embedded.</summary>
+    public virtual bool WillBeSubset() => false;
 
     public virtual bool IsDamaged() => false;
 

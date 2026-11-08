@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDPageContentStream.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: 56575fd583792844b6bd182d67739d26568b1d01
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -157,6 +157,10 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
     public void SetFont(PDFont font, float fontSize)
     {
         ArgumentNullException.ThrowIfNull(font);
+        if (font.WillBeSubset())
+        {
+            _document.AddFontForSubsetting(font);
+        }
         _currentFont = font;
         _currentFontSize = fontSize;
         PDResources resources = GetAndEnsureResources();
@@ -315,6 +319,13 @@ public sealed class PDPageContentStream : ContentStreamForGlyphLayoutInterface, 
 
     private COSString EncodeText(string text)
     {
+        if (_currentFont?.WillBeSubset() == true)
+        {
+            foreach (System.Text.Rune codePoint in text.EnumerateRunes())
+            {
+                _currentFont.AddToSubset(codePoint.Value);
+            }
+        }
         return _currentFont is PDSimpleFont
             ? new COSString(_currentFont.Encode(text))
             : new COSString(text);

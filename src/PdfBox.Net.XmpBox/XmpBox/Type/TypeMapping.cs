@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/TypeMapping.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -120,7 +120,7 @@ public sealed class TypeMapping
         return null;
     }
 
-    public AbstractStructuredType InstanciateStructuredType(Types type, string propertyName)
+    public AbstractStructuredType InstantiateStructuredType(Types type, string propertyName)
     {
         try
         {
@@ -139,12 +139,12 @@ public sealed class TypeMapping
         }
     }
 
-    public AbstractStructuredType InstanciateDefinedType(string propertyName, string namespaceUri)
+    public AbstractStructuredType InstantiateDefinedType(string propertyName, string namespaceUri)
     {
         return new DefinedStructuredType(metadata, namespaceUri, null, propertyName);
     }
 
-    public AbstractSimpleProperty InstanciateSimpleProperty(string? nsuri, string? prefix, string name, object value, Types type)
+    public AbstractSimpleProperty InstantiateSimpleProperty(string? nsuri, string? prefix, string name, object value, Types type)
     {
         if (type.ImplementingClass is null)
         {
@@ -161,7 +161,7 @@ public sealed class TypeMapping
         }
     }
 
-    public AbstractSimpleProperty InstanciateSimpleField(SystemType clz, string? nsuri, string? prefix, string propertyName, object value)
+    public AbstractSimpleProperty InstantiateSimpleField(SystemType clz, string? nsuri, string? prefix, string propertyName, object value)
     {
         PropertiesDescription pm = InitializePropMapping(clz);
         PropertyTypeAttribute? simpleType = pm.GetPropertyType(propertyName);
@@ -170,7 +170,7 @@ public sealed class TypeMapping
             throw new ArgumentException($"Unknown property '{propertyName}' on {clz.FullName}", nameof(propertyName));
         }
 
-        return InstanciateSimpleProperty(nsuri, prefix, propertyName, value, simpleType.Type);
+        return InstantiateSimpleProperty(nsuri, prefix, propertyName, value, simpleType.Type);
     }
 
     public bool IsStructuredTypeNamespace(string namespaceUri)

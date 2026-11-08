@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: adapted
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -94,7 +94,7 @@ public abstract partial class AbstractStructuredType : AbstractComplexProperty
     protected void AddSimpleProperty(string propertyName, object value)
     {
         TypeMapping tm = GetMetadata().GetTypeMapping();
-        AbstractSimpleProperty asp = tm.InstanciateSimpleField(GetType(), null, GetPrefix(), propertyName, value);
+        AbstractSimpleProperty asp = tm.InstantiateSimpleField(GetType(), null, GetPrefix(), propertyName, value);
         AddProperty(asp);
     }
 

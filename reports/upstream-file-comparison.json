@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-11-01T21:05:53.084Z",
+  "generated_at_utc": "2026-11-08T21:21:31.535Z",
   "upstream_repository": "apache/pdfbox",
   "upstream_branch": "trunk",
   "excluded_upstream_modules": [
@@ -8,16 +8,16 @@
   "excluded_upstream_module_counts": {
     "pdfbox-layout-fop": 4
   },
-  "upstream_head": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
-  "tracked_parity_baseline_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+  "upstream_head": "5b8f299279455a437488cf47ea67139a85a3b75f",
+  "tracked_parity_baseline_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
   "canonical_mapping_method": "mapped = provenance(PDFBOX_SOURCE_PATH) UNION traceability(source_path)",
   "total": 1091,
   "mapped": 1091,
   "missing": 0,
   "gap_category_counts": {
     "missing-provenance-marker": 1,
-    "missing-traceability-row": 209,
-    "none": 881
+    "missing-traceability-row": 208,
+    "none": 882
   },
   "rows": [
     {
@@ -19009,16 +19009,19 @@
       "family": "text",
       "mapped": true,
       "mapping_sources": [
-        "provenance"
+        "provenance",
+        "traceability"
       ],
       "provenance_target_paths": [
         "src/PdfBox.Net/Text/PDFMarkedContentExtractor.cs"
       ],
-      "traceability_target_paths": [],
+      "traceability_target_paths": [
+        "src/PdfBox.Net/Text/PDFMarkedContentExtractor.cs"
+      ],
       "target_paths": [
         "src/PdfBox.Net/Text/PDFMarkedContentExtractor.cs"
       ],
-      "gap_category": "missing-traceability-row"
+      "gap_category": "none"
     },
     {
       "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java",

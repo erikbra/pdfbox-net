@@ -1,0 +1,670 @@
+{
+  "issue": 966,
+  "upstream_repository": "apache/pdfbox",
+  "previous_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+  "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+  "last_checked_utc": "2026-11-08T21:21:31Z",
+  "upstream_commits_reviewed": 27,
+  "changed_paths": 33,
+  "status_counts": {
+    "in-sync": 33
+  },
+  "rows": [
+    {
+      "source_path": "parent/pom.xml",
+      "target_path": null,
+      "target_paths": [],
+      "previous_sync_commit": null,
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "java-only",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Maven enforcer 3.7.0 is Java-only build tooling; no .NET counterpart or dependency update is needed.",
+      "sync_note": "Maven enforcer 3.7.0 is Java-only build tooling; no .NET counterpart or dependency update is needed.",
+      "upstream_test_parity": "not-applicable"
+    },
+    {
+      "source_path": "pdfbox/pom.xml",
+      "target_path": null,
+      "target_paths": [],
+      "previous_sync_commit": null,
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "java-only",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Byte Buddy 1.18.17 is Java-only test mocking tooling; no .NET dependency update is needed.",
+      "sync_note": "Byte Buddy 1.18.17 is Java-only test mocking tooling; no .NET dependency update is needed.",
+      "upstream_test_parity": "not-applicable"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/cos/COSName.java",
+      "target_path": "src/PdfBox.Net/COS/COSName.cs",
+      "target_paths": [
+        "src/PdfBox.Net/COS/COSName.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "mechanical",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Adds the upstream Stm name constant used by marked-content references.",
+      "sync_note": "Adds the upstream Stm name constant used by marked-content references.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/filter/Predictor.java",
+      "target_path": "src/PdfBox.Net/Filter/Predictor.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Filter/Predictor.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Rejects nonpositive calculated predictor rows with IOException; removes the prior Columns clamp that silently accepted Columns 0. Checked row-size arithmetic and row limit adaptation remain.",
+      "sync_note": "Rejects nonpositive calculated predictor rows with IOException; removes the prior Columns clamp that silently accepted Columns 0. Checked row-size arithmetic and row limit adaptation remain.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/COSParser.java",
+      "target_path": "src/PdfBox.Net/PdfParser/COSParser.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/COSParser.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "The upstream removed redundant decryption IOException catch is absent in the adapted parser. Existing catches add dictionary/array diagnostics and remain required.",
+      "sync_note": "The upstream removed redundant decryption IOException catch is absent in the adapted parser. Existing catches add dictionary/array diagnostics and remain required.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdfparser/XrefParser.java",
+      "target_path": "src/PdfBox.Net/PdfParser/XrefParser.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PdfParser/XrefParser.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java-only removal of checked exception declarations; C# already has unchecked exceptions and no obsolete throws documentation in this scope.",
+      "sync_note": "Java-only removal of checked exception declarations; C# already has unchecked exceptions and no obsolete throws documentation in this scope.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDAbstractContentStream.java",
+      "target_path": "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDAbstractContentStream.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "The adapted base writes font resource names without document ownership. Font-object selection lives in PDPageContentStream; that writer now uses validated AddFontForSubsetting. Other writer ownership/API limitations remain unchanged.",
+      "sync_note": "The adapted base writes font resource names without document ownership. Font-object selection lives in PDPageContentStream; that writer now uses validated AddFontForSubsetting. Other writer ownership/API limitations remain unchanged.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/PDDocument.java",
+      "target_path": "src/PdfBox.Net/PDModel/PDDocument.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/PDDocument.cs"
+      ],
+      "previous_sync_commit": "a2ca944312187dd809c4b203001d4b782fd5b0b0",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Adds public validated AddFontForSubsetting, deduplicated registration and save-time subset lifecycle. Required base PDFont hooks and page-writer registration/codepoint collection added. Existing PDType0Font full-font embedding remains explicit.",
+      "sync_note": "Adds public validated AddFontForSubsetting, deduplicated registration and save-time subset lifecycle. Required base PDFont hooks and page-writer registration/codepoint collection added. Existing PDType0Font full-font embedding remains explicit.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/common/filespecification/PDEmbeddedFile.java",
+      "target_path": "src/PdfBox.Net/PDModel/Common/FileSpecification/PDEmbeddedFile.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Common/FileSpecification/PDEmbeddedFile.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Removed Java checked date exceptions have no C# declaration/documentation counterpart; date accessors already match the updated behavior.",
+      "sync_note": "Removed Java checked date exceptions have no C# declaration/documentation counterpart; date accessors already match the updated behavior.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/documentinterchange/markedcontent/PDMarkedContent.java",
+      "target_path": "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDMarkedContent.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/DocumentInterchange/MarkedContent/PDMarkedContent.cs"
+      ],
+      "previous_sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Adds StructParent getter/setter/default -1, XML documentation and ToString value.",
+      "sync_note": "Adds StructParent getter/setter/default -1, XML documentation and ToString value.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/fdf/FDFAnnotation.java",
+      "target_path": "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Fdf/FDFAnnotation.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Removed Java checked creation-date exception has no C# declaration/documentation counterpart.",
+      "sync_note": "Removed Java checked creation-date exception has no C# declaration/documentation counterpart.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDCIDFont.java",
+      "target_path": "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDCIDFont.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java computeIfAbsent rewrite is behavior-preserving. Existing adapted CID width dictionary/direct lookup retained; no algorithm change or new parent overload is claimed.",
+      "sync_note": "Java computeIfAbsent rewrite is behavior-preserving. Existing adapted CID width dictionary/direct lookup retained; no algorithm change or new parent overload is claimed.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDFontFactory.java",
+      "target_path": "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDFontFactory.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java-only removal of checked exception declarations; no C# signature change is needed.",
+      "sync_note": "Java-only removal of checked exception declarations; no C# signature change is needed.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/font/PDType0Font.java",
+      "target_path": "src/PdfBox.Net/PDModel/Font/PDType0Font.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Font/PDType0Font.cs"
+      ],
+      "previous_sync_commit": "a9ae066a942c122c9dded9bfa1b08dfae4078ba4",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java-only removal of checked fetchCMapUCS2 exception declaration. The pre-existing documented full-font embedding adaptation remains; actual PDType0 subsetting is not claimed.",
+      "sync_note": "Java-only removal of checked fetchCMapUCS2 exception declaration. The pre-existing documented full-font embedding adaptation remains; actual PDType0 subsetting is not claimed.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/pdmodel/interactive/documentnavigation/destination/PDNamedDestination.java",
+      "target_path": "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDNamedDestination.cs",
+      "target_paths": [
+        "src/PdfBox.Net/PDModel/Interactive/DocumentNavigation/Destination/PDNamedDestination.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "mechanical",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Removed Java checked exception and import have no C# signature/documentation counterpart.",
+      "sync_note": "Removed Java checked exception and import have no C# signature/documentation counterpart.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFMarkedContentExtractor.java",
+      "target_path": "src/PdfBox.Net/Text/PDFMarkedContentExtractor.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Text/PDFMarkedContentExtractor.cs"
+      ],
+      "previous_sync_commit": "aba442860ed4f9f99f9e52e78e34bb23570c2390",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Captures page/form/transparency/annotation/Type3 container keys and restores/reset them as upstream specifies. Adds actual nested form traversal and upstream depth limit, supported by narrow base-engine child-stream hooks and rendering dispatch integration. Annotation/Type3 automatic entry-point traversal remains a pre-existing limitation; their hooks are exercised directly.",
+      "sync_note": "Captures page/form/transparency/annotation/Type3 container keys and restores/reset them as upstream specifies. Adds actual nested form traversal and upstream depth limit, supported by narrow base-engine child-stream hooks and rendering dispatch integration. Annotation/Type3 automatic entry-point traversal remains a pre-existing limitation; their hooks are exercised directly.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripper.java",
+      "target_path": "src/PdfBox.Net/Text/PDFTextStripper.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Text/PDFTextStripper.cs"
+      ],
+      "previous_sync_commit": "5206dee5bfe0f435609f6506e3fccccbc46a95cc",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "mechanical",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Word separator uses singleton identity instead of null text-position state.",
+      "sync_note": "Word separator uses singleton identity instead of null text-position state.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/main/java/org/apache/pdfbox/text/PDFTextStripperByArea.java",
+      "target_path": "src/PdfBox.Net/Text/PDFTextStripperByArea.cs",
+      "target_paths": [
+        "src/PdfBox.Net/Text/PDFTextStripperByArea.cs"
+      ],
+      "previous_sync_commit": "046747da99a870902217efabf1c41297de157059",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "mechanical",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java-only removal of constructor checked exception; no C# signature/documentation counterpart.",
+      "sync_note": "Java-only removal of constructor checked exception; no C# signature/documentation counterpart.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/filter/PredictorTest.java",
+      "target_path": "tests/PdfBox.Net.Tests/Issue966UpstreamSyncTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue966UpstreamSyncTest.cs"
+      ],
+      "previous_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Converts the new nonpositive-row regression through the public FlateFilter path, with additional PNG and zero-bit cases.",
+      "sync_note": "Converts the new nonpositive-row regression through the public FlateFilter path, with additional PNG and zero-bit cases.",
+      "upstream_test_parity": "converted focused deltas; existing full-suite gaps deferred"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/multipdf/PDFMergerUtilityTest.java",
+      "target_path": "tests/PdfBox.Net.Tests/Issue966UpstreamSyncTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue966UpstreamSyncTest.cs"
+      ],
+      "previous_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Converts new recursive (StructParent, MCID) ParentTree validation, page-versus-form MCR/Stm identity and form-key checks against exact original and twice-merged octopdf fixture. Older pre-existing merger-suite gaps remain deferred.",
+      "sync_note": "Converts new recursive (StructParent, MCID) ParentTree validation, page-versus-form MCR/Stm identity and form-key checks against exact original and twice-merged octopdf fixture. Older pre-existing merger-suite gaps remain deferred.",
+      "upstream_test_parity": "converted focused deltas; existing full-suite gaps deferred"
+    },
+    {
+      "source_path": "pdfbox/src/test/java/org/apache/pdfbox/pdfparser/TestCOSParser.java",
+      "target_path": "tests/PdfBox.Net.Tests/Issue957CoreTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.Tests/Issue957CoreTest.cs"
+      ],
+      "previous_sync_commit": null,
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java local array initializer simplification only; existing native parser regressions retained without syntax-only churn.",
+      "sync_note": "Java local array initializer simplification only; existing native parser regressions retained without syntax-only churn.",
+      "upstream_test_parity": "converted focused deltas; existing full-suite gaps deferred"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PDFAIdentificationSchema.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAIdentificationSchema.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/PDFAIdentificationSchema.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "sync_note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/PhotoshopSchema.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/PhotoshopSchema.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/PhotoshopSchema.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "sync_note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPBasicSchema.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicSchema.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPBasicSchema.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "sync_note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPMediaManagementSchema.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPMediaManagementSchema.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPMediaManagementSchema.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "sync_note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPRightsManagementSchema.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPRightsManagementSchema.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPRightsManagementSchema.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "sync_note": "Java changes only rename internal instantiate helper calls. Adapted schema setters already use XML-backed typed helpers, so no stale call requires replacement; existing schema round-trip tests retained.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/schema/XMPSchema.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Schema/XMPSchema.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Adds protected upstream-shaped InstantiateSimple helper forwarding to corrected TypeMapping API; adapted XML-backed schema setters remain.",
+      "sync_note": "Adds protected upstream-shaped InstantiateSimple helper forwarding to corrected TypeMapping API; adapted XML-backed schema setters remain.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/AbstractStructuredType.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractStructuredType.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/AbstractStructuredType.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Uses corrected InstantiateSimpleField spelling.",
+      "sync_note": "Uses corrected InstantiateSimpleField spelling.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/ResourceRefType.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/ResourceRefType.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/ResourceRefType.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "mechanical",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "none",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Uses corrected InstantiateSimpleProperty spelling.",
+      "sync_note": "Uses corrected InstantiateSimpleProperty spelling.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/type/TypeMapping.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Type/TypeMapping.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Type/TypeMapping.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Renames the four public Instanciate methods to upstream Instantiate spellings and updates all mapped callers/tests.",
+      "sync_note": "Renames the four public Instanciate methods to upstream Instantiate spellings and updates all mapped callers/tests.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/main/java/org/apache/xmpbox/xml/DomXmpParser.java",
+      "target_path": "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs",
+      "target_paths": [
+        "src/PdfBox.Net.XmpBox/XmpBox/Xml/DomXmpParser.cs"
+      ],
+      "previous_sync_commit": "ccd281cfecedcc0ad39709bece5e67b19a54e8db",
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Existing adapted parser constructs and validates XML directly without the renamed Java helpers; no obsolete spelling remains in this parser.",
+      "sync_note": "Existing adapted parser constructs and validates XML directly without the renamed Java helpers; no obsolete spelling remains in this parser.",
+      "upstream_test_parity": "existing suites and focused issue966 regressions; see assessment"
+    },
+    {
+      "source_path": "xmpbox/src/test/java/org/apache/xmpbox/schema/SchemaTester.java",
+      "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs"
+      ],
+      "previous_sync_commit": null,
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Native XmpTypeTest exercises corrected simple-field/property/structured/defined construction. The older full Java reflection-based schema harness remains deferred under the existing XML-backed XmpBox adaptation.",
+      "sync_note": "Native XmpTypeTest exercises corrected simple-field/property/structured/defined construction. The older full Java reflection-based schema harness remains deferred under the existing XML-backed XmpBox adaptation.",
+      "upstream_test_parity": "converted focused deltas; existing full-suite gaps deferred"
+    },
+    {
+      "source_path": "xmpbox/src/test/java/org/apache/xmpbox/type/TestDerivedType.java",
+      "target_path": "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs",
+      "target_paths": [
+        "tests/PdfBox.Net.XmpBox.Tests/XmpTypeTest.cs"
+      ],
+      "previous_sync_commit": null,
+      "new_sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "source_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "sync_commit": "5b8f299279455a437488cf47ea67139a85a3b75f",
+      "port_mode": "adapted",
+      "status": "in-sync",
+      "result_status": "in-sync",
+      "conflict_type": "semantic-divergence",
+      "local_region_count": 0,
+      "last_checked_utc": "2026-11-08T21:21:31Z",
+      "note": "Native XmpTypeTest exercises the corrected construction API; the upstream test-local instanciate helper has no C# counterpart. Existing full reflection-driven derived-type matrix remains deferred.",
+      "sync_note": "Native XmpTypeTest exercises the corrected construction API; the upstream test-local instanciate helper has no C# counterpart. Existing full reflection-driven derived-type matrix remains deferred.",
+      "upstream_test_parity": "converted focused deltas; existing full-suite gaps deferred"
+    }
+  ]
+}

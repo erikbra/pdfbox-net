@@ -5,7 +5,7 @@
  * PDFBOX_SOURCE_PATH: xmpbox/src/main/java/org/apache/xmpbox/type/ResourceRefType.java
  * PDFBOX_SOURCE_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
  * PORT_MODE: mechanical
- * PORT_LAST_SYNC_COMMIT: ccd281cfecedcc0ad39709bece5e67b19a54e8db
+ * PORT_LAST_SYNC_COMMIT: 5b8f299279455a437488cf47ea67139a85a3b75f
  */
 
 /*
@@ -124,7 +124,7 @@ public partial class ResourceRefType : AbstractStructuredType
         }
 
         TypeMapping tm = GetMetadata().GetTypeMapping();
-        TextType tt = (TextType)tm.InstanciateSimpleProperty(null, XmpConstants.DefaultRdfPrefix, XmpConstants.ListName, value, Types.Text);
+        TextType tt = (TextType)tm.InstantiateSimpleProperty(null, XmpConstants.DefaultRdfPrefix, XmpConstants.ListName, value, Types.Text);
         seq.AddProperty(tt);
     }
 
